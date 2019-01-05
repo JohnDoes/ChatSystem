@@ -1,0 +1,1512 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <style type="text/css">
+
+    #your_container{
+        /* 高さや幅など、好きな様に設定
+        bms_messages_containerの方で、縦横いっぱいに広がってくれるので、
+        ここで充てた高さと横幅がそのままスタイルになる仕組み */
+
+        height:80%;/*ここはご自由に*/
+        width: 100%;/*ここはご自由に*/
+    }
+    /* チャットの外側部分① */
+    #bms_messages_container{
+        height: 100%;/*your_containerに対して100%になる */
+        width: 100%;/*your_containerに対して100%になる */
+        background-color: #eee;
+    }
+
+    /* ヘッダー部分② */
+    #bms_chat_header {
+        padding: 6px;/*隙間調整*/
+        font-size: 16px;
+        height: 50px;
+        background: #ddd;
+        border: 1px solid #ccc;
+    }
+        /* ステータスマークとユーザー名 */
+        #bms_chat_user_status {
+            float: left;/* bms_chat_headerに対して左寄せ */
+        }
+        /* ステータスマーク */
+        #bms_status_icon {
+            float: left;/* bms_chat_user_statusに対して左寄せ */
+            line-height: 2em;/*高さ調整*/
+        }
+        /* ユーザー名 */
+        .bms_chat_user_name {
+            float: left;/* bms_chat_user_statusに対して左寄せ */
+            line-height: 2em;/*高さ調整*/
+            padding-left: 8px;
+        }
+
+    /* タイムライン部分③ */
+    #bms_messages {
+        overflow: auto;/* スクロールを効かせつつ、メッセージがタイムラインの外に出ないようにする */
+        height:100%;/*テキストエリアが下に張り付く様にする*/
+        border-right: 1px solid #ddd;
+        border-left: 1px solid #ddd;
+        background-color: #eee;
+        box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2) inset;/*ヘッダーの下に影を入れる*/
+    }
+        /* メッセージ全般のスタイル */
+        .bms_message {
+            margin: 0px;
+            padding: 0 14px;/*吹き出しがタイムラインの側面にひっつかない様に隙間を開ける*/
+            font-size: 16px;
+            word-wrap: break-word;/* 吹き出し内で自動で改行 */
+            white-space: normal;/*指定widthに合わせて、文字を自動的に改行*/
+        }
+
+        /*
+            *追加
+            */
+            .bms_message_box{
+                margin-top: 20px;/*上下の吹き出しがひっつかない様に隙間を入れる*/
+                max-width: 100%;/*文字が長くなった時に吹き出しがタイムラインからはみ出さない様にする*/
+                font-size: 16px;
+            }
+                /*
+                *追加
+                */
+                .bms_message_content{
+                    padding: 20px;/*文字や画像（コンテンツ）の外側に隙間を入れる*/
+                }
+        
+        /* メッセージ１（左側） */
+        .bms_left {
+            float: left;/*吹き出しをbms_messagesに対して左寄せ*/
+            line-height: 1.3em;
+        }
+
+            /*
+                *追加
+                */
+                .bms_left .bms_message_box {
+                    color: #333;/*テキストを黒にする*/
+                    background: #fff;
+                    border: 2px solid #13178E;
+                    border-radius: 30px 30px 30px 0px;/*左下だけ尖らせて吹き出し感を出す*/
+                    margin-right: 50px;/*左側の発言だとわかる様に、吹き出し右側に隙間を入れる*/
+                }
+        
+        /* メッセージ２（右側） */
+        .bms_right {
+            float: right;/*吹き出しをbms_messagesに対して右寄せ*/
+            line-height: 1.3em;
+        }
+
+            /*
+                *追加
+                */
+                .bms_right .bms_message_box {
+                    color: #fff;/*テキストを白にする*/
+                    background: #13178E;
+                    border: 2px solid #13178E;
+                    border-radius: 30px 30px 0px 30px;/*右下だけ尖らせて吹き出し感を出す*/
+                    margin-left: 50px;/*右側の発言だとわかる様に、吹き出し左側に隙間を入れる*/
+                }
+
+        /* 回り込みを解除 */
+        .bms_clear {
+            clear: both; /* 左メッセージと右メッセージの回り込み(float)の効果の干渉を防ぐために必要（これが無いと、自分より下のメッセージにfloatが影響する） */
+
+        }
+
+    /* テキストエリア、送信ボタン④ */
+    #bms_send {
+        background-color:#eee;/*タイムラインの色と同じにする*/
+        border-right: 1px solid #ddd;
+        border-left: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        height: 70px;
+        padding: 4px;
+    }
+        #bms_send_message{
+            width: calc(100% - 75px);/*常に送信ボタンの横幅を引いたサイズに動的に計算*/
+            line-height: 16px;
+            height: 48px;
+            padding: 14px 6px 0px 6px;/*文字がテキストエリアの中心になる様に隙間調整*/
+            border: 1px solid #ccc;
+            border-radius: 4px;/*角丸*/
+            text-align: left;/*文字を左寄せ*/
+            box-shadow: 2px 2px 4px 0px rgba(0,0,0,0.2) inset;/*内側に影を入れてテキストエリアらしくした*/
+            box-sizing: border-box;/*paddingとborderの要素の高さと幅の影響をなくす（要素に高さと幅を含める）*/
+
+        }
+        #bms_send_btn {
+            width: 72px;
+            height: 48px;
+            font-size: 16px;
+            line-height: 3em;
+            float: right;/*bms_sendに対して右寄せ*/
+            color: #fff;
+            font-weight: bold;
+            background: #bcbcbc;
+            text-align: center;/*文字をボタン中央に表示*/
+            border: 1px solid #bbb;
+            border-radius: 4px;/*角丸*/
+            box-sizing: border-box;/*paddingとborderの要素の高さと幅の影響をなくす（要素に高さと幅を含める）*/
+        }
+        #bms_send_btn:hover {
+            background: #13178E; /*マウスポインタを当てた時にアクティブな色になる*/
+            cursor: pointer;/*マウスポインタを当てた時に、カーソルが指の形になる*/
+        }    
+
+        /*メニューボタンデザイン*/
+        .menu_button {
+        border-top: 1px solid #6ec7ff;
+        background: #C0D860;
+        background: -webkit-gradient(linear, left top, left bottom, from(#c0e7f3), to(#91DBB9));
+        background: -webkit-linear-gradient(top, #c0e7f3, #91DBB9);
+        background: -moz-linear-gradient(top, #c0e7f3, #91DBB9);
+        background: -ms-linear-gradient(top, #c0e7f3, #91DBB9);
+        background: -o-linear-gradient(top, #c0e7f3, #91DBB9);
+        padding: 13px 26px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;
+        -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+        -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+        box-shadow: rgba(0,0,0,1) 0 1px 0;
+        text-shadow: rgba(0,0,0,.4) 0 1px 0;
+        color: #000000;
+        font-size: 18px;
+        font-family: Helvetica, Arial, Sans-Serif;
+        text-decoration: none;
+        vertical-align: middle;
+        }
+        .menu_button:active {
+        border-top-color: #0f5200;
+        background: #0f5200;
+        }
+
+        .menu_top_button {
+        border-top: 1px solid #6ec7ff;
+        background: #009250;
+        background: -webkit-gradient(linear, left top, left bottom, from(#c0e7f3), to(#C0D860));
+        background: -webkit-linear-gradient(top, #c0e7f3, #C0D860);
+        background: -moz-linear-gradient(top, #c0e7f3, #C0D860);
+        background: -ms-linear-gradient(top, #c0e7f3, #C0D860);
+        background: -o-linear-gradient(top, #c0e7f3, #C0D860);
+        padding: 13px 26px;
+        -webkit-border-radius: 14px;
+        -moz-border-radius: 14px;
+        border-radius: 14px;
+        -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+        -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+        box-shadow: rgba(0,0,0,1) 0 1px 0;
+        text-shadow: rgba(0,0,0,.4) 0 1px 0;
+        color: #000000;
+        font-size: 18px;
+        font-family: Helvetica, Arial, Sans-Serif;
+        text-decoration: none;
+        vertical-align: middle;
+        }
+        .menu_top_button:active {
+        border-top-color: #0f5200;
+        background: #0f5200;
+        }
+            
+    
+    </style>
+</head>
+<body style=" background-color: #EEF5D3;">
+    <div id="video_area" class="pure-g" style="height: 230px; margin-top: 0; padding-top:0; margin-right: 300px; overflow-x: scroll;">
+        <!-- Video area -->
+        <div class="pure-u-2-3" id="their-videos" style="display: inline-block; white-space: nowrap;">
+            <!--
+            <div style="display: inline-block; top: 0px; position: absolute;">
+                <div style="display: inline-block">
+                    <input type="button" value="audio mute" id="audio_switch" style="background-color: green; width: 80px; height: 80px; display: inline-block;" /><br />
+                </div>
+                <div style="position: relative;">
+                    <input type="button" value="video mute" id="video_switch" style="background-color: green; width: 80px; height: 80px; position: relative;" />
+                </div>
+            </div>
+            -->
+            <div id="self-container" style="display: inline-block; margin-left: 20px; height: 100%;">
+                <!--
+                <div id="self-video" style="display: inline-block;">
+                    <video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block;" autoplay></video>
+                </div>
+                <div id="self-name" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">
+                    あなた
+                </div>
+                -->
+                <div id="self-video" style="display: inline-block;">
+                </div> <br />
+                <div style="display: inline-block;">
+                    <input type="button" value="音声オフ" id="audio_switch" style="background-color: #BAD7B6; width: 100px; height: 25px; display: inline-block;" />
+                    <input type="button" value="ビデオオフ" id="video_switch" style="background-color: #BAD7B6; width: 100px; height: 25px; display: inline-block;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="menu_area" style="position: absolute; z-index: 20; top:250px; left:20px;">
+        <input type="button" class="menu_button" onclick="menuButton()" value="メニュー" style="height: 50px;" />
+        <!--
+        <div id="button_area" style="position: absolute; z-index: 10; display:none; top:250px; left:20px; right:300px; width:auto;">
+        -->
+        <div id="button_area" style="display: none; margin-right: 300px;">
+            <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_color').toggle();" value="色彩を変更" style="height: 50px;" />
+            <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_width').toggle();" value="太さを変更" style="height: 50px;" />
+            <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_erase').toggle();" value="描画の消去" style="height: 50px;" />
+            <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_image').toggle();" value="保存と共有" style="height: 50px;" />
+            <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_mode').toggle();" value="画面モード" style="height: 50px;" />
+        </div>
+        <div id="button_area_color" style="display: none; margin-right: 300px;">
+            <input type="button" class="menu_button" value="黒色" onClick="toBlack()" style="float: left; margin: 5px; height: 50px;"></input>
+            <input type="button" class="menu_button" value="赤色" onClick="toRed()" style="float: left; margin: 5px;  height: 50px;"></input>
+            <input type="button" class="menu_button" value="緑色" onClick="toGreen()" style="float: left; margin: 5px; height: 50px;"></input>
+            <input type="button" class="menu_button" value="青色" onClick="toBlue()" style="float: left; margin: 5px; height: 50px;"></input>
+            <input type="button" class="menu_button" value="白色" onClick="toErase()" style="float: left; margin: 5px; height: 50px;"></input>
+            <!--
+            <div style="float: left; margin: 5px;"><label>line-width:</label> <input type="number" id="bold" value="5" onChange="toChangeBold()" style="width: 60px;"></input><label>px</label></div>
+            -->
+        </div>
+        <div id="button_area_width" style="display: none; margin-right: 300px;">
+            <input type="button" class="menu_button" value="極細" onClick="toChangeBold(1)" style="float: left; margin: 5px; height: 50px;"></input>
+            <input type="button" class="menu_button" value="細筆" onClick="toChangeBold(5)" style="float: left; margin: 5px;  height: 50px;"></input>
+            <input type="button" class="menu_button" value="太筆" onClick="toChangeBold(10)" style="float: left; margin: 5px; height: 50px;"></input>
+            <input type="button" class="menu_button" value="極太" onClick="toChangeBold(20)" style="float: left; margin: 5px; height: 50px;"></input>
+            <input type="button" class="menu_button" value="塗筆" onClick="toChangeBold(50)" style="float: left; margin: 5px; height: 50px;"></input>
+        </div>
+        <div id="button_area_erase" style="display: none; margin-right: 300px;">
+            <input type="button" class="menu_button" value="全消去" onClick="toEraseAll()" style="float: left; margin: 5px; height: 50px;"></input>
+        </div>
+        <div id="button_area_image" style="display: none; margin-right: 300px;">
+            <input type="button" class="menu_button" value="ダウンロード" onClick="toPicture()" style="float: left; margin: 5px; height: 50px;"></input>
+            <input type="button" class="menu_button" id="board" value="チャットで送信" onclick="toChat()" style="float: left; margin: 5px; height: 50px;"></input>
+            <div class="upload" style="float: left; margin: 5px;"><input type="file" name="file" id="file" accept="image/*"></div>
+        </div>
+        <div id="button_area_mode" style="display: none; margin-right: 300px;">
+            <input type="button" class="menu_button" id="canvas_mode" value="手描きモード" onclick= "canvasMode()" style="float: left; margin: 5px;  height: 50px;"></input>
+            <input type="button" class="menu_button" id="video_mode" value="ビデオモード" onclick= "videoMode()" style="float: left; margin: 5px;  height: 50px;"></input>
+            <input type="button" class="menu_button" id="chat_mode" value="チャットモード" onclick= "chatMode()" style="float: left; margin: 5px;  height: 50px;"></input>
+            <input type="button" class="menu_button" id="all_mode" value="全てを表示" onclick="allMode()" style="float: left; margin: 5px; height: 50px;"></input>
+        </div>
+    </div>
+    <div id="canvas_area" style="position: absolute; top:240px; right:300px; left: 0px; bottom: 10px;">
+        <canvas id="myCanvas" style="background-color: #ffffe0; "></canvas>
+        <canvas id="back" style="display: none;"></canvas>
+    </div>
+    <div id="chat_area" style="position: absolute; top: 0px; right: 0px; height: 100%; width: 300px;">
+        <div id="your_container">
+
+            <div id="bms_messages_container">
+                <div id="bms_chat_header">
+                    <div id="bms_chat_user_status">
+                        <div id="bms_status_icon">●</div>
+                        <input type="text" id="myNameForm" class="bms_chat_user_name" value="あなた" onchange="changeName();" />
+                    </div>
+                </div>
+
+                <div id="bms_messages">
+<!--
+                    <div class="bms_message bms_left">
+                        <div class="bms_message_box">
+                            <div class="bms_message_content">
+                                <div class="bms_message_text">ほうほうこりゃー便利じゃないか</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bms_clear"></div>
+
+                    <div class="bms_message bms_right">
+                        <div class="bms_message_box">
+                            <div class="bms_message_content">
+                                <div class="bms_message_text">うん、まあまあいけとるな</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bms_clear"></div>
+-->
+                </div>
+
+                <div id="bms_send">
+                    <input type="file" name="thumfile" id="thum_file" accept="image/*"><br />
+                    <textarea id="bms_send_message"  onClick="bkCanvas()" ></textarea>
+                    <div id="bms_send_btn" onClick="recoverCanvas()">送信</div>
+                </div>
+            </div>
+        </div>
+
+        <!--
+        <div style="position: absolute; top: 0px; right: 0px; height:50px; width:100%; padding:auto;"><label>Your name is : </label><input type="text" id="myNameForm" style="width:auto;" value="あなた" onchange="changeName();" /></div>
+        <div id="chatbox" style="position: absolute; top: 55px; right: 0px; bottom: 120px; width: 100%; height: auto; overflow: auto; border: 3px solid;">
+            <div id="chatLogs" style="width: 100%; height:100%;">
+                <div style='border-bottom: solid 1px; width: 100%; word-break:break-all; display: none;'>
+                    <p style='font-size:12px; height: 14px;'></p>
+                    <canvas id = 'thum_0' width = '150' height = '150'></canvas><br />
+                    <input type = 'button' class = '0' value = 'download' onClick = 'downloadThum(this)'></input>
+                    <input type = 'button' class = '0' value = 'toBoard' onClick = 'toBoard(this)'></input>
+                </div>
+            </div>
+        </div>
+        <form style="position: absolute; bottom: 0px; right: 0px; width: 100%; height:120px;">  
+            <div class="upload" style="float: left; margin: 5px; height: 50px;"><input type="file" name="thumfile" id="thum_file" style="height: 50px;" accept="image/*"></div><br />
+            <textarea id="msgForm" style="float:left; width: auto; height:50px;"  onClick="bkCanvas()"></textarea>
+            <button id="submitMsg" type="submit" style="float:left; width: 50px; height: 50px;" onClick="recoverCanvas()">send</button>
+        </form>
+    
+        -->
+    </div>
+    
+    <script>
+        var socket = io.connect();
+        var path = location.pathname ;
+        var roomName = path.slice(1);
+        console.log(roomName);
+        socket.emit("join", {value: roomName});
+
+        var aud = true;
+        var vid = true;
+        var size = "small";
+        var videoTrack;
+        var audioTrack;
+        var thumb = 1;
+        var bk_canvas, ctx, canvas, context, base64, bkData;
+
+        /*
+        var ww = window.innerWidth - 300;
+        var wh = window.innerHeight - 220;
+        document.getElementById("canvas_area").style.width = ww;
+        document.getElementById("canvas_area").style.height = wh;
+        */
+        $("#myCanvas").attr({height:$("#canvas_area").height()});
+        $("#myCanvas").attr({width:$("#canvas_area").width()});
+
+        var myName = Math.floor(Math.random()*100) + "さん";
+        document.getElementById("myNameForm").value = myName;
+
+        $(window).on("orientationchange resize load", function(){
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            var base64 = canvas.toDataURL("image/png");
+            context.imageSmoothingQuality = "high";
+            $("#myCanvas").attr({width:$("#canvas_area").width()});
+            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            var cw = canvas.offsetWidth + 500;
+            var ch = canvas.offsetHeight + 500;
+            context.fillStyle = "#ffffe0";
+            context.fillRect(0, 0, cw, ch);
+            var bkData = new Image();
+            bkData.onload = function() {
+                context.drawImage(bkData, 0, 0, canvas.width, canvas.height);
+            }
+            bkData.src = base64;
+            /*
+           $("#chat_area").append('<canvas id="back" style="display: none;"></canvas>');
+            var bk_canvas = document.getElementById("back");
+            var ctx = bk_canvas.getContext('2d');
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            context.imageSmoothingQuality = "high";
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(canvas, 0 , 0, bk_canvas.width, bk_canvas.height);
+			//var can_img = context.getImageData(0, 0, canvas.width, canvas.height);
+            $("#myCanvas").attr({width:$("#canvas_area").width()});
+            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            //canvas.getContext('2d').putImageData(can_img, 0, 0, canvas.width, canvas.height);
+            context.drawImage(bk_canvas, 0, 0, canvas.width, canvas.height);
+            $("#back").remove();
+            */
+        });
+
+        var sx, sy, ex, ey, rsx, rsy, rex, rey;
+        var color = "rgb(0,0,0)";
+        var bold = 5;
+        var canvas = document.getElementById("myCanvas");
+        var context = canvas.getContext('2d');
+        var touching = false;
+        var mouse = false;
+        var cw = canvas.offsetWidth + 500;
+        var ch = canvas.offsetHeight + 500;
+        context.fillStyle = "#ffffe0";
+        context.fillRect(0, 0, cw, ch);
+        var position = [];
+        
+        //Write
+		/*
+		socket.on('wColor', function(data) {
+		    context.strokeStyle = data.value;
+		});
+		socket.on('wBold', function(data) {
+		    context.lineWidth = data.value;
+		});
+		*/
+        socket.on('posit', function (data) {
+            var cvw = document.getElementById("myCanvas").width;
+            var cvh = document.getElementById("myCanvas").height;
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            context.beginPath();
+            context.lineCap = "round";
+		    context.strokeStyle = data[4];
+		    context.lineWidth = data[5];
+            context.moveTo(data[0]*cvw, data[1]*cvh);
+            context.lineTo(data[2]*cvw, data[3]*cvh);
+            context.stroke();
+        });
+
+        //EraseAll
+        socket.on('eraseAll', function (data) {
+            $("#myCanvas").attr({width:$("#canvas_area").width()});
+            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            var cw = canvas.offsetWidth + 500;
+            var ch = canvas.offsetHeight + 500;
+            context.fillStyle = "#ffffe0";
+            context.fillRect(0, 0, cw, ch);
+            /*
+            var ww = $(window).width()-300;
+            var wh = $(window).height()-220;
+            $('#myCanvas').attr('width', ww);
+            $('#myCanvas').attr('height', wh);
+            */
+        });
+
+
+
+
+
+        //タッチスタート
+        canvas.addEventListener("touchstart", onTouchStart, false);
+        function onTouchStart(e) {
+            if(touches.length == 1) {
+                e.preventDefault();
+                console.log("タッチスタート");
+                var touch = e.changedTouches[0];
+                var rect = e.target.getBoundingClientRect();
+                sx = touch.clientX - rect.left;
+                sy = touch.clientY - rect.top;
+                console.log(sx);
+                console.log(sy);
+                touching = true;
+            }
+        }
+        
+            //タッチムーブ
+        canvas.addEventListener("touchmove", onTouchMove, false);
+        function onTouchMove(e) {
+            if(touches.length == 1) {
+                e.preventDefault();
+                console.log("タッチムーブ");
+                var touch = e.changedTouches[0];
+                var cvw = document.getElementById("myCanvas").width;
+                var cvh = document.getElementById("myCanvas").height;
+                var rect = e.target.getBoundingClientRect();
+                ex = touch.clientX - rect.left;
+                ey = touch.clientY - rect.top;
+                console.log(sx);
+                console.log(sy);
+                console.log(ex);
+                console.log(ey);
+                rsx = sx / cvw;
+                rsy = sy / cvh;
+                rex = ex / cvw;
+                rey = ey / cvh; 
+                position = [rsx, rsy, rex, rey, color, bold];
+                if (touching === true) {
+                    socket.emit('pos', { value: position , id: roomName});
+                    sx = ex;
+                    sy = ey;
+                    position = [];
+                }
+            }
+        }
+
+        canvas.addEventListener("touchend", onTouchEnd, false);
+        function onTouchEnd(e) {
+            if(touches.length == 1) {
+                e.preventDefault();
+                console.log("タッチエンド");
+                console.log(sx);
+                console.log(sy);
+                var touch = e.changedTouches[0];
+                touching = false;
+            }
+        }
+
+
+        canvas.addEventListener("mousedown", onMouseDown, false);
+        function onMouseDown(e) {
+            console.log("マウスダウン");
+            　var rect = event.target.getBoundingClientRect();
+            sx = event.clientX - rect.left;
+            sy = event.clientY - rect.top;
+            mouse = true;
+        }
+
+        canvas.addEventListener("mousemove", onMouseMove, false);
+        function onMouseMove(e) {
+            console.log("マウスムーブ");
+            var cvw = document.getElementById("myCanvas").width;
+            var cvh = document.getElementById("myCanvas").height;
+            　var rect = event.target.getBoundingClientRect();
+            ex = event.clientX - rect.left;
+            ey = event.clientY - rect.top;
+            rsx = sx / cvw;
+            rsy = sy / cvh;
+            rex = ex / cvw;
+            rey = ey / cvh; 
+            position = [rsx, rsy, rex, rey, color, bold];
+            if (mouse === true) {
+                socket.emit('pos', { value: position, id: roomName });
+            }
+            sx = ex;
+            sy = ey;
+            position = [];
+        }
+
+        canvas.addEventListener("mouseup", onMouseUp, false);
+        function onMouseUp(e) {
+            console.log("マウスアップ");
+            mouse = false;
+        }
+
+        function toBlack() {
+            color = "rgb(0,0,0)";
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+        function toRed() {
+            color = "rgb(255,0,0)";
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+        function toGreen() {
+            color = "rgb(0,255,0)";
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+        function toBlue() {
+            color = "rgb(0,0,255)";
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+        function toErase() {
+            color = "#ffffe0";
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+
+        var l;
+        function toChangeBold(l) {
+            bold = l;
+            //bold = document.getElementById("bold").value;
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+        function toPicture() {
+            var date = new Date();
+            var canvas = document.getElementById("myCanvas");
+            var fileName = date.getFullYear().toString()  + date.getDate().toString() + (date.getHours() + 1).toString() + date.getMinutes().toString() + date.getSeconds().toString() + ".png";
+            var base64 = canvas.toDataURL("image/png");
+            var blob = toBlob(base64);
+            saveBlob(blob, fileName);
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+        function toBlob(base64) {
+            var tmp = base64.split(',');
+            var data = atob(tmp[1]);
+            var mime = tmp[0].split(':')[1].split(';')[0];
+            var buf = new Uint8Array(data.length);
+            for (var i = 0; i < data.length; i++) {
+                buf[i] = data.charCodeAt(i);
+            }
+            var blob = new Blob([buf], { type: mime });
+            return blob;
+        }
+        function saveBlob(blob, fileName) {
+            var a = document.createElement('a');
+            a.download = fileName;
+            a.target = '_blank';
+
+            if (window.navigator.msSaveBlob) {
+                window.navigator.msSaveBlob(blob, fileName)
+            }
+            else if (window.URL && window.URL.createObjectURL) {
+                a.href = window.URL.createObjectURL(blob);
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+            else if (window.webkitURL && window.webkitURL.createObject) {
+                a.href = window.webkitURL.createObjectURL(blob);
+                a.click();
+            }
+            else {
+                window.open('data:' + mime + ';base64,' + window.Base64.encode(buf), '_blank');
+            }
+        }
+
+
+        function toEraseAll() {
+            var socket = io.connect();
+            socket.emit('erase', { value: true, id: roomName });
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+
+        }
+
+        function menuButton() {
+            $('#button_area').toggle();
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+
+
+
+//      text chat
+
+
+        socket.on("returnChat", function (data) {
+             appendMsg(data);
+             console.log(data);
+        });
+
+        function appendMsg(data) {
+            console.log(data.name);
+            if(data.name == myName) {
+                $("#bms_messages").append("<div class='bms_message bms_left'>" + 
+                                                "<div class='bms_message_box'>" + 
+                                                    "<div class='bms_message_content'>" + 
+                                                        "<div class='bms_message_text'>" + 
+                                                                data.name + ":" + "<br />" + 
+                                                                data.value + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                            "</div>" + 
+                                            "<div class='bms_clear'></div>");
+            }else {
+                $("#bms_messages").append("<div class='bms_message bms_right'>" + 
+                                                "<div class='bms_message_box'>" + 
+                                                    "<div class='bms_message_content'>" + 
+                                                        "<div class='bms_message_text'>" + 
+                                                                data.name + ":" + "<br />" + 
+                                                                data.value + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                            "</div>" + 
+                                            "<div class='bms_clear'></div>");
+            }
+            /*
+                <div class="bms_message bms_left">
+                    <div class="bms_message_box">
+                        <div class="bms_message_content">
+                            <div class="bms_message_text">ほうほうこりゃー便利じゃないか</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bms_clear"></div>
+
+                <div class="bms_message bms_right">
+                    <div class="bms_message_box">
+                        <div class="bms_message_content">
+                            <div class="bms_message_text">うん、まあまあいけとるな</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bms_clear"></div>
+            */
+            $('#bms_messages').animate({ scrollTop: $('#bms_messages')[0].scrollHeight }, 'fast');
+        }
+
+        $("#bms_send_btn").click(function (e) {
+            var message = $("#bms_send_message").val();
+            $("#bms_send_message").val('');
+            socket.emit("sendChat", { value: message, id: roomName, name: myName });
+            e.preventDefault();
+        });
+
+
+        function defName(){
+            myName = document.getElementById("myNameForm").value;         
+            socket.emit("sendReq", { id: roomName });
+        }
+        socket.on("returnReq", function(data) {
+            socket.emit("sendName", {id: roomName, tag: peer.id, name: myName});
+        });
+        socket.on("returnName", function(data) {
+            document.getElementById("name_" + data.tag).textContent = data.name;
+        });
+
+
+
+
+//      video chat
+        let localStream = null;
+        let peer = null;
+        let existingCall = null;
+        let room;
+        peer = new Peer({
+            key: '2647af86-51da-4e29-be21-abb6af7e1016',
+            debug: 3
+        });
+
+
+//        meshRoom = peer.joinRoom(roomName);
+        peer.on('open', function(){
+//            $('#self-container').append($(
+            $('#self-video').append($(
+                '<video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
+                    myName + 
+                '</div>'));
+                /*
+                '<div id="self-video" style="display: inline-block;">' + 
+                    '<video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline>' +
+                '</div>' + 
+                '<div style=" position: relative; display: inline-block;">' + 
+                    '<input type="button" value="audio" id="audio_switch" style="background-color: green; width: 100px; height: 25px; display: inline-block;" />' + 
+                    '<input type="button" value="video" id="video_switch" style="background-color: green; width: 100px; height: 25px; display: inline-block;" />' + 
+                '</div>'+
+                '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
+                    myName + 
+                '</div>'));
+                */
+                navigator.mediaDevices = navigator.mediaDevices || ((navigator.mozGetUserMedia || navigator.webkitGetUserMedia) ? {
+                    getUserMedia: function(c) {
+                        return new Promise(function(y, n) {
+                        (navigator.mozGetUserMedia ||
+                            navigator.webkitGetUserMedia).call(navigator, c, y, n);
+                        });
+                    }
+                } : null);
+
+                if (!navigator.mediaDevices) {
+                    console.log("getUserMedia() not supported.");
+                    return;
+                }
+                var constraints = { 
+                    video: { 
+                        frameRate: { ideal: 10, max: 30 }, 
+                        width: { min: 160, ideal: 640, max: 1920 }, 
+                        height: { min: 120, ideal: 480, max: 1080 }
+                    },  
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }};
+
+
+            navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+                $('#my-video').get(0).srcObject = stream;
+                localStream = stream;
+
+                    // トラックを取り出す
+                    videoTrack = stream.getVideoTracks()[0];
+                    audioTrack = stream.getAudioTracks()[0];
+
+                room = peer.joinRoom('mesh_video_' + roomName, {stream: localStream});
+                room.on('stream', stream => {
+                const peerId = stream.peerId;
+                const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
+
+                $('#their-videos').append($(
+                '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px;">' + 
+                    '<div class="peer-video" style="display: inline-block;">' + 
+                        '<video class="remoteVideos" height="140px" width="210px" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                    '</div>' + 
+                    '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
+                        "guest" + 
+                    '</div>' + 
+                    '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: #BAD7B6; color: black; position: relative; z-index:10;">音声オフ</div>' + 
+                '</div>'));
+                const el = $('#video_' + id).find('video').get(0);
+                el.srcObject = stream;
+                el.play();
+                defName();
+                });
+
+
+
+
+/*
+                room.on('data', function(name) {
+                    document.getElementById("name_" + name.src).textContent = name.data;
+                    console.log(name.data);
+                    console.log(name.src);
+                });
+                room.on('open', function() {
+                    myName = document.getElementById("myNameForm").value;         
+                    room.send(myName);                    
+                });
+
+                room.on('peerJoin', function() {
+                    myName = document.getElementById("myNameForm").value;         
+                    room.send(myName);
+                });
+*/
+
+                room.on('removeStream', function(stream) {
+                    const peerId = stream.peerId;
+                    $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
+                });
+
+                // UI stuff
+                room.on('close', function() {
+                    room.close();
+                    $('#their-videos').empty();
+                });
+                room.on('peerLeave', peerId => {
+                    $('.video_' + peerId).remove();
+                });
+            });
+        });
+
+        peer.on('error', function(err){
+            alert(err.message);
+            room.close();
+            $('#their-videos').empty();
+        });
+        window.onclose = function() {
+            room.close();
+        }
+
+/*
+        socket.emit("reqName", { value: 1 });
+        socket.on("receiveReq", function(){
+            socket.emit("sendName", { name: myName, tag: peer.id, id: roomName });
+        });
+        socket.on("returnName", function(data) {
+            document.getElementById("name_" + data.tag).textContent = data.name;
+        });
+*/
+
+
+        function changeName() {
+            myName = document.getElementById("myNameForm").value;         
+            socket.emit("sendName", {id: roomName, tag: peer.id, name: myName});
+//            room.send(myName);
+        }
+
+
+        var file = document.getElementById('file');
+        var uploadImgSrc;
+
+
+        function loadLocalImage(e) {
+            var socket = io.connect();
+            // ファイル情報を取得
+            var fileData = e.target.files[0];
+
+            // 画像ファイル以外は処理を止める
+            if(!fileData.type.match('image.*')) {
+                alert('画像を選択してください');
+                return;
+            }
+
+            // FileReaderオブジェクトを使ってファイル読み込み
+            var reader = new FileReader();
+            // ファイル読み込みに成功したときの処理
+            reader.onload = function(e) {
+                // Canvas上に表示する
+                uploadImgSrc = e.target.result;
+                socket.emit("sendImg", { value: uploadImgSrc, id: roomName, name: myName });
+                socket.emit("sendThum", { value: uploadImgSrc, id: roomName, name: myName });
+            }
+            // ファイル読み込みを実行
+            reader.readAsDataURL(fileData);
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+
+        // ファイルが指定された時にloadLocalImage()を実行
+        file.addEventListener('change', loadLocalImage, false);
+
+        // Canvas上に画像を表示する
+        socket.on("returnImg", function(data) {
+            /*
+            var ww = $(window).width()-300;
+            var wh = $(window).height()-220;
+
+            var ww = $("#canvas_area").height();
+            var wh = $("#canvas_area").width();
+            */
+
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            context.imageSmoothingQuality = "high";            cvw = canvas.width;
+            // canvas内の要素をクリアする
+            var cvw = canvas.width;
+            var cvh = canvas.height;
+            context.fillStyle = "#ffffe0";
+            context.fillRect(0, 0, cvw, cvh);
+
+            // Canvas上に画像を表示
+            var img = new Image();
+            img.src = data.value;
+            img.onload = function() {
+                var iw = this.width;
+                var ih = this.height;
+                var imgAsp = iw/ih;
+                var canAsp = cvw/cvh;
+                if (imgAsp < canAsp) {
+                    var rat = iw * cvh / ih;
+                    canvas.width = rat;
+                    context.drawImage(img, 0, 0, rat, cvh);
+                }else {
+                    var rat = ih * cvw / iw;
+                    canvas.height = rat;
+                    context.drawImage(img, 0, 0, cvw, rat);
+                }
+/*                
+                var imgAsp = iw/ih;
+                var canAsp = ww/wh;
+                if (imgAsp < canAsp) {
+                    var rat = iw * wh / ih;
+                    context.drawImage(img, 0, 0, rat, wh);
+                }else {
+                    var rat = ih * ww / iw;
+                    context.drawImage(img, 0, 0, ww, rat);
+                }
+
+
+                document.getElementById("myCanvas").height = this.height * (ww / this.width);
+                context.drawImage(img, 0, 0, ww, this.height * (ww / this.width));
+*/
+            }
+        });
+
+
+
+        var aud_button = document.getElementById("audio_switch");
+        aud_button.addEventListener("click", switch_audio, false);
+        function switch_audio(e) {
+            console.log("audio switch");
+            if (aud == true) {
+                // トラックを取り出す
+//                var audioTrack = stream.getAudioTracks()[0];
+                // muteする
+                audioTrack.enabled = false;
+                aud = false;
+                document.getElementById("audio_switch").style.backgroundColor = "red";
+                if(peer.id !== undefined){
+                    socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+                }
+                }else {
+                // トラックを取り出す
+//                var audioTrack = stream.getAudioTracks()[0];
+                // muteする
+                audioTrack.enabled = true;
+                aud = true;
+                document.getElementById("audio_switch").style.backgroundColor = "#BAD7B6";
+                if(peer.id !== undefined){
+                    socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+                }
+            }
+        }
+        socket.on("returnMute", function(data) {
+            if(data.judge == true) {
+                document.getElementById("mute_" + data.value).style.backgroundColor = "#BAD7B6";
+            }else {
+                document.getElementById("mute_" + data.value).style.backgroundColor = "red";
+            }
+        });
+
+
+        var vid_button = document.getElementById("video_switch");
+        vid_button.addEventListener("click", switch_video, false);
+        function switch_video(e) {
+            console.log("video switch");
+            if (vid == true) {
+                // トラックを取り出す
+//                var videoTrack = stream.getVideoTracks()[0];
+                // muteする
+                videoTrack.enabled = false;
+                vid = false;
+                document.getElementById("video_switch").style.backgroundColor = "red";
+            }else {
+                // トラックを取り出す
+//                var videoTrack = stream.getVideoTracks()[0];
+                // muteする
+                videoTrack.enabled = true;
+                vid = true;
+                document.getElementById("video_switch").style.backgroundColor = "#BAD7B6";
+            }
+        }
+
+        var dMode_button = document.getElementById("canvas_mode");
+        dMode_button.addEventListener("click", canvasMode, false);
+        function canvasMode(e) {
+            console.log("d");
+            videoTrack.enabled = false;
+
+           $("#chat_area").append('<canvas id="back" style="display: none;"></canvas>');
+
+            var bk_canvas = document.getElementById("back");
+            var ctx = bk_canvas.getContext('2d');
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            bk_canvas.height = window.innerHeight;
+            bk_canvas.width = window.innerWidth;
+            context.imageSmoothingQuality = "high";
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(canvas, 0 , 0, bk_canvas.width, bk_canvas.height);
+
+            document.getElementById("video_area").style.display = "none";
+            document.getElementById("chat_area").style.display = "none";
+            document.getElementById("canvas_area").style.display = "block";
+            
+            document.getElementById("canvas_area").style.top = "5px";
+            document.getElementById("canvas_area").style.right = "5px";
+            document.getElementById("canvas_area").style.left = "5px";
+            document.getElementById("canvas_area").style.bottom = "5px";
+
+            document.getElementById("menu_area").style.top = "20px";
+            document.getElementById("menu_area").style.left = "20px";
+
+            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            $("#myCanvas").attr({width:$("#canvas_area").width()});
+
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+
+            context.drawImage(bk_canvas, 0, 0, canvas.width, canvas.height);
+            $("#back").remove();
+
+        }
+
+        var vMode_button = document.getElementById("video_mode");
+        vMode_button.addEventListener("click", videoMode, false);
+        function videoMode(e) {
+            console.log("v");
+            if (vid == true) {
+            // トラックを取り出す
+            //videoTrack = stream.getVideoTracks()[0];
+            // muteする
+            videoTrack.enabled = true;
+            }
+/*
+            videoTrack.enabled = false;
+           $("#chat_area").append('<canvas id="back" style="display: none;"></canvas>');
+
+            var bk_canvas = document.getElementById("back");
+            var ctx = bk_canvas.getContext('2d');
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            bk_canvas.height = window.innerHeight;
+            bk_canvas.width = window.innerWidth;
+            context.imageSmoothingQuality = "high";
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(canvas, 0 , 0, bk_canvas.width, bk_canvas.height);
+*/
+            document.getElementById("canvas_area").style.display = "none";
+            document.getElementById("chat_area").style.display = "none";
+            document.getElementById("video_area").style.display = "block";
+            
+            document.getElementById("video_area").style.mariginTop = "0px";
+            document.getElementById("video_area").style.marinRight = "0px";
+            document.getElementById("video_area").style.marginLeft = "0px";
+            document.getElementById("video_area").style.marginBottom = "0px";
+            document.getElementById("video_area").style.scrollX = "auto";
+            document.getElementById("video_area").style.height = "100%";
+            document.getElementById("video_area").style.width = "100%";
+            document.getElementById("self-container").style.marginLeft = "100px";
+            document.getElementById("my-video").style.height = "210px";
+            document.getElementById("my-video").style.width = "315px";
+            var videos_list = document.getElementsByClassName("remoteVideos");
+            for(var i = 0; i < videos_list.length; i++) {
+                videos_list[i].style.height = "210px";
+                videos_list[i].style.width = "315px";
+            }
+
+            document.getElementById("menu_area").style.top = "20px";
+            document.getElementById("menu_area").style.left = "20px";
+
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+/*
+            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            $("#myCanvas").attr({width:$("#canvas_area").width()});
+            document.getElementById("button_area_mode").style.display = "none";
+
+            context.drawImage(bk_canvas, 0, 0, canvas.width, canvas.height);
+            $("#back").remove();
+*/
+        }
+
+        var cMode_button = document.getElementById("chat_mode");
+        cMode_button.addEventListener("click", chatMode, false);
+        function chatMode(e) {
+            console.log("c");
+            videoTrack.enabled = false;
+/*
+           $("#chat_area").append('<canvas id="back" style="display: none;"></canvas>');
+
+            var bk_canvas = document.getElementById("back");
+            var ctx = bk_canvas.getContext('2d');
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            bk_canvas.height = window.innerHeight;
+            bk_canvas.width = window.innerWidth;
+            context.imageSmoothingQuality = "high";
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(canvas, 0 , 0, bk_canvas.width, bk_canvas.height);
+*/
+            document.getElementById("video_area").style.display = "none";
+            document.getElementById("canvas_area").style.display = "none";
+            document.getElementById("chat_area").style.display = "block";
+            
+            document.getElementById("chat_area").style.width = "100%";
+            
+
+            document.getElementById("menu_area").style.top = "20px";
+            document.getElementById("menu_area").style.left = "20px";
+
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+/*
+            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            $("#myCanvas").attr({width:$("#canvas_area").width()});
+            document.getElementById("button_area_mode").style.display = "none";
+
+            context.drawImage(bk_canvas, 0, 0, canvas.width, canvas.height);
+            $("#back").remove();
+*/
+        }
+
+
+        var s_button = document.getElementById("all_mode");
+        s_button.addEventListener("click", allMode, false);
+        function allMode(e) {
+            console.log("s");
+            if (vid == true) {
+            // トラックを取り出す
+            //videoTrack = stream.getVideoTracks()[0];
+            // muteする
+            videoTrack.enabled = true;
+            }
+
+           $("#chat_area").append('<canvas id="back" style="display: none;"></canvas>');
+
+            var bk_canvas = document.getElementById("back");
+            var ctx = bk_canvas.getContext('2d');
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            bk_canvas.height = window.innerHeight;
+            bk_canvas.width = window.innerWidth;
+            context.imageSmoothingQuality = "high";
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(canvas, 0 , 0, bk_canvas.width, bk_canvas.height);
+
+            document.getElementById("menu_area").style.top = "250px";
+            document.getElementById("menu_area").style.left = "20px";
+
+            document.getElementById("canvas_area").style.top = "240px";
+            document.getElementById("canvas_area").style.right = "300px";
+            document.getElementById("canvas_area").style.left = "0px";
+            document.getElementById("canvas_area").style.bottom = "10px";
+            document.getElementById("canvas_area").style.width = "auto";
+            document.getElementById("canvas_area").style.height = "auto";
+            document.getElementById("canvas_area").style.display = "block";
+
+            document.getElementById("video_area").style.marginTop = "0px";
+            document.getElementById("video_area").style.marginRight = "300px";
+            document.getElementById("video_area").style.paddingTop = "0px";
+            document.getElementById("video_area").style.overflowX = "scroll";
+            document.getElementById("video_area").style.width = "auto";
+            document.getElementById("video_area").style.height = "230px";
+            document.getElementById("video_area").style.display = "block";
+            document.getElementById("self-container").style.marginLeft = "100px";
+            document.getElementById("my-video").style.height = "140px";
+            document.getElementById("my-video").style.width = "210px";
+            var videos_list = document.getElementsByClassName("remoteVideos");
+            for(var i = 0; i < videos_list.length; i++) {
+                videos_list[i].style.height = "140px";
+                videos_list[i].style.width = "210px";
+            }
+
+            document.getElementById("chat_area").style.display = "block";
+            document.getElementById("chat_area").style.right = "0px";
+            document.getElementById("chat_area").style.top = "0px";
+            document.getElementById("chat_area").style.height = "100%";
+            document.getElementById("chat_area").style.width = "300px";
+
+            //            position: absolute; top:210px; right:300px; left: 0px; bottom: 10px;
+            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            $("#myCanvas").attr({width:$("#canvas_area").width()});
+
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+
+            context.drawImage(bk_canvas, 0, 0, canvas.width, canvas.height);
+            $("#back").remove();
+        }
+
+
+        
+        //test
+        var thumFile = document.getElementById('thum_file');
+        var uploadImgSrc;
+
+
+        function loadLocalThum(e) {
+            var socket = io.connect();
+            // ファイル情報を取得
+            var fileData = e.target.files[0];
+
+            // 画像ファイル以外は処理を止める
+            if(!fileData.type.match('image.*')) {
+                alert('画像を選択してください');
+                return;
+            }
+
+            // FileReaderオブジェクトを使ってファイル読み込み
+            var reader = new FileReader();
+            // ファイル読み込みに成功したときの処理
+            reader.onload = function(e) {
+                // Canvas上に表示する
+                uploadImgSrc = e.target.result;
+                socket.emit("sendThum", { value: uploadImgSrc, id: roomName, name: myName });
+            }
+            // ファイル読み込みを実行
+            reader.readAsDataURL(fileData);
+        }
+
+        // ファイルが指定された時にloadLocalImage()を実行
+        thumFile.addEventListener('change', loadLocalThum, false);
+
+
+        function toBoard(e) {
+            var thumb_canvas = document.getElementById("thum_" + e.className);
+            var base64 = thumb_canvas.toDataURL("image/png");
+            socket.emit("thumToBoard", { value: base64, id: roomName, name: myName });
+        }
+
+        socket.on("addBoard", function drawBoard(data) {
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            context.imageSmoothingQuality = "high";            
+            cvw = canvas.width;
+            cvh = canvas.height;
+            context.fillStyle = "#ffffe0";
+            context.fillRect(0, 0, cvw, cvh);
+            var img = new Image();
+            img.src = data.value;
+            img.onload = function() {
+                var iw = this.width;
+                var ih = this.height;
+                var imgAsp = iw/ih;
+                var canAsp = cvw/cvh;
+                if (imgAsp < canAsp) {
+                    var rat = iw * cvh / ih;
+                    canvas.width = rat;
+                    context.drawImage(img, 0, 0, rat, cvh);
+                }else {
+                    var rat = ih * cvw / iw;
+                    canvas.height = rat;
+                    context.drawImage(img, 0, 0, cvw, rat);
+                }
+            }
+        });
+
+        function downloadThum(e) {
+            var date = new Date();
+            var thumb_canvas = document.getElementById("thum_" + e.className);
+            var fileName = date.getFullYear().toString()  + date.getDate().toString() + (date.getHours() + 1).toString() + date.getMinutes().toString() + date.getSeconds().toString() + ".png";
+            var base64 = canvas.toDataURL("image/png");
+            var blob = toBlob(base64);
+            saveBlob(blob, fileName);
+        }
+
+        function toChat() {
+            var canvas = document.getElementById("myCanvas");
+            var base64 = canvas.toDataURL("image/png");
+            socket.emit("canvasToChat", { value: base64, id: roomName, name: myName });
+            document.getElementById("button_area_color").style.display = "none";
+            document.getElementById("button_area_width").style.display = "none";
+            document.getElementById("button_area_erase").style.display = "none";
+            document.getElementById("button_area_image").style.display = "none";
+            document.getElementById("button_area_mode").style.display = "none";
+        }
+
+        socket.on("addThum", function drawBoard(data) {
+            if(data.name == myName) {
+                $("#bms_messages").append("<div class='bms_message bms_left'>" + 
+                                                "<div class='bms_message_box'>" + 
+                                                    "<div class='bms_message_content'>" + 
+                                                        "<div class='bms_message_text'>" + 
+                                                                data.name + ":" + "<br />" + 
+                                                                "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
+                                                                "<canvas id = 'thum_" + thumb + "_mini' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
+                                                                "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                            "</div>" + 
+                                            "<div class='bms_clear'></div>");
+            }else {
+                $("#bms_messages").append("<div class='bms_message bms_right'>" + 
+                                                "<div class='bms_message_box'>" + 
+                                                    "<div class='bms_message_content'>" + 
+                                                        "<div class='bms_message_text'>" + 
+                                                                data.name + ":" + "<br />" + 
+                                                                "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
+                                                                "<canvas id = 'thum_" + thumb + "_mini' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
+                                                                "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                            "</div>" + 
+                                            "<div class='bms_clear'></div>");
+            }
+            /*
+            $("#bms_messages").append(  "<div style='border-bottom: solid 1px; width: 100%; word-break:break-all;'>" +
+                                        "<p style='font-size:12px; height: 14px;'>" + data.name + ":" + "</p>" + 
+                                        "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
+                                        "<canvas id = 'thum_" + thumb + "_mini' width = '150' height = '150'></canvas>" + "<br />" + 
+                                        "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
+                                        "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
+                                    "</div>");
+
+                                    <div class="bms_message bms_left">
+                                            <div class="bms_message_box">
+                                                <div class="bms_message_content">
+                                                    <div class="bms_message_text">ほうほうこりゃー便利じゃないか</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bms_clear"></div>
+
+                                        <div class="bms_message bms_right">
+                                            <div class="bms_message_box">
+                                                <div class="bms_message_content">
+                                                    <div class="bms_message_text">うん、まあまあいけとるな</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bms_clear"></div>
+                                    */
+            $('#bms_messages').animate({ scrollTop: $('#bms_messages')[0].scrollHeight }, 'fast');
+
+            var thumb_canvas = document.getElementById("thum_" + thumb);
+            var thumb_ctx = thumb_canvas.getContext('2d');
+            thumb_ctx.imageSmoothingQuality = "high";            cvw = canvas.width;
+            var mini_canvas = document.getElementById("thum_" + thumb + "_mini");
+            var mini_ctx = mini_canvas.getContext('2d');
+            mini_ctx.imageSmoothingQuality = "high";            cvw = canvas.width;
+            var thu = new Image();
+            thu.src = data.value;
+            thu.onload = function() {
+                var tw = this.width;
+                var th = this.height;
+                thumb_canvas.width = tw;
+                thumb_canvas.height = th;
+                thumb_ctx.drawImage(thu, 0, 0, tw, th);
+                var thuAsp = tw/th;
+                if (thuAsp < 1) {
+                    var rat = tw * 150 / th;
+                    mini_canvas.width = rat;
+                    mini_ctx.drawImage(thu, 0, 0, rat, 150);
+                }else {
+                    var rat = th * 150 / tw;
+                    mini_canvas.height = rat;
+                    mini_ctx.drawImage(thu, 0, 0, 150, rat);
+                }
+            }
+
+/*
+            var thu = new Image();
+            thu.src = data.value;
+            thu.onload = function() {
+                var tw = this.width;
+                var th = this.height;
+            }
+
+*/
+
+            thumb ++;
+        });
+/*
+        function menuOpen(e) {
+            console.log(e);
+            console.log(e.id);
+            $(e.id + '_menu').toggle();
+        }
+*/
+        function bkCanvas() {
+            console.log("bk");
+            canvas = document.getElementById("myCanvas");
+            context = canvas.getContext('2d');
+            base64 = canvas.toDataURL("image/png");
+            context.imageSmoothingQuality = "high";
+        }
+        function recoverCanvas() {
+            console.log("drow");
+            canvas = document.getElementById("myCanvas");
+            context = canvas.getContext('2d');
+            $("#myCanvas").attr({width:$("#canvas_area").width()});
+            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            bkData = new Image();
+            bkData.onload = function() {
+                context.drawImage(bkData, 0, 0, canvas.width, canvas.height);
+            }
+            bkData.src = base64;
+        }
+
+
+
+    </script>
+</body>
+</html>
