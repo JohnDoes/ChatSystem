@@ -9,13 +9,12 @@
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <style type="text/css">
 
+    /*　https://qiita.com/st5757/items/ad4806c086b02a25d45dより引用　*/
     #your_container{
-        /* 高さや幅など、好きな様に設定
-        bms_messages_containerの方で、縦横いっぱいに広がってくれるので、
-        ここで充てた高さと横幅がそのままスタイルになる仕組み */
+        /* メッセージエリアの高さや幅などを設定 */
 
-        height:80%;/*ここはご自由に*/
-        width: 100%;/*ここはご自由に*/
+        height:80%;
+        width: 100%;
     }
     /* チャットの外側部分① */
     #bms_messages_container{
@@ -66,17 +65,11 @@
             white-space: normal;/*指定widthに合わせて、文字を自動的に改行*/
         }
 
-        /*
-            *追加
-            */
             .bms_message_box{
                 margin-top: 20px;/*上下の吹き出しがひっつかない様に隙間を入れる*/
                 max-width: 100%;/*文字が長くなった時に吹き出しがタイムラインからはみ出さない様にする*/
                 font-size: 16px;
             }
-                /*
-                *追加
-                */
                 .bms_message_content{
                     padding: 20px;/*文字や画像（コンテンツ）の外側に隙間を入れる*/
                 }
@@ -87,9 +80,6 @@
             line-height: 1.3em;
         }
 
-            /*
-                *追加
-                */
                 .bms_left .bms_message_box {
                     color: #333;/*テキストを黒にする*/
                     background: #fff;
@@ -104,9 +94,6 @@
             line-height: 1.3em;
         }
 
-            /*
-                *追加
-                */
                 .bms_right .bms_message_box {
                     color: #fff;/*テキストを白にする*/
                     background: #13178E;
@@ -224,25 +211,26 @@
         <!-- Video area -->
         <div class="pure-u-2-3" id="their-videos" style="display: inline-block; white-space: nowrap;">
             <!--
-            <div style="display: inline-block; top: 0px; position: absolute;">
-                <div style="display: inline-block">
-                    <input type="button" value="audio mute" id="audio_switch" style="background-color: green; width: 80px; height: 80px; display: inline-block;" /><br />
+                以下が入る
+                <div class="video_「peerId」" id="video_「id」" style="display: inline-block; margin:5px;">
+                    <div class="peer-video" style="display: inline-block;">
+                        <video class="remoteVideos" height="140px" width="210px" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>
+                    </div>
+                    <div class="peer-name" id="name_「peerId」" style="height: 25px; background-color: #333333; color: #ffffff; position: relative; z-index:10;">
+                        "guest"
+                    </div>
+                    <div class="peer-audio" id="mute_「peerId」" style="height: 25px; background-color: #BAD7B6; color: black; position: relative; z-index:10;">音声オフ</div> 
                 </div>
-                <div style="position: relative;">
-                    <input type="button" value="video mute" id="video_switch" style="background-color: green; width: 80px; height: 80px; position: relative;" />
-                </div>
-            </div>
             -->
             <div id="self-container" style="display: inline-block; margin-left: 20px; height: 100%;">
+                <div id="self-video" style="display: inline-block;">
                 <!--
-                <div id="self-video" style="display: inline-block;">
-                    <video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block;" autoplay></video>
-                </div>
-                <div id="self-name" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">
-                    あなた
-                </div>
+                    以下が入る
+                    <video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>
+                    <div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">
+                        myName 
+                    </div>
                 -->
-                <div id="self-video" style="display: inline-block;">
                 </div> <br />
                 <div style="display: inline-block;">
                     <input type="button" value="音声オフ" id="audio_switch" style="background-color: #BAD7B6; width: 100px; height: 25px; display: inline-block;" />
@@ -253,9 +241,6 @@
     </div>
     <div id="menu_area" style="position: absolute; z-index: 20; top:250px; left:20px;">
         <input type="button" class="menu_button" onclick="menuButton()" value="メニュー" style="height: 50px;" />
-        <!--
-        <div id="button_area" style="position: absolute; z-index: 10; display:none; top:250px; left:20px; right:300px; width:auto;">
-        -->
         <div id="button_area" style="display: none; margin-right: 300px;">
             <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_color').toggle();" value="色彩を変更" style="height: 50px;" />
             <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_width').toggle();" value="太さを変更" style="height: 50px;" />
@@ -269,9 +254,6 @@
             <input type="button" class="menu_button" value="緑色" onClick="toGreen()" style="float: left; margin: 5px; height: 50px;"></input>
             <input type="button" class="menu_button" value="青色" onClick="toBlue()" style="float: left; margin: 5px; height: 50px;"></input>
             <input type="button" class="menu_button" value="白色" onClick="toErase()" style="float: left; margin: 5px; height: 50px;"></input>
-            <!--
-            <div style="float: left; margin: 5px;"><label>line-width:</label> <input type="number" id="bold" value="5" onChange="toChangeBold()" style="width: 60px;"></input><label>px</label></div>
-            -->
         </div>
         <div id="button_area_width" style="display: none; margin-right: 300px;">
             <input type="button" class="menu_button" value="極細" onClick="toChangeBold(1)" style="float: left; margin: 5px; height: 50px;"></input>
@@ -780,26 +762,12 @@
         });
 
 
-//        meshRoom = peer.joinRoom(roomName);
         peer.on('open', function(){
-//            $('#self-container').append($(
             $('#self-video').append($(
                 '<video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
                 '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
                     myName + 
                 '</div>'));
-                /*
-                '<div id="self-video" style="display: inline-block;">' + 
-                    '<video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline>' +
-                '</div>' + 
-                '<div style=" position: relative; display: inline-block;">' + 
-                    '<input type="button" value="audio" id="audio_switch" style="background-color: green; width: 100px; height: 25px; display: inline-block;" />' + 
-                    '<input type="button" value="video" id="video_switch" style="background-color: green; width: 100px; height: 25px; display: inline-block;" />' + 
-                '</div>'+
-                '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
-                    myName + 
-                '</div>'));
-                */
                 navigator.mediaDevices = navigator.mediaDevices || ((navigator.mozGetUserMedia || navigator.webkitGetUserMedia) ? {
                     getUserMedia: function(c) {
                         return new Promise(function(y, n) {
@@ -856,25 +824,6 @@
                 });
 
 
-
-
-/*
-                room.on('data', function(name) {
-                    document.getElementById("name_" + name.src).textContent = name.data;
-                    console.log(name.data);
-                    console.log(name.src);
-                });
-                room.on('open', function() {
-                    myName = document.getElementById("myNameForm").value;         
-                    room.send(myName);                    
-                });
-
-                room.on('peerJoin', function() {
-                    myName = document.getElementById("myNameForm").value;         
-                    room.send(myName);
-                });
-*/
-
                 room.on('removeStream', function(stream) {
                     const peerId = stream.peerId;
                     $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
@@ -899,17 +848,6 @@
         window.onclose = function() {
             room.close();
         }
-
-/*
-        socket.emit("reqName", { value: 1 });
-        socket.on("receiveReq", function(){
-            socket.emit("sendName", { name: myName, tag: peer.id, id: roomName });
-        });
-        socket.on("returnName", function(data) {
-            document.getElementById("name_" + data.tag).textContent = data.name;
-        });
-*/
-
 
         function changeName() {
             myName = document.getElementById("myNameForm").value;         
@@ -956,14 +894,6 @@
 
         // Canvas上に画像を表示する
         socket.on("returnImg", function(data) {
-            /*
-            var ww = $(window).width()-300;
-            var wh = $(window).height()-220;
-
-            var ww = $("#canvas_area").height();
-            var wh = $("#canvas_area").width();
-            */
-
             var canvas = document.getElementById("myCanvas");
             var context = canvas.getContext('2d');
             context.imageSmoothingQuality = "high";            cvw = canvas.width;
@@ -990,21 +920,6 @@
                     canvas.height = rat;
                     context.drawImage(img, 0, 0, cvw, rat);
                 }
-/*                
-                var imgAsp = iw/ih;
-                var canAsp = ww/wh;
-                if (imgAsp < canAsp) {
-                    var rat = iw * wh / ih;
-                    context.drawImage(img, 0, 0, rat, wh);
-                }else {
-                    var rat = ih * ww / iw;
-                    context.drawImage(img, 0, 0, ww, rat);
-                }
-
-
-                document.getElementById("myCanvas").height = this.height * (ww / this.width);
-                context.drawImage(img, 0, 0, ww, this.height * (ww / this.width));
-*/
             }
         });
 
@@ -1015,9 +930,7 @@
         function switch_audio(e) {
             console.log("audio switch");
             if (aud == true) {
-                // トラックを取り出す
-//                var audioTrack = stream.getAudioTracks()[0];
-                // muteする
+                // ビデオをmuteする
                 audioTrack.enabled = false;
                 aud = false;
                 document.getElementById("audio_switch").style.backgroundColor = "red";
@@ -1025,9 +938,6 @@
                     socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
                 }
                 }else {
-                // トラックを取り出す
-//                var audioTrack = stream.getAudioTracks()[0];
-                // muteする
                 audioTrack.enabled = true;
                 aud = true;
                 document.getElementById("audio_switch").style.backgroundColor = "#BAD7B6";
@@ -1050,16 +960,10 @@
         function switch_video(e) {
             console.log("video switch");
             if (vid == true) {
-                // トラックを取り出す
-//                var videoTrack = stream.getVideoTracks()[0];
-                // muteする
                 videoTrack.enabled = false;
                 vid = false;
                 document.getElementById("video_switch").style.backgroundColor = "red";
             }else {
-                // トラックを取り出す
-//                var videoTrack = stream.getVideoTracks()[0];
-                // muteする
                 videoTrack.enabled = true;
                 vid = true;
                 document.getElementById("video_switch").style.backgroundColor = "#BAD7B6";
@@ -1070,6 +974,7 @@
         dMode_button.addEventListener("click", canvasMode, false);
         function canvasMode(e) {
             console.log("d");
+            // ビデオをミュートする
             videoTrack.enabled = false;
 
            $("#chat_area").append('<canvas id="back" style="display: none;"></canvas>');
@@ -1115,9 +1020,7 @@
         function videoMode(e) {
             console.log("v");
             if (vid == true) {
-            // トラックを取り出す
-            //videoTrack = stream.getVideoTracks()[0];
-            // muteする
+            // ビデオをmuteする
             videoTrack.enabled = true;
             }
 /*
@@ -1177,19 +1080,6 @@
         function chatMode(e) {
             console.log("c");
             videoTrack.enabled = false;
-/*
-           $("#chat_area").append('<canvas id="back" style="display: none;"></canvas>');
-
-            var bk_canvas = document.getElementById("back");
-            var ctx = bk_canvas.getContext('2d');
-            var canvas = document.getElementById("myCanvas");
-            var context = canvas.getContext('2d');
-            bk_canvas.height = window.innerHeight;
-            bk_canvas.width = window.innerWidth;
-            context.imageSmoothingQuality = "high";
-            ctx.imageSmoothingQuality = "high";
-            ctx.drawImage(canvas, 0 , 0, bk_canvas.width, bk_canvas.height);
-*/
             document.getElementById("video_area").style.display = "none";
             document.getElementById("canvas_area").style.display = "none";
             document.getElementById("chat_area").style.display = "block";
@@ -1205,14 +1095,6 @@
             document.getElementById("button_area_erase").style.display = "none";
             document.getElementById("button_area_image").style.display = "none";
             document.getElementById("button_area_mode").style.display = "none";
-/*
-            $("#myCanvas").attr({height:$("#canvas_area").height()});
-            $("#myCanvas").attr({width:$("#canvas_area").width()});
-            document.getElementById("button_area_mode").style.display = "none";
-
-            context.drawImage(bk_canvas, 0, 0, canvas.width, canvas.height);
-            $("#back").remove();
-*/
         }
 
 
@@ -1405,33 +1287,6 @@
                                             "</div>" + 
                                             "<div class='bms_clear'></div>");
             }
-            /*
-            $("#bms_messages").append(  "<div style='border-bottom: solid 1px; width: 100%; word-break:break-all;'>" +
-                                        "<p style='font-size:12px; height: 14px;'>" + data.name + ":" + "</p>" + 
-                                        "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
-                                        "<canvas id = 'thum_" + thumb + "_mini' width = '150' height = '150'></canvas>" + "<br />" + 
-                                        "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
-                                        "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
-                                    "</div>");
-
-                                    <div class="bms_message bms_left">
-                                            <div class="bms_message_box">
-                                                <div class="bms_message_content">
-                                                    <div class="bms_message_text">ほうほうこりゃー便利じゃないか</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="bms_clear"></div>
-
-                                        <div class="bms_message bms_right">
-                                            <div class="bms_message_box">
-                                                <div class="bms_message_content">
-                                                    <div class="bms_message_text">うん、まあまあいけとるな</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="bms_clear"></div>
-                                    */
             $('#bms_messages').animate({ scrollTop: $('#bms_messages')[0].scrollHeight }, 'fast');
 
             var thumb_canvas = document.getElementById("thum_" + thumb);
