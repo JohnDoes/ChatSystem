@@ -203,7 +203,6 @@
         background: #0f5200;
         }
             
-    
     </style>
 </head>
 <body style=" background-color: #EEF5D3;">
@@ -211,7 +210,7 @@
         <!-- Video area -->
         <div class="pure-u-2-3" id="their-videos" style="display: inline-block; white-space: nowrap;">
             <!--
-                以下が入る
+                相手がルームに入ると以下が出力される
                 <div class="video_「peerId」" id="video_「id」" style="display: inline-block; margin:5px;">
                     <div class="peer-video" style="display: inline-block;">
                         <video class="remoteVideos" height="140px" width="210px" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>
@@ -225,7 +224,7 @@
             <div id="self-container" style="display: inline-block; margin-left: 20px; height: 100%;">
                 <div id="self-video" style="display: inline-block;">
                 <!--
-                    以下が入る
+                    ピアーが開くと以下が入る
                     <video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>
                     <div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">
                         myName 
@@ -294,10 +293,11 @@
 
                 <div id="bms_messages">
 <!--
+                    メッセージが送信されると以下が追加される
                     <div class="bms_message bms_left">
                         <div class="bms_message_box">
                             <div class="bms_message_content">
-                                <div class="bms_message_text">ほうほうこりゃー便利じゃないか</div>
+                                <div class="bms_message_text">私の発言</div>
                             </div>
                         </div>
                     </div>
@@ -306,11 +306,20 @@
                     <div class="bms_message bms_right">
                         <div class="bms_message_box">
                             <div class="bms_message_content">
-                                <div class="bms_message_text">うん、まあまあいけとるな</div>
+                                <div class="bms_message_text">相手の発言</div>
                             </div>
                         </div>
                     </div>
                     <div class="bms_clear"></div>
+
+                    画像送信時は以下が　bms_message_content　に追加される
+                    <div class='bms_message_text'>
+                        「data.name」:　<br />
+                            <canvas id = 'thum_「thumb」' style = 'display: none;'></canvas><br />
+                            <canvas id = 'thum_「thumb」_mini' width = '150' height = '150'></canvas><br />
+                            <input type = 'button' class = '「thumb」' value = 'download' onClick = 'downloadThum(this)'></input> 
+                                <input type = 'button' class = '「thumb」' value = 'toBoard' onClick = 'toBoard(this)'></input>
+                    </div> 
 -->
                 </div>
 
@@ -321,26 +330,6 @@
                 </div>
             </div>
         </div>
-
-        <!--
-        <div style="position: absolute; top: 0px; right: 0px; height:50px; width:100%; padding:auto;"><label>Your name is : </label><input type="text" id="myNameForm" style="width:auto;" value="あなた" onchange="changeName();" /></div>
-        <div id="chatbox" style="position: absolute; top: 55px; right: 0px; bottom: 120px; width: 100%; height: auto; overflow: auto; border: 3px solid;">
-            <div id="chatLogs" style="width: 100%; height:100%;">
-                <div style='border-bottom: solid 1px; width: 100%; word-break:break-all; display: none;'>
-                    <p style='font-size:12px; height: 14px;'></p>
-                    <canvas id = 'thum_0' width = '150' height = '150'></canvas><br />
-                    <input type = 'button' class = '0' value = 'download' onClick = 'downloadThum(this)'></input>
-                    <input type = 'button' class = '0' value = 'toBoard' onClick = 'toBoard(this)'></input>
-                </div>
-            </div>
-        </div>
-        <form style="position: absolute; bottom: 0px; right: 0px; width: 100%; height:120px;">  
-            <div class="upload" style="float: left; margin: 5px; height: 50px;"><input type="file" name="thumfile" id="thum_file" style="height: 50px;" accept="image/*"></div><br />
-            <textarea id="msgForm" style="float:left; width: auto; height:50px;"  onClick="bkCanvas()"></textarea>
-            <button id="submitMsg" type="submit" style="float:left; width: 50px; height: 50px;" onClick="recoverCanvas()">send</button>
-        </form>
-    
-        -->
     </div>
     
     <script>
@@ -358,12 +347,6 @@
         var thumb = 1;
         var bk_canvas, ctx, canvas, context, base64, bkData;
 
-        /*
-        var ww = window.innerWidth - 300;
-        var wh = window.innerHeight - 220;
-        document.getElementById("canvas_area").style.width = ww;
-        document.getElementById("canvas_area").style.height = wh;
-        */
         $("#myCanvas").attr({height:$("#canvas_area").height()});
         $("#myCanvas").attr({width:$("#canvas_area").width()});
 
@@ -386,22 +369,6 @@
                 context.drawImage(bkData, 0, 0, canvas.width, canvas.height);
             }
             bkData.src = base64;
-            /*
-           $("#chat_area").append('<canvas id="back" style="display: none;"></canvas>');
-            var bk_canvas = document.getElementById("back");
-            var ctx = bk_canvas.getContext('2d');
-            var canvas = document.getElementById("myCanvas");
-            var context = canvas.getContext('2d');
-            context.imageSmoothingQuality = "high";
-            ctx.imageSmoothingQuality = "high";
-            ctx.drawImage(canvas, 0 , 0, bk_canvas.width, bk_canvas.height);
-			//var can_img = context.getImageData(0, 0, canvas.width, canvas.height);
-            $("#myCanvas").attr({width:$("#canvas_area").width()});
-            $("#myCanvas").attr({height:$("#canvas_area").height()});
-            //canvas.getContext('2d').putImageData(can_img, 0, 0, canvas.width, canvas.height);
-            context.drawImage(bk_canvas, 0, 0, canvas.width, canvas.height);
-            $("#back").remove();
-            */
         });
 
         var sx, sy, ex, ey, rsx, rsy, rex, rey;
@@ -418,14 +385,6 @@
         var position = [];
         
         //Write
-		/*
-		socket.on('wColor', function(data) {
-		    context.strokeStyle = data.value;
-		});
-		socket.on('wBold', function(data) {
-		    context.lineWidth = data.value;
-		});
-		*/
         socket.on('posit', function (data) {
             var cvw = document.getElementById("myCanvas").width;
             var cvh = document.getElementById("myCanvas").height;
@@ -450,12 +409,6 @@
             var ch = canvas.offsetHeight + 500;
             context.fillStyle = "#ffffe0";
             context.fillRect(0, 0, cw, ch);
-            /*
-            var ww = $(window).width()-300;
-            var wh = $(window).height()-220;
-            $('#myCanvas').attr('width', ww);
-            $('#myCanvas').attr('height', wh);
-            */
         });
 
 
@@ -707,25 +660,6 @@
                                             "</div>" + 
                                             "<div class='bms_clear'></div>");
             }
-            /*
-                <div class="bms_message bms_left">
-                    <div class="bms_message_box">
-                        <div class="bms_message_content">
-                            <div class="bms_message_text">ほうほうこりゃー便利じゃないか</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bms_clear"></div>
-
-                <div class="bms_message bms_right">
-                    <div class="bms_message_box">
-                        <div class="bms_message_content">
-                            <div class="bms_message_text">うん、まあまあいけとるな</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bms_clear"></div>
-            */
             $('#bms_messages').animate({ scrollTop: $('#bms_messages')[0].scrollHeight }, 'fast');
         }
 
@@ -1020,23 +954,9 @@
         function videoMode(e) {
             console.log("v");
             if (vid == true) {
-            // ビデオをmuteする
+            // ビデオを開始する
             videoTrack.enabled = true;
             }
-/*
-            videoTrack.enabled = false;
-           $("#chat_area").append('<canvas id="back" style="display: none;"></canvas>');
-
-            var bk_canvas = document.getElementById("back");
-            var ctx = bk_canvas.getContext('2d');
-            var canvas = document.getElementById("myCanvas");
-            var context = canvas.getContext('2d');
-            bk_canvas.height = window.innerHeight;
-            bk_canvas.width = window.innerWidth;
-            context.imageSmoothingQuality = "high";
-            ctx.imageSmoothingQuality = "high";
-            ctx.drawImage(canvas, 0 , 0, bk_canvas.width, bk_canvas.height);
-*/
             document.getElementById("canvas_area").style.display = "none";
             document.getElementById("chat_area").style.display = "none";
             document.getElementById("video_area").style.display = "block";
@@ -1065,14 +985,6 @@
             document.getElementById("button_area_erase").style.display = "none";
             document.getElementById("button_area_image").style.display = "none";
             document.getElementById("button_area_mode").style.display = "none";
-/*
-            $("#myCanvas").attr({height:$("#canvas_area").height()});
-            $("#myCanvas").attr({width:$("#canvas_area").width()});
-            document.getElementById("button_area_mode").style.display = "none";
-
-            context.drawImage(bk_canvas, 0, 0, canvas.width, canvas.height);
-            $("#back").remove();
-*/
         }
 
         var cMode_button = document.getElementById("chat_mode");
@@ -1103,9 +1015,7 @@
         function allMode(e) {
             console.log("s");
             if (vid == true) {
-            // トラックを取り出す
-            //videoTrack = stream.getVideoTracks()[0];
-            // muteする
+            // ビデオを開始する
             videoTrack.enabled = true;
             }
 
@@ -1154,7 +1064,6 @@
             document.getElementById("chat_area").style.height = "100%";
             document.getElementById("chat_area").style.width = "300px";
 
-            //            position: absolute; top:210px; right:300px; left: 0px; bottom: 10px;
             $("#myCanvas").attr({height:$("#canvas_area").height()});
             $("#myCanvas").attr({width:$("#canvas_area").width()});
 
@@ -1168,9 +1077,6 @@
             $("#back").remove();
         }
 
-
-        
-        //test
         var thumFile = document.getElementById('thum_file');
         var uploadImgSrc;
 
@@ -1315,25 +1221,9 @@
                 }
             }
 
-/*
-            var thu = new Image();
-            thu.src = data.value;
-            thu.onload = function() {
-                var tw = this.width;
-                var th = this.height;
-            }
-
-*/
-
             thumb ++;
         });
-/*
-        function menuOpen(e) {
-            console.log(e);
-            console.log(e.id);
-            $(e.id + '_menu').toggle();
-        }
-*/
+
         function bkCanvas() {
             console.log("bk");
             canvas = document.getElementById("myCanvas");
