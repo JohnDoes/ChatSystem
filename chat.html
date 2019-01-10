@@ -483,59 +483,53 @@
         //タッチスタート
         canvas.addEventListener("touchstart", onTouchStart, false);
         function onTouchStart(e) {
-            if(touches.length == 1) {
-                e.preventDefault();
-                console.log("タッチスタート");
-                var touch = e.changedTouches[0];
-                var rect = e.target.getBoundingClientRect();
-                sx = touch.clientX - rect.left;
-                sy = touch.clientY - rect.top;
-                console.log(sx);
-                console.log(sy);
-                touching = true;
-            }
+            e.preventDefault();
+            console.log("タッチスタート");
+            var touch = e.changedTouches[0];
+            var rect = e.target.getBoundingClientRect();
+            sx = touch.clientX - rect.left;
+            sy = touch.clientY - rect.top;
+            console.log(sx);
+            console.log(sy);
+            touching = true;
         }
         
             //タッチムーブ
         canvas.addEventListener("touchmove", onTouchMove, false);
         function onTouchMove(e) {
-            if(touches.length == 1) {
-                e.preventDefault();
-                console.log("タッチムーブ");
-                var touch = e.changedTouches[0];
-                var cvw = document.getElementById("myCanvas").width;
-                var cvh = document.getElementById("myCanvas").height;
-                var rect = e.target.getBoundingClientRect();
-                ex = touch.clientX - rect.left;
-                ey = touch.clientY - rect.top;
-                console.log(sx);
-                console.log(sy);
-                console.log(ex);
-                console.log(ey);
-                rsx = sx / cvw;
-                rsy = sy / cvh;
-                rex = ex / cvw;
-                rey = ey / cvh; 
-                position = [rsx, rsy, rex, rey, color, bold];
-                if (touching === true) {
-                    socket.emit('pos', { value: position , id: roomName});
-                    sx = ex;
-                    sy = ey;
-                    position = [];
-                }
+            e.preventDefault();
+            console.log("タッチムーブ");
+            var touch = e.changedTouches[0];
+            var cvw = document.getElementById("myCanvas").width;
+            var cvh = document.getElementById("myCanvas").height;
+            　var rect = e.target.getBoundingClientRect();
+            　ex = touch.clientX - rect.left;
+            　ey = touch.clientY - rect.top;
+            console.log(sx);
+            console.log(sy);
+            console.log(ex);
+            console.log(ey);
+            rsx = sx / cvw;
+            rsy = sy / cvh;
+            rex = ex / cvw;
+            rey = ey / cvh; 
+            position = [rsx, rsy, rex, rey, color, bold];
+            if (touching === true) {
+                socket.emit('pos', { value: position , id: roomName});
+                sx = ex;
+                sy = ey;
+                position = [];
             }
         }
 
         canvas.addEventListener("touchend", onTouchEnd, false);
         function onTouchEnd(e) {
-            if(touches.length == 1) {
-                e.preventDefault();
-                console.log("タッチエンド");
-                console.log(sx);
-                console.log(sy);
-                var touch = e.changedTouches[0];
-                touching = false;
-            }
+            e.preventDefault();
+            console.log("タッチエンド");
+            console.log(sx);
+            console.log(sy);
+            var touch = e.changedTouches[0];
+            touching = false;
         }
 
 

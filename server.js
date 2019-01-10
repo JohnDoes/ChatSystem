@@ -32,98 +32,18 @@ client.query('SELECT table_schema,table_name FROM information_schema.tables;', (
   });
 });
 
-/*
+
 var server = http.createServer(function (req, res) {
     console.log(req.url);
 	if(req.url == "/"){
         page = '/enter.html';
-    }else {
+	}else {
         page = '/chat.html';
     }
+    console.log(page);
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(fs.readFileSync(__dirname + page, 'UTF-8'));
-    console.log(page);
 }).listen(port);
-*/
-
-var server = http.createServer();
-server.on("request", doRequest);
-server.listen(port);
-console.log("Server running");
-
-function getRequestType(request){
-  if ( request.url.indexOf(".html") != -1) {
-    return "html";
-  }
-  if ( request.url.indexOf(".jpg") != -1) {
-    return "jpeg";
-  }
-  if ( request.url.indexOf(".js") != -1) {
-    return "js";
-  }
-  if ( request.url.indexOf(".css") != -1) {
-    return "css";
-  }
-  if ( request.url.indexOf(".png") != -1) {
-    return "png";
-  }
-  return "";
-}
-
-function doRequest(request, response) {
-    switch(getRequestType(request)) {
-    case "html":
-        fs.readFile("."+request.url, "UTF-8",
-            function (err, data) {
-                response.writeHead(200, {"Content-Type": "text/html"});
-                response.write(data);
-                response.end();
-            }
-        );
-        break;
-    case "css":
-        fs.readFile("."+request.url, "UTF-8",
-            function (err, data) {
-                response.writeHead(200, {"Content-Type": "text/css"});
-                response.write(data);
-                response.end();
-            }
-        );
-        break;
-    case "js":
-        fs.readFile("."+request.url, "UTF-8",
-            function (err, data) {
-                response.writeHead(200, {"Content-Type": "text/js"});
-                response.write(data);
-                response.end();
-            }
-        );
-        break;
-    case "jpeg":
-        fs.readFile("."+request.url, "binary",
-            function (err, data) {
-                response.writeHead(200, {"Content-Type": "image/jpeg"});
-                response.write(data, "binary");
-                response.end();
-            }
-        );
-        break;
-    case "png":
-        fs.readFile("."+request.url, "binary",
-            function (err, data) {
-                response.writeHead(200, {"Content-Type": "image/png"});
-                response.write(data, "binary");
-                response.end();
-            }
-        );
-        break;
-    default:
-        response.writeHead(200, { 'Content-Type': 'text/html' });
-        response.end(fs.readFileSync(__dirname + '/index.html', 'UTF-8'));        
-    }
-};
-
-
 
 var io = socketio.listen(server);
 

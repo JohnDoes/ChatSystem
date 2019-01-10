@@ -7,7 +7,7 @@
 <body>
     <div>
         <h1>Create your chat room!</h1>
-        <label>https://webchat-for-learning-test.herokuapp.com/</label><input type="text" id="roomName" placeholder="room's name" /><input type="button" id="sub" onclick="createRoom()" value="enter" style="display:none;" />
+        <label>https://whispering-springs-32325.herokuapp.com/</label><input type="text" id="roomName" placeholder="room's name" /><input type="button" id="sub" onclick="createRoom()" value="enter" style="display:none;" />
         <h2 id="caution"></h2>
     </div>
     <script>
@@ -15,7 +15,7 @@
         var rName
         function createRoom() {
             rName = document.getElementById("roomName").value;
-            var loc = 'https://webchat-for-learning-test.herokuapp.com/' + rName;
+            var loc = 'https://whispering-springs-32325.herokuapp.com/' + rName;
             socket.emit("sendRoomName", { value: rName});
             window.open(loc, '_blank');
             document.getElementById("sub").style.display = "none";
@@ -42,3 +42,4 @@
     </script>
 </body>
 </html>
+
