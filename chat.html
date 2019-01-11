@@ -9,7 +9,6 @@
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <style type="text/css">
 
-    /*　https://qiita.com/st5757/items/ad4806c086b02a25d45dより引用　*/
     #your_container{
         /* メッセージエリアの高さや幅などを設定 */
 
@@ -418,15 +417,17 @@
         //タッチスタート
         canvas.addEventListener("touchstart", onTouchStart, false);
         function onTouchStart(e) {
-            e.preventDefault();
-            console.log("タッチスタート");
-            var touch = e.changedTouches[0];
-            var rect = e.target.getBoundingClientRect();
-            sx = touch.clientX - rect.left;
-            sy = touch.clientY - rect.top;
-            console.log(sx);
-            console.log(sy);
-            touching = true;
+            if(e.touches.length == 1) {
+                e.preventDefault();
+                console.log("タッチスタート");
+                var touch = e.changedTouches[0];
+                var rect = e.target.getBoundingClientRect();
+                sx = touch.clientX - rect.left;
+                sy = touch.clientY - rect.top;
+                console.log(sx);
+                console.log(sy);
+                touching = true;
+            }
         }
         
             //タッチムーブ
@@ -461,12 +462,14 @@
 
         canvas.addEventListener("touchend", onTouchEnd, false);
         function onTouchEnd(e) {
-            e.preventDefault();
-            console.log("タッチエンド");
-            console.log(sx);
-            console.log(sy);
-            var touch = e.changedTouches[0];
-            touching = false;
+            if(e.touches.length == 1) {
+                e.preventDefault();
+                console.log("タッチエンド");
+                console.log(sx);
+                console.log(sy);
+                var touch = e.changedTouches[0];
+                touching = false;
+            }
         }
 
 
