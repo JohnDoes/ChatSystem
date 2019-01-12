@@ -126,7 +126,7 @@
             text-align: left;/*文字を左寄せ*/
             box-shadow: 2px 2px 4px 0px rgba(0,0,0,0.2) inset;/*内側に影を入れてテキストエリアらしくした*/
             box-sizing: border-box;/*paddingとborderの要素の高さと幅の影響をなくす（要素に高さと幅を含める）*/
-
+            font-size: 16px;
         }
         #bms_send_btn {
             width: 72px;
@@ -417,8 +417,7 @@
         //タッチスタート
         canvas.addEventListener("touchstart", onTouchStart, false);
         function onTouchStart(e) {
-            if(e.touches.length == 1) {
-                e.preventDefault();
+//                e.preventDefault();
                 console.log("タッチスタート");
                 var touch = e.changedTouches[0];
                 var rect = e.target.getBoundingClientRect();
@@ -427,7 +426,7 @@
                 console.log(sx);
                 console.log(sy);
                 touching = true;
-            }
+//                e.stopPropagation();
         }
         
             //タッチムーブ
@@ -457,19 +456,19 @@
                     sy = ey;
                     position = [];
                 }
+                e.stopPropagation();
             }
         }
 
         canvas.addEventListener("touchend", onTouchEnd, false);
         function onTouchEnd(e) {
-            if(e.touches.length == 1) {
-                e.preventDefault();
+//                e.preventDefault();
                 console.log("タッチエンド");
                 console.log(sx);
                 console.log(sy);
                 var touch = e.changedTouches[0];
                 touching = false;
-            }
+//                e.stopPropagation();
         }
 
 
