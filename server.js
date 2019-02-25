@@ -66,6 +66,9 @@ function getRequestType(request){
   if ( request.url.indexOf(".png") != -1) {
     return "png";
   }
+  if ( request.url.indexOf(".patt") != -1) {
+    return "patt";
+  }
   return "";
 }
 
@@ -92,7 +95,7 @@ function doRequest(request, response) {
     case "js":
         fs.readFile("."+request.url, "UTF-8",
             function (err, data) {
-                response.writeHead(200, {"Content-Type": "text/js"});
+                response.writeHead(200, {"Content-Type": "text/js"});// || response.writeHead(200, {"Content-Type": "text/plain"});
                 response.write(data);
                 response.end();
             }
@@ -107,11 +110,20 @@ function doRequest(request, response) {
             }
         );
         break;
-    case "png":
+        case "png":
         fs.readFile("."+request.url, "binary",
             function (err, data) {
                 response.writeHead(200, {"Content-Type": "image/png"});
                 response.write(data, "binary");
+                response.end();
+            }
+        );
+        break;
+        case "patt":
+        fs.readFile("."+request.url, "UTF-8",
+            function (err, data) {
+                response.writeHead(200, {"Content-Type": "text/plain"});
+                response.write(data);
                 response.end();
             }
         );

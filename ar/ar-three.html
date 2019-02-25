@@ -9,7 +9,7 @@
       overflow: hidden;
     }  
   </style>
-  <title>Three/AR/Tween.js サンプル by mkoku</title>
+  <title>Three/AR.js サンプル</title>
 </head>
 
 <body>
@@ -18,14 +18,19 @@
 <canvas id = "tex-canvas" width="150px" height="100px" style = "display: none;"></canvas>
 
 <!-- Three.js のインクルード -->
-<script src='three.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/101/three.min.js'></script>
 
 <!-- AR.js のインクルード -->
-<script src="ar.min.js"></script>
+<script src="https://jeromeetienne.github.io/AR.js/three.js/build/ar.min.js"></script>
 
 <script>
+//canvasの初期設定
 var canvas = document.getElementById("tex-canvas");
 var ctx = canvas.getContext("2d");
+ctx.fillStyle = "#ffffe0";
+ctx.fillRect(0, 0, 200, 200);
+
+
 //===================================================================
 // three.js の各種設定
 //===================================================================
@@ -105,23 +110,21 @@ var controls = new THREEx.ArMarkerControls(context, marker1, {    // マーカ�
 
 scene.add(marker1);                                   // マーカをシーンに追加
 // モデル（メッシュ）
-var geo = new THREE.CubeGeometry(90, 1, 60);            // cube ジオメトリ（サイズは 1x1x1）
-this.cube = this.createMesh(geo);
-this.scene.add(this.cube);
-function createMesh (geo) {
-    const canvasMap = new THREE.Texture(canvas); // canvas要素を読み込む
-    var mat = new THREE.MeshNormalMaterial({              // マテリアルの作成
-        transparent: true,                                  // 透過
-        opacity: 0.5,                                       // 不透明度
-        side: THREE.DoubleSide,                             // 内側も描く
-    });
-    mat.map = canvasMap;
-    const mesh1 = new THREE.Mesh(geo, mat);
+var geo = new THREE.CubeGeometry(15, 1, 10);            // cube ジオメトリ（サイズは 1x1x1）
+var canvasMap = new THREE.Texture(canvas); // canvas要素を読み込む
+var mat = new THREE.MeshPhongMaterial({side: THREE.DoubleSide});
+/*
+var mat = new THREE.MeshNormalMaterial({              // マテリアルの作成
+    transparent: true,                                  // 透過
+    opacity: 0.5,                                       // 不透明度
+    side: THREE.DoubleSide,                             // 内側も描く
+});
+*/
+mat.map = canvasMap;
+var mesh1 = new THREE.Mesh(geo, mat);
 
-    return mesh1;
-}
 //var mesh1 = new THREE.Mesh(geo, mat);                 // メッシュを生成
-mesh1.name = "cube";                                  // メッシュの名前（後でピッキングで使う）
+//mesh1.name = "cube";                                  // メッシュの名前（後でピッキングで使う）
 mesh1.position.set(0, 0.5, 0);                        // 初期位置
 marker1.add(mesh1);                                   // メッシュをマーカに追加
 // マーカ隠蔽（cloaking）
@@ -269,6 +272,12 @@ window.addEventListener("mousedown", function(ret) {
 });
 */
 
+
+
+/*
+
+
+
 var mouse;
 var sx, sy, ex, ey, rsx, rsy, rex, rey;
 window.addEventListener("mousedown", onMouseDown, false);
@@ -291,7 +300,7 @@ window.addEventListener("mousedown", onMouseDown, false);
             }
         }
 
-        canvas.addEventListener("mousemove", onMouseMove, false);
+        window.addEventListener("mousemove", onMouseMove, false);
         function onMouseMove(e) {
             console.log("マウスムーブ");
 
@@ -311,8 +320,8 @@ window.addEventListener("mousedown", onMouseDown, false);
                 ey = obj[0].point[1];
             }
             
-            var cvw = document.getElementById("myCanvas").width;
-            var cvh = document.getElementById("myCanvas").height;
+            var cvw = document.getElementById("tex_canvas").width;
+            var cvh = document.getElementById("tex_canvas").height;
             var rect = event.target.getBoundingClientRect();
             rsx = sx / 90;
             rsy = sy / 60;
@@ -329,7 +338,7 @@ window.addEventListener("mousedown", onMouseDown, false);
             sy = ey;
         }
 
-        canvas.addEventListener("mouseup", onMouseUp, false);
+        window.addEventListener("mouseup", onMouseUp, false);
         function onMouseUp(e) {
             console.log("マウスアップ");
             mouse = false;
@@ -352,6 +361,8 @@ function picked(objName) {
 }
 */
 
+
+
 //===================================================================
 // レンダリング・ループ
 //===================================================================
@@ -360,7 +371,7 @@ function renderScene() {                              // レンダリング関�
   if(source.ready === false)    { return; }             // メディアソースの準備ができていなければ抜ける
   context.update(source.domElement);                  // ARToolkitのコンテキストを更新
   //TWEEN.update();                                     // Tweenアニメーションを更新
-  this.cube.material.map.needsUpdate = true;
+  //mat.map.needsUpdate = true;
   renderer.render(scene, camera);                     // レンダリング実施
 }
 renderScene();                                        // 最初に1回だけレンダリングをトリガ
