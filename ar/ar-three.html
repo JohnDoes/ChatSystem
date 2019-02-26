@@ -144,7 +144,6 @@ function renderScene() {                              // レンダリング関�
   requestAnimationFrame(renderScene);                 // ループを要求
   if(source.ready === false)    { return; }             // メディアソースの準備ができていなければ抜ける
   context.update(source.domElement);                  // ARToolkitのコンテキストを更新
-  //TWEEN.update();                                     // Tweenアニメーションを更新
   //mat.map.needsUpdate = true;
   renderer.render(scene, camera);                     // レンダリング実施
 }

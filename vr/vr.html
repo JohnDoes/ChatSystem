@@ -242,7 +242,7 @@
               
               var cvw = document.getElementById("tex_canvas").width;
               var cvh = document.getElementById("tex_canvas").height;
-              var rect = event.target.getBoundingClientRect();
+              // var rect = event.target.getBoundingClientRect();
               rsx = sx / 450;
               rsy = sy / 300;
               rex = ex / 450;
@@ -265,6 +265,94 @@
             console.log("マウスアップ");
             mouse = false;
         }
+
+
+        window.addEventListener("touchstart", onTouchStart, false);
+        function onTouchStart(e) {
+          console.log("タッチスタート");                      //イベントの動作確認
+          var touch = e.changedTouches[0];                  //一本目の指を取得
+          touching = true;                                  //タッチ判定
+          var mouseX = e.clientX;                           // マウスのx座標
+          var mouseY = e.clientY;                           // マウスのy座標
+          mouseX =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
+          mouseY = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
+          var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
+          pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
+          // レイキャスタを作成（始点, 向きのベクトル）
+          var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
+          var obj = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
+          if(obj.length > 0) {                                // 交差したオブジェクトがあれば
+              //picked(obj[0].object.name);                      // ピックされた対象に応じた処理を実行
+              console.log(obj[0].point.x); 
+              console.log(obj[0].point.y); 
+              //sx = obj[0].point[0];
+              //sy = obj[0].point[1];
+
+              sx = obj[0].point.x + 225;
+              sy = obj[0].point.y * -1 + 150;
+          }
+        }
+        
+            //タッチムーブ
+        window.addEventListener("touchmove", onTouchMove, false);
+        function onTouchMove(e) {
+            if(e.touches.length == 1) {
+              e.preventDefault();
+              console.log("タッチムーブ");
+              var touch = e.changedTouches[0];
+
+              var mouseX = e.clientX;                           // マウスのx座標
+              var mouseY = e.clientY;                           // マウスのy座標
+              mouseX =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
+              mouseY = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
+              var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
+              pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
+              // レイキャスタを作成（始点, 向きのベクトル）
+              var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
+              var obj = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
+              if(obj.length > 0) {                                // 交差したオブジェクトがあれば
+                  //picked(obj[0].object.name);                      // ピックされた対象に応じた処理を実行
+                  console.log(obj[0].point.x); 
+                  console.log(obj[0].point.y); 
+                  ex = obj[0].point.x + 225;
+                  ey = obj[0].point.y * -1 + 150;
+              }
+                
+              if(touching === true) {
+              
+              var cvw = document.getElementById("tex_canvas").width;
+              var cvh = document.getElementById("tex_canvas").height;
+              // var rect = event.target.getBoundingClientRect();
+              rsx = sx / 450;
+              rsy = sy / 300;
+              rex = ex / 450;
+              rey = ey / 300; 
+
+              ctx.beginPath();
+              ctx.lineCap = "round";
+              ctx.moveTo(rsx*cvw, rsy*cvh);
+              ctx.lineTo(rex*cvw, rey*cvh);
+              ctx.stroke();
+              
+              sx = ex;
+              sy = ey;
+            }
+
+            e.stopPropagation();
+          }
+        }
+
+        canvas.addEventListener("touchend", onTouchEnd, false);
+        function onTouchEnd(e) {
+//                e.preventDefault();
+                console.log("タッチエンド");
+                console.log(sx);
+                console.log(sy);
+                var touch = e.changedTouches[0];
+                touching = false;
+//                e.stopPropagation();
+        }
+        
 
 
 

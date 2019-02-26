@@ -69,6 +69,9 @@ function getRequestType(request){
   if ( request.url.indexOf(".patt") != -1) {
     return "patt";
   }
+  if ( request.url.indexOf(".dat") != -1) {
+    return "dat";
+  }
   return "";
 }
 
@@ -124,6 +127,14 @@ function doRequest(request, response) {
             function (err, data) {
                 response.writeHead(200, {"Content-Type": "text/plain"});
                 response.write(data);
+                response.end();
+            }
+        );
+        case "dat":
+        fs.readFile("."+request.url, "binary",
+            function (err, data) {
+                response.writeHead(200, {"Content-Type": "application/octet-stream"});
+                response.write(data, "binary");
                 response.end();
             }
         );
