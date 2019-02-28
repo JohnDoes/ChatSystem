@@ -66,11 +66,14 @@ function getRequestType(request){
   if ( request.url.indexOf(".png") != -1) {
     return "png";
   }
-  if ( request.url.indexOf(".patt") != -1) {
+  if ( request.url.indexOf(".hiro") != -1) {
     return "patt";
   }
   if ( request.url.indexOf(".dat") != -1) {
     return "dat";
+  }
+  if ( request.url.indexOf(".ico") != -1) {
+    return "ico";
   }
   return "";
 }
@@ -134,6 +137,14 @@ function doRequest(request, response) {
         fs.readFile("."+request.url, "binary",
             function (err, data) {
                 response.writeHead(200, {"Content-Type": "application/octet-stream"});
+                response.write(data, "binary");
+                response.end();
+            }
+        );
+        case "ico":
+        fs.readFile("."+request.url, "binary",
+            function (err, data) {
+                response.writeHead(200, {"Content-Type": "image/x-icon"});
                 response.write(data, "binary");
                 response.end();
             }
