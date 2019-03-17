@@ -61,7 +61,7 @@
     var canvasMap = new THREE.Texture(canvasTex); // canvas要素を読み込む
     var material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
     material.map = canvasMap;
-    canvasMap.minFilter = THREE.LinearFilter
+    canvasMap.minFilter = THREE.LinearFilter;
 
 /*
     var material = new THREE.SpriteMaterial({
@@ -342,7 +342,7 @@
           }
         }
 
-        canvas.addEventListener("touchend", onTouchEnd, false);
+        window.addEventListener("touchend", onTouchEnd, false);
         function onTouchEnd(e) {
 //                e.preventDefault();
                 console.log("タッチエンド");

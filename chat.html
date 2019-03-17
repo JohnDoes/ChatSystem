@@ -237,38 +237,38 @@
             </div>
         </div>
     </div>
-    <div id="menu_area" style="position: absolute; z-index: 20; top:250px; left:20px;">
+    <div id="menu_area" style="position: absolute; z-index: 20; top:250px; right:20px;">
         <input type="button" class="menu_button" onclick="menuButton()" value="メニュー" style="height: 50px;" />
-        <div id="button_area" style="display: none; margin-right: 300px;">
+        <div id="button_area" style="display: none; margin-right: 30px;">
             <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_color').toggle();" value="色彩を変更" style="height: 50px;" />
             <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_width').toggle();" value="太さを変更" style="height: 50px;" />
             <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_erase').toggle();" value="描画の消去" style="height: 50px;" />
             <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_image').toggle();" value="保存と共有" style="height: 50px;" />
             <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_mode').toggle();" value="画面モード" style="height: 50px;" />
         </div>
-        <div id="button_area_color" style="display: none; margin-right: 300px;">
+        <div id="button_area_color" style="display: none; margin-right: 30px;">
             <input type="button" class="menu_button" value="黒色" onClick="toBlack()" style="float: left; margin: 5px; height: 50px;"></input>
             <input type="button" class="menu_button" value="赤色" onClick="toRed()" style="float: left; margin: 5px;  height: 50px;"></input>
             <input type="button" class="menu_button" value="緑色" onClick="toGreen()" style="float: left; margin: 5px; height: 50px;"></input>
             <input type="button" class="menu_button" value="青色" onClick="toBlue()" style="float: left; margin: 5px; height: 50px;"></input>
             <input type="button" class="menu_button" value="白色" onClick="toErase()" style="float: left; margin: 5px; height: 50px;"></input>
         </div>
-        <div id="button_area_width" style="display: none; margin-right: 300px;">
+        <div id="button_area_width" style="display: none; margin-right: 30px;">
             <input type="button" class="menu_button" value="極細" onClick="toChangeBold(1)" style="float: left; margin: 5px; height: 50px;"></input>
             <input type="button" class="menu_button" value="細筆" onClick="toChangeBold(5)" style="float: left; margin: 5px;  height: 50px;"></input>
             <input type="button" class="menu_button" value="太筆" onClick="toChangeBold(10)" style="float: left; margin: 5px; height: 50px;"></input>
             <input type="button" class="menu_button" value="極太" onClick="toChangeBold(20)" style="float: left; margin: 5px; height: 50px;"></input>
             <input type="button" class="menu_button" value="塗筆" onClick="toChangeBold(50)" style="float: left; margin: 5px; height: 50px;"></input>
         </div>
-        <div id="button_area_erase" style="display: none; margin-right: 300px;">
+        <div id="button_area_erase" style="display: none; margin-right: 30px;">
             <input type="button" class="menu_button" value="全消去" onClick="toEraseAll()" style="float: left; margin: 5px; height: 50px;"></input>
         </div>
-        <div id="button_area_image" style="display: none; margin-right: 300px;">
+        <div id="button_area_image" style="display: none; margin-right: 30px;">
             <input type="button" class="menu_button" value="ダウンロード" onClick="toPicture()" style="float: left; margin: 5px; height: 50px;"></input>
             <input type="button" class="menu_button" id="board" value="チャットで送信" onclick="toChat()" style="float: left; margin: 5px; height: 50px;"></input>
             <div class="upload" style="float: left; margin: 5px;"><input type="file" name="file" id="file" accept="image/*"></div>
         </div>
-        <div id="button_area_mode" style="display: none; margin-right: 300px;">
+        <div id="button_area_mode" style="display: none; margin-right: 30px;">
             <input type="button" class="menu_button" id="canvas_mode" value="手描きモード" onclick= "canvasMode()" style="float: left; margin: 5px;  height: 50px;"></input>
             <input type="button" class="menu_button" id="video_mode" value="ビデオモード" onclick= "videoMode()" style="float: left; margin: 5px;  height: 50px;"></input>
             <input type="button" class="menu_button" id="chat_mode" value="チャットモード" onclick= "chatMode()" style="float: left; margin: 5px;  height: 50px;"></input>
