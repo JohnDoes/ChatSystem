@@ -1,0 +1,200 @@
+@charset 'utf-8'; /*文字コード指定*/
+
+/* ----- css reset(各ブラウザで指定されているスタイルを初期化)と全体設定 ----- */
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, form, input, textarea, p, th, td, img {
+    margin: 0; /*ボックス外側の余白(値1つは上下左右をまとめて指定)*/
+    padding: 0; /*ボックス内側の余白(値1つは上下左右をまとめて指定)*/
+    border: 0; /*境界線指定*/
+}
+
+html, body, .container, .content-wrap {
+    overflow: hidden; /*ボックスのはみ出た部分の表示指定(hiddenは非表示)*/
+    width: 100%; /*幅指定(100%は画面横幅いっぱいに表示)*/
+    height: 100%; /*領域の高さ指定*/
+}
+
+body {
+    margin: 0; /*ボックス外側の余白*/
+    background: #fff; /*背景指定*/
+    color: #333; /*文字色指定*/
+    font-size: 75%; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+    font-family: "メイリオ", Meiryo, "ＭＳ Ｐゴシック", Osaka, "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro";
+    line-height: 1; /*行の高さ指定(数値のみの場合はfont-sizeの倍数)*/
+}
+
+ol, ul {
+    list-style: none; /*リストマーカーの種類指定(noneはなし)*/
+}
+
+.container {
+    width: 100%; /*幅指定(100%は画面横幅いっぱいに表示)*/
+    margin: auto; /*ボックス外側の余白*/
+}
+
+.content-wrap {
+    /*はみ出た部分の表示指定(scrollははみ出た部分をスクロールで表示)*/
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+
+*, *:after, *:before { /*アスタリスク「*」はすべての要素にスタイルを適用、「:before」は要素の先頭に「:after」は後方に擬似要素を作成。*/
+    /*ボックスサイズの算出方法指定(border-boxはパディングとボーダーを幅と高さに含める)*/
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+button {
+    cursor: pointer; /*マウスカーソルの形状指定(pointerはリンクカーソル)*/
+}
+
+button:focus {
+    outline: none; /*アウトラインのスタイル・太さ・色指定(noneはなし)*/
+}
+
+/*header*/
+
+header {
+    margin: 130px auto 20px; /*ボックス外側の余白*/
+    text-align: center; /*行の水平方向の揃え方(centerは中央揃え)*/
+}
+
+header h1 {
+    font-size: 5em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+    font-family: 'Mrs Sheppards', cursive; /*フォントの種類指定(左から優先順位)*/
+}
+
+.toppage {
+    margin-top: 300px; /*ボックス外側上の余白*/
+}
+
+/*メインの内容*/
+
+article {
+    width: 800px; /*幅指定(100%は画面横幅いっぱいに表示)*/
+    margin: 100px auto; /*ボックス外側の余白*/
+}
+
+article h2 {
+    margin-bottom: 30px; /*ボックス外側下の余白*/
+    font-weight: normal; /*フォントの太さ指定(normalは標準)*/
+    font-size: 3em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+    font-family: 'Mrs Sheppards', cursive; /*フォントの種類指定(左から優先順位)*/
+    text-align: center; /*行の水平方向の揃え方(centerは中央揃え)*/
+}
+
+article li {
+    font-size: 2em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+    line-height: 50px; /*行の高さ指定(数値のみの場合はfont-sizeの倍数)*/
+}
+
+article a {
+    color: #333; /*文字色指定*/
+}
+
+article a:hover {
+    /*透明度設定*/
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+    -moz-opacity: 0.8; /*ここまで透明度設定*/
+    text-decoration: none; /*テキストの装飾指定(下線、上線など)(noneはなし)*/
+}
+
+/*ギャラリー設定*/
+
+.links {
+	text-align: center; /*行の水平方向の揃え方(centerは中央揃え)*/
+}
+
+.links img{
+	vertical-align: middle; /*垂直方向の揃え方(middleは中央揃え)*/
+}
+
+/*右側SNSのアニメーション*/
+
+#nav {
+    font-weight: bold; /*フォントの太さ指定(normalは標準)*/
+    list-style: none; /*リストマーカーの種類指定(noneはなし)*/
+}
+
+#nav li {
+    margin-bottom: 0.8em; /*ボックス外側下の余白*/
+}
+
+#nav li a {
+    color: #333; /*文字色指定*/
+    display: block; /*要素の表示指定（blockはブロックボックス生成）*/
+    height: 80px; /*領域の高さ指定*/
+    line-height: 80px; /*行の高さ指定(数値のみの場合はfont-sizeの倍数)*/
+    padding-left: 100px; /*ボックス内側左の余白*/
+    position: fixed; /*ボックスの配置方法(fixedは固定)*/
+    text-decoration: none; /*テキストの装飾指定(下線、上線など)(noneはなし)*/
+}
+
+.facebook {
+    top: 100px; /*上からの距離(positionで指定している場合に適用)*/
+    right: -80px; /*右からの距離(positionで指定している場合に適用)*/
+}
+
+.fa_awe {
+    margin-right: 40px; /*ボックス外側右の余白*/
+    color: #3864A3; /*文字色指定*/
+    font-size: 50px !important; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+}
+
+.twitter {
+    top: 170px; /*上からの距離(positionで指定している場合に適用)*/
+    right: -70px; /*右からの距離(positionで指定している場合に適用)*/
+}
+
+.tw_awe {
+    margin-right: 43px; /*ボックス外側右の余白*/
+    color: #5EA9DD; /*文字色指定*/
+    font-size: 50px !important; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+}
+
+/*レスポンシブ設定*/
+
+@media screen and (max-width: 768px) {
+
+.content-wrap {
+    width: 100%; /*幅指定(100%は画面横幅いっぱいに表示)*/
+    padding: 0 30px; /*ボックス内側の余白*/
+    position: relative; /*ボックスの配置方法(relativeは相対位置配置)*/
+}
+
+header {
+    margin: 70px auto 20px; /*ボックス外側の余白*/
+}
+
+header h1 {
+    font-size: 2em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+}
+
+.toppage {
+    margin-top: 200px; /*ボックス外側上の余白*/
+}
+
+/*メインの内容*/
+
+article {
+    margin-top: 100px; /*ボックス外側上の余白*/
+    width: 100%; /*幅指定(100%は画面横幅いっぱいに表示)*/
+}
+
+article h2 {
+    margin-bottom: 30px; /*ボックス外側下の余白*/
+    font-weight: normal; /*フォントの太さ指定(normalは標準)*/
+    font-size: 1.2em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+    text-align: center; /*行の水平方向の揃え方(centerは中央揃え)*/
+}
+
+article li {
+    font-size: 1.2em; /*フォントサイズ指定(emはフォントの高さを１とした相対指定)*/
+    line-height: 30px; /*行の高さ指定(数値のみの場合はfont-sizeの倍数)*/
+}
+
+#nav {
+    display: none; /*要素の表示指定（noneはなし）*/
+}
+}

@@ -346,8 +346,13 @@
         var thumb = 1;
         var bk_canvas, ctx, canvas, context, base64, bkData;
 
-        $("#myCanvas").attr({height:$("#canvas_area").height()});
-        $("#myCanvas").attr({width:$("#canvas_area").width()});
+        if($("#canvas_area").height()*3/2 > $("#canvas_area").width()) {
+            $("#myCanvas").attr({width:$("#canvas_area").width()});
+            $("#myCanvas").attr({height:$("#canvas_area").width()*2/3});
+        }else {
+            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            $("#myCanvas").attr({width:$("#canvas_area").height()*3/2});
+        }
 
         var myName = Math.floor(Math.random()*100) + "さん";
         document.getElementById("myNameForm").value = myName;
@@ -357,8 +362,13 @@
             var context = canvas.getContext('2d');
             var base64 = canvas.toDataURL("image/png");
             context.imageSmoothingQuality = "high";
-            $("#myCanvas").attr({width:$("#canvas_area").width()});
-            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            if($("#canvas_area").height()*3/2 > $("#canvas_area").width()) {
+                $("#myCanvas").attr({width:$("#canvas_area").width()});
+                $("#myCanvas").attr({height:$("#canvas_area").width()*2/3});
+            }else {
+                $("#myCanvas").attr({height:$("#canvas_area").height()});
+                $("#myCanvas").attr({width:$("#canvas_area").height()*3/2});
+            }
             var cw = canvas.offsetWidth + 500;
             var ch = canvas.offsetHeight + 500;
             context.fillStyle = "#ffffe0";
@@ -400,8 +410,13 @@
 
         //EraseAll
         socket.on('eraseAll', function (data) {
-            $("#myCanvas").attr({width:$("#canvas_area").width()});
-            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            if($("#canvas_area").height()*3/2 > $("#canvas_area").width()) {
+                $("#myCanvas").attr({width:$("#canvas_area").width()});
+                $("#myCanvas").attr({height:$("#canvas_area").width()*2/3});
+            }else {
+                $("#myCanvas").attr({height:$("#canvas_area").height()});
+                $("#myCanvas").attr({width:$("#canvas_area").height()*3/2});
+            }
             var canvas = document.getElementById("myCanvas");
             var context = canvas.getContext('2d');
             var cw = canvas.offsetWidth + 500;
@@ -417,7 +432,7 @@
         //タッチスタート
         canvas.addEventListener("touchstart", onTouchStart, false);
         function onTouchStart(e) {
-//                e.preventDefault();
+                // e.preventDefault();
                 console.log("タッチスタート");
                 var touch = e.changedTouches[0];
                 var rect = e.target.getBoundingClientRect();
@@ -426,7 +441,7 @@
                 console.log(sx);
                 console.log(sy);
                 touching = true;
-//                e.stopPropagation();
+                // e.stopPropagation();
         }
         
             //タッチムーブ
@@ -462,13 +477,13 @@
 
         canvas.addEventListener("touchend", onTouchEnd, false);
         function onTouchEnd(e) {
-//                e.preventDefault();
+                // e.preventDefault();
                 console.log("タッチエンド");
                 console.log(sx);
                 console.log(sy);
                 var touch = e.changedTouches[0];
                 touching = false;
-//                e.stopPropagation();
+                // e.stopPropagation();
         }
 
 
@@ -516,6 +531,7 @@
             document.getElementById("button_area_image").style.display = "none";
             document.getElementById("button_area_mode").style.display = "none";
         }
+
         function toRed() {
             color = "rgb(255,0,0)";
             document.getElementById("button_area_color").style.display = "none";
@@ -524,6 +540,7 @@
             document.getElementById("button_area_image").style.display = "none";
             document.getElementById("button_area_mode").style.display = "none";
         }
+
         function toGreen() {
             color = "rgb(0,255,0)";
             document.getElementById("button_area_color").style.display = "none";
@@ -532,6 +549,7 @@
             document.getElementById("button_area_image").style.display = "none";
             document.getElementById("button_area_mode").style.display = "none";
         }
+
         function toBlue() {
             color = "rgb(0,0,255)";
             document.getElementById("button_area_color").style.display = "none";
@@ -540,6 +558,7 @@
             document.getElementById("button_area_image").style.display = "none";
             document.getElementById("button_area_mode").style.display = "none";
         }
+
         function toErase() {
             color = "#ffffe0";
             document.getElementById("button_area_color").style.display = "none";
@@ -559,6 +578,7 @@
             document.getElementById("button_area_image").style.display = "none";
             document.getElementById("button_area_mode").style.display = "none";
         }
+
         function toPicture() {
             var date = new Date();
             var canvas = document.getElementById("myCanvas");
@@ -689,7 +709,7 @@
 
 
 
-//      video chat
+        // video chat
         let localStream = null;
         let peer = null;
         let existingCall = null;
@@ -939,8 +959,13 @@
             document.getElementById("menu_area").style.top = "20px";
             document.getElementById("menu_area").style.left = "20px";
 
-            $("#myCanvas").attr({height:$("#canvas_area").height()});
-            $("#myCanvas").attr({width:$("#canvas_area").width()});
+            if($("#canvas_area").height()*3/2 > $("#canvas_area").width()) {
+                $("#myCanvas").attr({width:$("#canvas_area").width()});
+                $("#myCanvas").attr({height:$("#canvas_area").width()*2/3});
+            }else {
+                $("#myCanvas").attr({height:$("#canvas_area").height()});
+                $("#myCanvas").attr({width:$("#canvas_area").height()*3/2});
+            }
 
             document.getElementById("button_area_color").style.display = "none";
             document.getElementById("button_area_width").style.display = "none";
@@ -1068,8 +1093,13 @@
             document.getElementById("chat_area").style.height = "100%";
             document.getElementById("chat_area").style.width = "300px";
 
-            $("#myCanvas").attr({height:$("#canvas_area").height()});
-            $("#myCanvas").attr({width:$("#canvas_area").width()});
+            if($("#canvas_area").height()*3/2 > $("#canvas_area").width()) {
+                $("#myCanvas").attr({width:$("#canvas_area").width()});
+                $("#myCanvas").attr({height:$("#canvas_area").width()*2/3});
+            }else {
+                $("#myCanvas").attr({height:$("#canvas_area").height()});
+                $("#myCanvas").attr({width:$("#canvas_area").height()*3/2});
+            }
 
             document.getElementById("button_area_color").style.display = "none";
             document.getElementById("button_area_width").style.display = "none";
@@ -1239,8 +1269,13 @@
             console.log("drow");
             canvas = document.getElementById("myCanvas");
             context = canvas.getContext('2d');
-            $("#myCanvas").attr({width:$("#canvas_area").width()});
-            $("#myCanvas").attr({height:$("#canvas_area").height()});
+            if($("#canvas_area").height()*3/2 > $("#canvas_area").width()) {
+                $("#myCanvas").attr({width:$("#canvas_area").width()});
+                $("#myCanvas").attr({height:$("#canvas_area").width()*2/3});
+            }else {
+                $("#myCanvas").attr({height:$("#canvas_area").height()});
+                $("#myCanvas").attr({width:$("#canvas_area").height()*3/2});
+            }
             bkData = new Image();
             bkData.onload = function() {
                 context.drawImage(bkData, 0, 0, canvas.width, canvas.height);

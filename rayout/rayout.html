@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,minimum-scale=1,maximum-scale=1">
+        <title>ByChat AR</title>
+        <style>
+            ul {
+                border: solid 2px #0a8338;
+                padding: 0 0.5em;
+                position: relative;
+            }
+
+            .menu_list {
+                line-height: 1.5;
+                padding: 0.5em 0 0.5em 1.4em;
+                border-bottom: dashed 1px silver;
+                list-style-type: none!important;
+            }
+
+            .menu_list:before {
+                font-family: "serif";
+                content: "\f138";/*アイコン種類*/
+                position: absolute;
+                left : 0.5em; /*左端からのアイコンまで*/
+                color: #02961b; /*アイコン色*/
+            }
+
+            .menu_list:last-of-type {
+                border-bottom: none;
+            }        
+
+            .review_list {
+                line-height: 200px;
+                padding: 0.5em 0 0.5em 1.4em;
+                border-bottom: dashed 1px silver;
+                list-style-type: none!important;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header_area"></div>
+        <div id="contents_area">
+            <div id="canvas_area"></div>
+            <div id="video_area"></div>
+            <div id="chat_area"></div>
+            <div id="menu_area">
+                <ul id="menu_all">
+                    <li id="sele_canvas" class="menu_list"></li>
+                    <li id="sele_video" class="menu_list"></li>
+                    <li id="sele_chat" class="menu_list"></li>
+                    <li id="sele_mode" class="menu_list"></li>
+                </ul>
+                <ul id="menu_canvas">
+                    <li id="sele_color" class="menu_list"></li>
+                    <li id="sele_bold" class="menu_list"></li>
+                    <li id="sele_eraser" class="menu_list"></li>
+                    <li id="sele_imagize" class="menu_list"></li>
+                    <li id="sele_bold" class="menu_list"></li>
+                    <li id="sele_eraser" class="menu_list"></li>
+                </ul>
+                <ul id="menu_video">
+                    <li id="sele_mute" class="menu_list"></li>
+                    <li id="sele_blind" class="menu_list"></li>
+                    <li id="sele_getout" class="menu_list"></li>
+                    <li id="sele_join" class="menu_list"></li>
+                </ul>
+                <ul id="menu_chat">
+                    <li id="sele_savechat" class="menu_list"></li>
+                </ul>
+                <ul id="menu_mode">
+                    <li class="review_list">
+                        <div id="canvas_review"></div>
+                    </li>
+                    <li class="review_list">
+                        <div id="video_review"></div>
+                    </li>
+                    <li class="review_list">
+                        <div id="chat_review"></div>
+                    </li>
+                </ul>
+                <ul id="menu_color">
+                    <li id="black" class="menu_list"></li>
+                    <li id="red" class="menu_list"></li>
+                    <li id="green" class="menu_list"></li>
+                    <li id="blue" class="menu_list"></li>
+                    <li id="white" class="menu_list"></li>
+                </ul>
+            </div>
+    </div>
+    </body>
+</html>

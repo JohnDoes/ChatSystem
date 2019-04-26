@@ -1,0 +1,183 @@
+@charset 'utf-8';
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, form, input, textarea, p, th, td, img {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+html, body, .container, .content-wrap {
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	background: #fff;
+	color: #333;
+	font-size: 75%;
+	font-family: "メイリオ", Meiryo, "ＭＳ Ｐゴシック", Osaka, "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro";
+	line-height: 1;
+}
+
+ol, ul {
+	list-style: none;
+}
+
+.container {
+	width: 100%;
+	margin: auto;
+}
+
+.content-wrap {
+	overflow-y: scroll;
+	-webkit-overflow-scrolling: touch;
+}
+
+*, *:after, *:before {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+button {
+	cursor: pointer;
+}
+
+button:focus {
+	outline: none;
+}
+
+header {
+	margin: 130px auto 20px;
+	text-align: center;
+}
+
+header h1 {
+	font-size: 5em;
+	font-family: 'Mrs Sheppards', cursive;
+}
+
+.toppage {
+	margin-top: 300px;
+}
+
+article {
+	width: 800px;
+	margin: 100px auto;
+}
+
+article h2 {
+	margin-bottom: 30px;
+	font-weight: normal;
+	font-size: 3em;
+	font-family: 'Mrs Sheppards', cursive;
+	text-align: center;
+}
+
+article li {
+	font-size: 2em;
+	line-height: 50px;
+}
+
+article a {
+	color: #333;
+}
+
+article a:hover {
+	opacity: 0.8;
+	filter: alpha(opacity=80);
+	-moz-opacity: 0.8;
+	text-decoration: none;
+}
+
+.links {
+	text-align: center;
+}
+
+.links img {
+	vertical-align: middle;
+}
+
+#nav {
+	font-weight: bold;
+	list-style: none;
+}
+
+#nav li {
+	margin-bottom: 0.8em;
+}
+
+#nav li a {
+	color: #333;
+	display: block;
+	height: 80px;
+	line-height: 80px;
+	padding-left: 100px;
+	position: fixed;
+	text-decoration: none;
+}
+
+.facebook {
+	top: 100px;
+	right: -80px;
+}
+
+.fa_awe {
+	margin-right: 40px;
+	color: #3864A3;
+	font-size: 50px !important;
+}
+
+.twitter {
+	top: 170px;
+	right: -70px;
+}
+
+.tw_awe {
+	margin-right: 43px;
+	color: #5EA9DD;
+	font-size: 50px !important;
+}
+
+@media screen and (max-width: 768px) {
+
+.content-wrap {
+	width: 100%;
+	padding: 0 30px;
+	position: relative;
+}
+
+header {
+	margin: 70px auto 20px;
+}
+
+header h1 {
+	font-size: 2em;
+}
+
+.toppage {
+	margin-top: 200px;
+}
+
+article {
+	margin-top: 100px;
+	width: 100%;
+}
+
+article h2 {
+	margin-bottom: 30px;
+	font-weight: normal;
+	font-size: 1.2em;
+	text-align: center;
+}
+
+article li {
+	font-size: 1.2em;
+	line-height: 30px;
+}
+
+#nav {
+	display: none;
+}
+}
