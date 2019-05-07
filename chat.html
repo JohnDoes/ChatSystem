@@ -357,6 +357,8 @@
         var myName = Math.floor(Math.random()*100) + "さん";
         document.getElementById("myNameForm").value = myName;
 
+
+        // ウィンドウサイズの変更や回転時のサイズ調整
         $(window).on("orientationchange resize load", function(){
             var canvas = document.getElementById("myCanvas");
             var context = canvas.getContext('2d');

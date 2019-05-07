@@ -336,4 +336,7 @@ io.sockets.on('connection', function (socket) {
         io.to(data.id).emit('returnMute', { judge: data.judge, value: data.value, name: data.name });
         console.log(data);
     });
+    socket.on('log', function (data) {
+        console.error(data.value);
+    });
 });
