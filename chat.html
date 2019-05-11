@@ -237,7 +237,7 @@
             </div>
         </div>
     </div>
-    <div id="menu_area" style="position: absolute; z-index: 20; top:250px; right:20px;">
+    <div id="menu_area" style="position: absolute; z-index: 20; top:20px; right:20px;">
         <input type="button" class="menu_button" onclick="menuButton()" value="メニュー" style="height: 50px;" />
         <div id="button_area" style="display: none; margin-right: 30px;">
             <input type="button" class="menu_button" onclick="$('#button_area').toggle();$('#button_area_color').toggle();" value="色彩を変更" style="height: 50px;" />
@@ -764,23 +764,27 @@
 
                 room = peer.joinRoom('mesh_video_' + roomName, {stream: localStream});
                 room.on('stream', stream => {
-                const peerId = stream.peerId;
-                const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
+                    const peerId = stream.peerId;
+                    const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
 
-                $('#their-videos').append($(
-                '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px;">' + 
-                    '<div class="peer-video" style="display: inline-block;">' + 
-                        '<video class="remoteVideos" height="140px" width="210px" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
-                    '</div>' + 
-                    '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
-                        "guest" + 
-                    '</div>' + 
-                    '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: #BAD7B6; color: black; position: relative; z-index:10;">音声オフ</div>' + 
-                '</div>'));
-                const el = $('#video_' + id).find('video').get(0);
-                el.srcObject = stream;
-                el.play();
-                defName();
+                    $('#their-videos').append($(
+                    '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px;">' + 
+                        '<div class="peer-video" style="display: inline-block;">' + 
+                            '<video class="remoteVideos" height="140px" width="210px" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                            '<audio class="remoteAudios" style="display: none;" autoplay playsinline></audio>' + 
+                        '</div>' + 
+                        '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
+                            "guest" + 
+                        '</div>' + 
+                        '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: #BAD7B6; color: black; position: relative; z-index:10;">音声オフ</div>' + 
+                    '</div>'));
+                    const el = $('#video_' + id).find('video').get(0);
+                    const ael = $('#video_' + id).find('audio').get(0);
+                    el.srcObject = stream;
+                    el.muted = true;
+                    ael.srcObject = stream;
+                    el.play();
+                    defName();
                 });
 
 
@@ -1009,7 +1013,7 @@
             }
 
             document.getElementById("menu_area").style.top = "20px";
-            document.getElementById("menu_area").style.left = "20px";
+            document.getElementById("menu_area").style.right = "20px";
 
             document.getElementById("button_area_color").style.display = "none";
             document.getElementById("button_area_width").style.display = "none";
@@ -1031,7 +1035,7 @@
             
 
             document.getElementById("menu_area").style.top = "20px";
-            document.getElementById("menu_area").style.left = "20px";
+            document.getElementById("menu_area").style.right = "20px";
 
             document.getElementById("button_area_color").style.display = "none";
             document.getElementById("button_area_width").style.display = "none";
@@ -1062,8 +1066,8 @@
             ctx.imageSmoothingQuality = "high";
             ctx.drawImage(canvas, 0 , 0, bk_canvas.width, bk_canvas.height);
 
-            document.getElementById("menu_area").style.top = "250px";
-            document.getElementById("menu_area").style.left = "20px";
+            document.getElementById("menu_area").style.top = "20px";
+            document.getElementById("menu_area").style.right = "20px";
 
             document.getElementById("canvas_area").style.top = "240px";
             document.getElementById("canvas_area").style.right = "300px";
