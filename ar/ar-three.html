@@ -23,6 +23,7 @@
 <!--テクスチャ用のCanvas-->
 <canvas id = "tex_canvas" width="512" height="512" style = "display: none;"></canvas>
 <div id="their-videos" style="display: none;"></div>
+<div id="arVideo" style="width: 500px; height: 500px; margin: auto; background-color: white; z-index: 1;"></div>
 
 <!-- Three.js のインクルード -->
 <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/101/three.min.js'></script>
@@ -32,14 +33,10 @@
 
 <script>
 
-
-
-
-
 // socket の設定
 var socket = io.connect();
 // var path = location.pathname ;
-var roomName = "arTest";// path.slice(1);
+var roomName = "arTest";  // path.slice(1);
 console.log(roomName);
 socket.emit("join", {value: roomName});
 
@@ -49,119 +46,6 @@ window.onerror = (a,b,c,d,e) => {
   socket.emit("log", {value: a + b + c + d + e});
 };
 */
-
-var aud = true;
-var vid = true;
-var size = "small";
-var videoTrack;
-var audioTrack;
-var thumb = 1;
-var bk_canvas, ctx, canvasTex, context, base64, bkData;
-
-
-let localStream = null;
-let peer = null;
-let existingCall = null;
-let room;
-
-
-try {
-
-  peer = new Peer({
-    key: '2647af86-51da-4e29-be21-abb6af7e1016',
-    debug: 3
-});
-
-
-peer.on('open', function(){
-
-  console.log("peer open");
-  socket.emit("log", {value: "peer open"});
-
-  navigator.mediaDevices = navigator.mediaDevices || ((navigator.mozGetUserMedia || navigator.webkitGetUserMedia) ? {
-    getUserMedia: function(c) {
-      return new Promise(function(y, n) {
-      (navigator.mozGetUserMedia ||
-          navigator.webkitGetUserMedia).call(navigator, c, y, n);
-      });
-    }
-  } : null);
-
-  if (!navigator.mediaDevices) {
-    console.log("getUserMedia() not supported.");
-    return;
-  }
-  var constraints = { 
-    video: false,
-    audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-    }
-  };
-
-  navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-      localStream = stream;
-      console.log("get media");
-      socket.emit("log", {value: "get media"});
-
-      // トラックを取り出す
-      audioTrack = stream.getAudioTracks()[0];
-
-      room = peer.joinRoom('mesh_video_' + roomName, {stream: localStream});
-      room.on('stream', stream => {
-      const peerId = stream.peerId;
-      const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
-
-      $('#their-videos').append($(
-      '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px;">' + 
-          '<div class="peer-video" style="display: inline-block;">' + 
-              '<video class="remoteVideos" height="140px" width="210px" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
-          '</div>' + 
-          '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
-              "guest" + 
-          '</div>' + 
-          '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: #BAD7B6; color: black; position: relative; z-index:10;">音声オフ</div>' + 
-      '</div>'));
-      const el = $('#video_' + id).find('video').get(0);
-      el.srcObject = stream;
-      el.play();
-      defName();
-      });
-
-
-      room.on('removeStream', function(stream) {
-          const peerId = stream.peerId;
-          $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
-      });
-
-      // UI stuff
-      room.on('close', function() {
-          room.close();
-          $('#their-videos').empty();
-      });
-      room.on('peerLeave', peerId => {
-          $('.video_' + peerId).remove();
-      });
-  });
-});
-
-peer.on('error', function(err){
-    alert(err.message);
-    room.close();
-    $('#their-videos').empty();
-});
-window.onclose = function() {
-    room.close();
-}
-
-
-}
-catch (e) {
-  socket.emit("log", {value: e});
-  console.log(e);
-}
-
 
 
 
@@ -177,13 +61,13 @@ var sx, sy, ex, ey, rsx, rsy, rex, rey;
 var color = "rgb(0,0,0)";
 var bold = 5;
 var canvasTex = document.getElementById("tex_canvas");
-var context = canvasTex.getContext('2d');
+var contextTex = canvasTex.getContext('2d');
 var touching = false;
 var mouse = false;
 var cw = canvasTex.offsetWidth + 500;
 var ch = canvasTex.offsetHeight + 500;
-context.fillStyle = "#ffffe0";
-context.fillRect(0, 0, cw, ch);
+contextTex.fillStyle = "#ffffe0";
+contextTex.fillRect(0, 0, cw, ch);
 var drawPos = [];
 
 //Write
@@ -191,14 +75,14 @@ socket.on('posit', function (data) {
     var cvw = document.getElementById("tex_canvas").width;
     var cvh = document.getElementById("tex_canvas").height;
     var canvasTex = document.getElementById("tex_canvas");
-    var context = canvasTex.getContext('2d');
-    context.beginPath();
-    context.lineCap = "round";
-    context.strokeStyle = data[4];
-    context.lineWidth = data[5];
-    context.moveTo(data[0]*cvw, data[1]*cvh);
-    context.lineTo(data[2]*cvw, data[3]*cvh);
-    context.stroke();
+    var contextTex = canvasTex.getContext('2d');
+    contextTex.beginPath();
+    contextTex.lineCap = "round";
+    contextTex.strokeStyle = data[4];
+    contextTex.lineWidth = data[5];
+    contextTex.moveTo(data[0]*cvw, data[1]*cvh);
+    contextTex.lineTo(data[2]*cvw, data[3]*cvh);
+    contextTex.stroke();
 });
 
 //EraseAll
@@ -206,11 +90,11 @@ socket.on('eraseAll', function (data) {
     // $("#tex_canvas").attr({width:$("#canvas_area").width()});
     // $("#tex_canvas").attr({height:$("#canvas_area").height()});
     var canvasTex = document.getElementById("tex_canvas");
-    var context = canvasTex.getContext('2d');
+    var contextTex = canvasTex.getContext('2d');
     var cw = canvasTex.offsetWidth + 500;
     var ch = canvasTex.offsetHeight + 500;
-    context.fillStyle = "#ffffe0";
-    context.fillRect(0, 0, cw, ch);
+    contextTex.fillStyle = "#ffffe0";
+    contextTex.fillRect(0, 0, cw, ch);
 });
 
 
@@ -238,7 +122,7 @@ renderer.setSize(640, 480);                           // レンダラのサイ�
 renderer.domElement.style.position = "absolute";      // レンダラの位置は絶対値
 renderer.domElement.style.top = "0px";                // レンダラの上端
 renderer.domElement.style.left = "0px";               // レンダラの左端
-document.body.appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
+document.getElementById("arVideo").appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
 var camera = new THREE.Camera();                      // カメラの作成
 //var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0, 1000);                      // カメラの作成
 scene.add(camera);                                    // カメラをシーンに追加
@@ -260,7 +144,8 @@ source.init(function onReady() {                      // ソースを初期化�
 // arToolkitContext（カメラパラメータ、マーカ検出設定）
 //===================================================================
 var context = new THREEx.ArToolkitContext({           // arToolkitContextの作成
-  debug: false,                                       // デバッグ用キャンバス表示（デフォルトfalse）
+  // 元はfalse
+  debug: true,                                       // デバッグ用キャンバス表示（デフォルトfalse）
   cameraParametersUrl: "https://jeromeetienne.github.io/AR.js/data/data/camera_para.dat",             // カメラパラメータファイル
   detectionMode: "mono",                              // 検出モード（color/color_and_matrix/mono/mono_and_matrix）
   imageSmoothingEnabled: true,                        // 画像をスムージングするか（デフォルトfalse）
@@ -288,18 +173,18 @@ function onResize(){
   } 
 
   var canvasTex = document.getElementById("tex_canvas");
-  var context = canvasTex.getContext('2d');
+  var contextTex = canvasTex.getContext('2d');
   var base64 = canvasTex.toDataURL("image/png");
-  context.imageSmoothingQuality = "high";
+  contextTex.imageSmoothingQuality = "high";
   // $("#tex_canvas").attr({width:$("#canvas_area").width()});
   // $("#tex_canvas").attr({height:$("#canvas_area").height()});
   var cw = canvasTex.offsetWidth + 500;
   var ch = canvasTex.offsetHeight + 500;
-  context.fillStyle = "#ffffe0";
-  context.fillRect(0, 0, cw, ch);
+  contextTex.fillStyle = "#ffffe0";
+  contextTex.fillRect(0, 0, cw, ch);
   var bkData = new Image();
   bkData.onload = function() {
-      context.drawImage(bkData, 0, 0, canvasTex.width, canvasTex.height);
+      contextTex.drawImage(bkData, 0, 0, canvasTex.width, canvasTex.height);
   }
   bkData.src = base64;
   
