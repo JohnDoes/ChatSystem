@@ -9,6 +9,14 @@
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script type="text/javascript" src="../socket.io/socket.io.js"></script>
+  <script type="text/javascript">
+    // socket の設定
+    var socket = io.connect();
+    // var path = location.pathname ;
+    var roomName = "arTest";  // path.slice(1);
+    console.log(roomName);
+    socket.emit("join", {value: roomName});
+  </script>
   <style>
     body {
       margin: 0px;
@@ -29,17 +37,21 @@
 <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/101/three.min.js'></script>
 
 <!-- AR.js のインクルード -->
+<!--
 <script src="https://jeromeetienne.github.io/AR.js/three.js/build/ar.min.js"></script>
+-->
+<script src="./ar.js"></script>
+
 
 <script>
-
+/*
 // socket の設定
 var socket = io.connect();
 // var path = location.pathname ;
 var roomName = "arTest";  // path.slice(1);
 console.log(roomName);
 socket.emit("join", {value: roomName});
-
+*/
 /*
 window.onerror = (a,b,c,d,e) => {
   console.error('window.onerror', a,b,c,d,e);
@@ -123,8 +135,8 @@ renderer.domElement.style.position = "absolute";      // レンダラの位置�
 renderer.domElement.style.top = "0px";                // レンダラの上端
 renderer.domElement.style.left = "0px";               // レンダラの左端
 document.getElementById("arVideo").appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
-var camera = new THREE.Camera();                      // カメラの作成
-//var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0, 1000);                      // カメラの作成
+// var camera = new THREE.Camera();                      // カメラの作成
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0, 1000);                      // カメラの作成
 scene.add(camera);                                    // カメラをシーンに追加
 var light = new THREE.DirectionalLight(0xffffff);     // 平行光源（白）を作成
 light.position.set(0, 1, 2);                          // カメラ方向から照らす
@@ -138,6 +150,7 @@ var source = new THREEx.ArToolkitSource({             // arToolkitSourceの作�
 });
 source.init(function onReady() {                      // ソースを初期化し、準備ができたら
   onResize();                                         // リサイズ処理
+  connectPeer();                                      // リサイズ処理
 });
 
 //===================================================================
@@ -162,7 +175,7 @@ context.init(function onCompleted(){                  // コンテクスト初�
 // リサイズ処理
 //===================================================================
 window.addEventListener("resize", function() {        // ウィンドウがリサイズされたら
-  onResize();                                         // リサイズ処理
+  onResize();
 });
 // リサイズ関数
 function onResize(){
@@ -263,6 +276,97 @@ function renderScene() {                              // レンダリング関�
   renderer.render(scene, camera);                     // レンダリング実施
 }
 renderScene();     // 最初に1回だけレンダリングをトリガ
+
+
+//==================================================================
+//  ビデオチャット実装
+//==================================================================
+
+
+  function connectPeer() {
+    // video chat
+    let localStream = null;
+    let peer = null;
+    let existingCall = null;
+    let room;
+    peer = new Peer({
+        key: '2647af86-51da-4e29-be21-abb6af7e1016',
+        debug: 3
+    });
+
+
+    peer.on('open', function(){
+
+      // confirm log
+      console.log("peerOpen");
+      socket.emit("log", {value: "peerOpen"});
+
+
+      localStream = peerStream;
+      // confirm log
+      console.log(localStream);
+      socket.emit("log", {value: "peerOpen"});
+
+      // トラックを取り出す
+      videoTrack = peerStream.getVideoTracks()[0];
+      audioTrack = peerStream.getAudioTracks()[0];
+
+      room = peer.joinRoom('mesh_video_' + roomName, {stream: localStream});
+      room.on('stream', stream => {
+
+      // confirm log
+      console.log("peerConn");
+      socket.emit("log", {value: "peerConn"});
+        
+        const peerId = stream.peerId;
+        const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
+
+        $('#their-videos').append($(
+        '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px;">' + 
+            '<div class="peer-video" style="display: inline-block;">' + 
+                '<video class="remoteVideos" height="140px" width="210px" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                '<audio class="remoteAudios" style="display: none;" autoplay playsinline></audio>' + 
+            '</div>' + 
+            '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
+                "guest" + 
+            '</div>' + 
+            '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: #BAD7B6; color: black; position: relative; z-index:10;">音声オフ</div>' + 
+        '</div>'));
+        const el = $('#video_' + id).find('video').get(0);
+        const ael = $('#video_' + id).find('audio').get(0);
+        el.srcObject = stream;
+        el.muted = true;
+        ael.srcObject = stream;
+        el.play();
+        defName();
+      });
+
+
+      room.on('removeStream', function(stream) {
+          const peerId = stream.peerId;
+          $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
+      });
+
+      // UI stuff
+      room.on('close', function() {
+          room.close();
+          $('#their-videos').empty();
+      });
+      room.on('peerLeave', peerId => {
+          $('.video_' + peerId).remove();
+      });
+    });
+
+    peer.on('error', function(err){
+        alert(err.message);
+        room.close();
+        $('#their-videos').empty();
+    });
+    window.onclose = function() {
+        room.close();
+    }
+  } 
+
 
 
 
