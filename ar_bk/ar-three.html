@@ -134,7 +134,7 @@ renderer.setSize(640, 480);                           // レンダラのサイ�
 renderer.domElement.style.position = "absolute";      // レンダラの位置は絶対値
 renderer.domElement.style.top = "0px";                // レンダラの上端
 renderer.domElement.style.left = "0px";               // レンダラの左端
-document.getElementById("arVideo").appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
+document.body.appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
 // var camera = new THREE.Camera();                      // カメラの作成
 var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0, 1000);                      // カメラの作成
 scene.add(camera);                                    // カメラをシーンに追加
@@ -334,11 +334,10 @@ renderScene();     // 最初に1回だけレンダリングをトリガ
         '</div>'));
         const el = $('#video_' + id).find('video').get(0);
         const ael = $('#video_' + id).find('audio').get(0);
-        el.srcObject = stream;
         el.muted = true;
+        el.srcObject = stream;
         ael.srcObject = stream;
         el.play();
-        defName();
       });
 
 
