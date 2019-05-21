@@ -220,8 +220,8 @@ var controls = new THREEx.ArMarkerControls(context, marker1, {    // マーカ�
 
 scene.add(marker1);                                   // マーカをシーンに追加
 // モデル（メッシュ）
-var geoWidth = 30;
-var geoHeight = 20;
+var geoWidth = 6;
+var geoHeight = 4;
 var geo = new THREE.PlaneGeometry(geoWidth, geoHeight);            // plane ジオメトリ（サイズは 1x1x1）
 var canvasMap = new THREE.Texture(canvasTex); // canvas要素を読み込む
 var mat = new THREE.MeshBasicMaterial({ map: canvasMap });
@@ -246,7 +246,7 @@ mesh1.rotation.x = Math.PI/2 * -1;
 //var mesh1 = new THREE.Mesh(geo, mat);                 // メッシュを生成
 //mesh1.name = "cube";
 var mesh1PosX = 0;
-var mesh1PosY = 20;
+var mesh1PosY = 0.1;
 var mesh1PosZ = 0;
                                   // メッシュの名前（後でピッキングで使う）
 mesh1.position.set(mesh1PosX, mesh1PosY, mesh1PosZ);                        // 初期位置
@@ -432,16 +432,16 @@ renderScene();     // 最初に1回だけレンダリングをトリガ
                 console.log(object[0].uv.x)
                 console.log(object[0].uv.y)
                 console.log(object[0]);
-                //sx = obj[0].point[0];
-                //sy = obj[0].point[1];
+                //ex = obj[0].point[0];
+                //ey = obj[0].point[1];
 
 
-                sx = object[0].uv.x;
-                sy = object[0].uv.y * -1 + 1;
-                //sy = obj[0].uv.y * -1 + geoHeight;
-                // sx = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
-                // sy = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
-                // sy = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
+                ex = object[0].uv.x;
+                ey = object[0].uv.y * -1 + 1;
+                // ey = obj[0].uv.y * -1 + geoHeight;
+                // ex = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
+                // ey = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
+                // ey = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
             }
 
             if(mouse) {
@@ -551,15 +551,15 @@ renderScene();     // 最初に1回だけレンダリングをトリガ
                     console.log(object[0].uv.y)
                     console.log(object[0]);
 
-                    //sx = obj[0].point[0];
-                    //sy = obj[0].point[1];
+                    //ex = obj[0].point[0];
+                    //ey = obj[0].point[1];
 
-                    sx = object[0].uv.x;
-                    sy = object[0].uv.y * -1 + 1;
-                    //sy = obj[0].uv.y * -1 + geoHeight;
-                    // sx = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
-                    // sy = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
-                    // sy = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
+                    ex = object[0].uv.x;
+                    ey = object[0].uv.y * -1 + 1;
+                    // ey = obj[0].uv.y * -1 + geoHeight;
+                    // ex = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
+                    // ey = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
+                    // ey = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
               }
                 
               if(touching) {

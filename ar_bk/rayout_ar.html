@@ -4,6 +4,29 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,minimum-scale=1,maximum-scale=1">
         <title>ByChat AR</title>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="https://cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script type="text/javascript" src="../socket.io/socket.io.js"></script>
+        <script>
+            ///////////////////////////////////
+            //  script list
+            ////////////////////////////////
+
+
+
+            ///////////////////////
+            //  websocket 設定   //
+            ///////////////////////
+            // socket
+            var socket, path, roomName;
+            socket = io.connect();
+            // path = location.pathname;
+            roomName = "arTest";
+            console.log(roomName);
+            socket.emit("join", {value: roomName});
+        </script>
         <style type="text/css">
             /* html 構造 */
             html, body {
@@ -79,7 +102,7 @@
                     position: absolute;
                     left: 0;
                     top: 40px;
-                    z-index: 5;
+                    z-index: 10;
                 }
            }
 
@@ -461,7 +484,7 @@
                         <li id="sele_mode" class="menu_list">モード変更</li>
                     </ul>
                     <ul id="menu_canvas">
-                        <li id="sele_upstory" class="menu_return">← 戻る</li>
+                        <li id="sele_upstory_canvas" class="menu_return">← 戻る</li>
                         <li id="sele_color" class="menu_list">色彩メニュー</li>
                         <li id="sele_bold" class="menu_list">太さメニュー</li>
                         <li id="sele_eraser" class="menu_list">消去メニュー</li>
@@ -469,7 +492,7 @@
                         <li id="sele_mode" class="menu_list">モード変更</li>
                     </ul>
                     <ul id="menu_video">
-                        <li id="sele_upstory" class="menu_return">← 戻る</li>
+                        <li id="sele_upstory_video" class="menu_return">← 戻る</li>
                         <li id="sele_mute" class="menu_list">マイクオフ</li>
                         <li id="sele_blind" class="menu_list">ビデオオフ</li>
                         <li id="sele_getout" class="menu_list">退出</li>
@@ -477,13 +500,13 @@
                         <li id="sele_mode" class="menu_list">モード変更</li>
                     </ul>
                     <ul id="menu_chat">
-                        <li id="sele_upstory" class="menu_return">← 戻る</li>
+                        <li id="sele_upstory_chat" class="menu_return">← 戻る</li>
                         <li id="sele_upToChat" class="menu_list">画像を送信</li>
                         <li id="sele_downFromChat" class="menu_list">チャットを保存</li>
                         <li id="sele_mode" class="menu_list">モード変更</li>
                     </ul>
                     <ul id="menu_mode">
-                        <li id="sele_upstory" class="menu_return">← 戻る</li>
+                        <li id="sele_upstory_mode" class="menu_return">← 戻る</li>
                         <li id="sele_canvasMode" class="review_list">
                             <div id="canvas_review" class="review_contents">
                                 <canvas id="review_canvas"></canvas>
@@ -508,9 +531,10 @@
                                  -->
                             </div>
                         </li>
+                        <li id="sele_pcMode" class="menu_list">PCバージョンへ</li>
                     </ul>
                     <ul id="menu_color">
-                        <li id="sele_upstory" class="menu_return">← 戻る</li>
+                        <li id="sele_upstory_color" class="menu_return">← 戻る</li>
                         <li id="black" class="menu_list">黒色</li>
                         <li id="red" class="menu_list">赤色</li>
                         <li id="green" class="menu_list">緑色</li>
@@ -518,7 +542,7 @@
                         <li id="white" class="menu_list">白色</li>
                     </ul>
                     <ul id="menu_bold">
-                        <li id="sele_upstory" class="menu_return">← 戻る</li>
+                        <li id="sele_upstory_bold" class="menu_return">← 戻る</li>
                         <li id="thin" class="menu_list">細い</li>
                         <li id="normal" class="menu_list">標準</li>
                         <li id="thick" class="menu_list">太い</li>
@@ -526,12 +550,12 @@
                         <li id="paint" class="menu_list">塗り</li>
                     </ul>
                     <ul id="menu_eraser">
-                        <li id="sele_upstory" class="menu_return">← 戻る</li>
+                        <li id="sele_upstory_eraser" class="menu_return">← 戻る</li>
                         <li id="eraser" class="menu_list">消しゴム</li>
                         <li id="clear" class="menu_list">全消去</li>
                     </ul>
                     <ul id="menu_updowm">
-                        <li id="sele_upstory" class="menu_return">← 戻る</li>
+                        <li id="sele_upstory_updown" class="menu_return">← 戻る</li>
                         <li id="upload" class="menu_list">アップロード</li>
                         <li id="download" class="menu_list">ダウンロード</li>
                         <li id="sendToChat" class="menu_list">チャットで送信</li>
@@ -540,10 +564,88 @@
             </div>
         </div>
 
-        <script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/101/three.min.js'></script>
 
-            // メニュー操作
-            var mode, menu_story, ;
+        <!-- AR.js のインクルード -->
+        <!--
+        <script src="https://jeromeetienne.github.io/AR.js/three.js/build/ar.min.js"></script>
+        -->
+        <script src="./ar.js"></script>
+        
+        
+        <script>
+            ////////////////////////////
+            //  変数定義    //
+            /////////////////
+            // 画面遷移関係
+            var clicked_swich;
+            // botan
+            var menuB, canvasB, chatB, videoB, modeB, ;
+            // ar
+            var texCanvas;
+            // bideo
+            var vid;
+            // chat
+            var mes;
+
+
+
+            /////////////////////////
+            //  画面遷移    //
+            /////////////////
+            function resetMode() {
+                document.getElementById("canvas_area").style.display = "none";
+                document.getElementById("video_area").style.display = "none";
+                document.getElementById("chat_area").style.display = "none";
+                document.getElementById("menu_area").style.display = "none";
+            }
+            function resetMenu() {
+                document.getElementById("menu_all").style.display = "none";
+                document.getElementById("menu_canvas").style.display = "none";
+                document.getElementById("menu_video").style.display = "none";
+                document.getElementById("menu_chat").style.display = "none";
+                document.getElementById("menu_mode").style.display = "none";
+                document.getElementById("menu_color").style.display = "none";
+                document.getElementById("menu_bold").style.display = "none";
+                document.getElementById("menu_eraser").style.display = "none";
+                document.getElementById("menu_updown").style.display = "none";
+            }
+            function openMode(modeName) {
+                resetMode();
+                areaName = modeName + "_area";
+                if(modeName != "menu") {
+                    menu_story = "menu_" + modeName;
+                }
+                document.getElementById(areaName).style.display = "block";
+            }
+            function openMenu(menuName) {
+                resetMenu();
+                document.getElementById(menu_story).style.display = "block";
+            }
+            
+
+
+
+            //////////////////////////
+            //  ボタン操作    //
+            ///////////////////
+
+
+            /////////////////
+            //  AR描画  //
+            //////////////
+
+
+            /////////////////////////
+            //  ビデオチャット  //
+            /////////////////////
+
+
+            /////////////////////////
+            //  テキストチャット    //
+            /////////////////////////
+
+
         </script>
 
     </body>
