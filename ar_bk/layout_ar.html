@@ -10,12 +10,6 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <script type="text/javascript" src="../socket.io/socket.io.js"></script>
         <script>
-            ///////////////////////////////////
-            //  script list
-            ////////////////////////////////
-
-
-
             ///////////////////////
             //  websocket 設定   //
             ///////////////////////
@@ -23,6 +17,9 @@
             var socket, path, roomName;
             socket = io.connect();
             // path = location.pathname;
+            // roomName = path.slice(1);
+            // roomPath = path.slice(1).split('.')
+            // roomName = roomPath[0];
             roomName = "arTest";
             console.log(roomName);
             socket.emit("join", {value: roomName});
@@ -130,7 +127,7 @@
             .contents_container {
                 display: inline-block;
                 width: calc(100% - 30px);
-                height: calc(100%-30px);
+                height: calc(100% - 30px);
                 padding: auto;
                 /*
                 background-color: aliceblue;
@@ -169,6 +166,12 @@
                 text-align: left;
             }
 
+            .file_label {
+                font-size: 16px;
+                color: silver;
+                text-align: center;
+            }
+
             /*
             .menu_list:before {
                 font-family: "serif";
@@ -198,6 +201,9 @@
 
             #chat_review {
                 height: 160px;
+                overflow-y: scroll;
+            }
+            #video_review {
                 overflow-y: scroll;
             }
 
@@ -409,14 +415,15 @@
                 </div>
                 <div id="header_right">
                     <div id="username_box">
-                        Name: <input class="header_contents" type="text" id="myNameForm" />
+                        Name: <input id="chat_name" class="header_contents" type="text" id="myNameForm" />
                     </div>
                 </div>
             </div>
         </div>
         <div id="contents_area">
             <div id="canvas_area" class="main">
-                <div class="contents_container">
+                <div id="canvas_container" class="contents_container">
+                    <canvas id = "tex_canvas" width="512" height="512" style = "display: none;"></canvas>
                 </div>
             </div>
             <div id="chat_area" class="main">
@@ -473,6 +480,8 @@
             </div>
             <div id="video_area" class="main">
                 <div class="contents_container">
+                    <div id="their-videos" style="display: inline-block; white-space: nowrap; height: 100%;">
+                    </div>
                 </div>
             </div>
             <div id="menu_area" class="side">
@@ -481,7 +490,7 @@
                         <li id="sele_canvas" class="menu_list">描画メニュー</li>
                         <li id="sele_video" class="menu_list">ビデオメニュー</li>
                         <li id="sele_chat" class="menu_list">チャットメニュー</li>
-                        <li id="sele_mode" class="menu_list">モード変更</li>
+                        <li id="sele_mode_all" class="menu_list">モード変更</li>
                     </ul>
                     <ul id="menu_canvas">
                         <li id="sele_upstory_canvas" class="menu_return">← 戻る</li>
@@ -489,21 +498,28 @@
                         <li id="sele_bold" class="menu_list">太さメニュー</li>
                         <li id="sele_eraser" class="menu_list">消去メニュー</li>
                         <li id="sele_updown" class="menu_list">画像化メニュー</li>
-                        <li id="sele_mode" class="menu_list">モード変更</li>
+                        <li id="sele_mode_canvas" class="menu_list">モード変更</li>
                     </ul>
                     <ul id="menu_video">
                         <li id="sele_upstory_video" class="menu_return">← 戻る</li>
                         <li id="sele_mute" class="menu_list">マイクオフ</li>
-                        <li id="sele_blind" class="menu_list">ビデオオフ</li>
+                        <!--
+                            <li id="sele_blind" class="menu_list">ビデオオフ</li>
+                        -->
                         <li id="sele_getout" class="menu_list">退出</li>
                         <li id="sele_join" class="menu_list">入室</li>
-                        <li id="sele_mode" class="menu_list">モード変更</li>
+                        <li id="sele_mode_video" class="menu_list">モード変更</li>
                     </ul>
                     <ul id="menu_chat">
                         <li id="sele_upstory_chat" class="menu_return">← 戻る</li>
-                        <li id="sele_upToChat" class="menu_list">画像を送信</li>
+                        <li id="sele_upToChat" class="menu_list">
+                            <label class="file_label">
+                                画像を送信
+                                <input id="chat_file" type="file" name="file" accept="image/*" style="display: none;" />
+                            </label>
+                        </li>
                         <li id="sele_downFromChat" class="menu_list">チャットを保存</li>
-                        <li id="sele_mode" class="menu_list">モード変更</li>
+                        <li id="sele_mode_chat" class="menu_list">モード変更</li>
                     </ul>
                     <ul id="menu_mode">
                         <li id="sele_upstory_mode" class="menu_return">← 戻る</li>
@@ -514,7 +530,8 @@
                         </li>
                         <li id="sele_videoMode" class="review_list">
                             <div id="video_review" class="review_contents">
-                                <video id="review_video"></video>
+                                <div class="pure-u-2-3" id="their-videos_review" style="display: inline-block; white-space: nowrap;">
+                                </div>
                             </div>
                         </li>
                         <li id="sele_chatMode" class="review_list">
@@ -535,30 +552,35 @@
                     </ul>
                     <ul id="menu_color">
                         <li id="sele_upstory_color" class="menu_return">← 戻る</li>
-                        <li id="black" class="menu_list">黒色</li>
-                        <li id="red" class="menu_list">赤色</li>
-                        <li id="green" class="menu_list">緑色</li>
-                        <li id="blue" class="menu_list">青色</li>
-                        <li id="white" class="menu_list">白色</li>
+                        <li id="sele_black" class="menu_list">黒色</li>
+                        <li id="sele_red" class="menu_list">赤色</li>
+                        <li id="sele_green" class="menu_list">緑色</li>
+                        <li id="sele_blue" class="menu_list">青色</li>
+                        <li id="sele_white" class="menu_list">白色</li>
                     </ul>
                     <ul id="menu_bold">
                         <li id="sele_upstory_bold" class="menu_return">← 戻る</li>
-                        <li id="thin" class="menu_list">細い</li>
-                        <li id="normal" class="menu_list">標準</li>
-                        <li id="thick" class="menu_list">太い</li>
-                        <li id="superThick" class="menu_list">極太</li>
-                        <li id="paint" class="menu_list">塗り</li>
+                        <li id="sele_thin" class="menu_list">細い</li>
+                        <li id="sele_normal" class="menu_list">標準</li>
+                        <li id="sele_thick" class="menu_list">太い</li>
+                        <li id="sele_superThick" class="menu_list">極太</li>
+                        <li id="sele_paint" class="menu_list">塗り</li>
                     </ul>
                     <ul id="menu_eraser">
                         <li id="sele_upstory_eraser" class="menu_return">← 戻る</li>
-                        <li id="eraser" class="menu_list">消しゴム</li>
-                        <li id="clear" class="menu_list">全消去</li>
+                        <li id="sele_eraserColor" class="menu_list">消しゴム</li>
+                        <li id="sele_clear" class="menu_list">全消去</li>
                     </ul>
                     <ul id="menu_updowm">
                         <li id="sele_upstory_updown" class="menu_return">← 戻る</li>
-                        <li id="upload" class="menu_list">アップロード</li>
-                        <li id="download" class="menu_list">ダウンロード</li>
-                        <li id="sendToChat" class="menu_list">チャットで送信</li>
+                        <li id="sele_upload" class="menu_list">
+                            <label class="file_label">
+                                アップロード
+                                <input id="canvas_file" type="file" name="file" accept="image/*" style="display: none;" />
+                            </label>
+                        </li>
+                        <li id="sele_download" class="menu_list">ダウンロード</li>
+                        <li id="sele_sendToChat" class="menu_list">チャットで送信</li>
                     </ul>
                 </div>
             </div>
@@ -578,27 +600,128 @@
             //  変数定義    //
             /////////////////
             // 画面遷移関係
-            var clicked_swich;
+            var mode, menu_story, clicked_swich, menu_judge;
+            mode = "chat";
+
+            //area
+            var el_menu_area, el_canvas_area, el_video_area, el_chat_area;
+            el_menu_area = document.getElementById("menu_area");
+            el_canvas_area = document.getElementById("canvas_area");
+            el_video_area = document.getElementById("video_area");
+            el_chat_area = document.getElementById("chat_area");
+
             // botan
-            var menuB, canvasB, chatB, videoB, modeB, ;
+            var b_humberger, b_canvas, b_chat, b_video, b_mode_all;
+            var b_upstory_canvas, b_color, b_bold, b_eraser, b_updown, b_mode_canvas;
+            var b_upstory_video, b_mute, b_blind, b_getout, b_join, b_mode_video;
+            var b_upstory_chat, b_upToChat, b_downFromChat, b_mode_chat;
+            var b_upstory_mode, b_canvasMode, b_videoMode, b_chatMode, b_pcMode;
+            var b_upstory_color, b_black, b_red, b_green, b_blue, b_white;
+            var b_upstory_bold, b_thin, b_normal, b_thick, b_superThick, b_paint;
+            var b_upstory_eraser, b_eraserColor, b_clear;
+            var b_upstory_updown, b_upload, b_download, b_sendToChat;
+            
+            b_humberger = document.getElementById("humberger");
+            b_canvas = document.getElementById("sele_canvas");
+            b_chat = document.getElementById("sele_chat");
+            b_video = document.getElementById("sele_video");
+            b_mode_all = document.getElementById("sele_mode_all");
+
+            b_upstory_canvas = document.getElementById("sele_upstory_canvas");
+            b_color = document.getElementById("sele_color");
+            b_bold = document.getElementById("sele_bold");
+            b_eraser = document.getElementById("sele_eraser");
+            b_updown = document.getElementById("sele_updown");
+            b_mode_canvas = document.getElementById("sele_mode_canvas");
+            
+            b_upstory_video = document.getElementById("sele_upstory_video");
+            b_mute = document.getElementById("sele_mute");
+            b_blind = document.getElementById("sele_blind");
+            b_getout = document.getElementById("sele_getout");
+            b_join = document.getElementById("sele_join");
+            b_mode_video = document.getElementById("sele_mode_video");
+
+            b_upstory_chat = document.getElementById("sele_upstory_chat");
+            b_upToChat = document.getElementById("sele_upToChat");
+            b_downFromChat = document.getElementById("sele_downFromChat");
+            b_mode_chat = document.getElementById("sele_mode_chat");
+
+            b_upstory_mode = document.getElementById("sele_upstory_mode");
+            b_canvasMode = document.getElementById("sele_canvasMode");
+            b_videoMode = document.getElementById("sele_videoMode");
+            b_chatMode = document.getElementById("sele_chatMode");
+            b_pcMode = document.getElementById("sele_pcMode");
+
+            b_upstory_color = document.getElementById("sele_upstory_color");
+            b_black = document.getElementById("sele_black");
+            b_red = document.getElementById("sele_red");
+            b_green = document.getElementById("sele_green");
+            b_blue = document.getElementById("sele_blue");
+            b_white = document.getElementById("sele_white");
+
+            b_upstory_bold = document.getElementById("sele_upstory_bold");
+            b_thin = document.getElementById("sele_thin");
+            b_normal = document.getElementById("sele_normal");
+            b_thick = document.getElementById("sele_thick");
+            b_superThick = document.getElementById("sele_superThick");
+            b_paint = document.getElementById("sele_paint");
+
+            b_upstory_eraser = document.getElementById("sele_upstory_eraser");
+            b_eraserColor = document.getElementById("sele_eraserColor");
+            b_clear = document.getElementById("sele_clear");
+
+            b_upstory_updown = document.getElementById("sele_upstory_updown");
+            b_upload = document.getElementById("sele_upload");
+            b_download = document.getElementById("sele_download");
+            b_sendToChat = document.getElementById("sele_sendToChat");
+
+            // input
+            var input_canvas_file, input_chat_file, input_chat_name, uploadImgSrc, fileData, reader;
+            input_canvas_file = document.getElementById("canvas_file");
+            input_chat_file = document.getElementById("chat_file");
+            input_chat_name = document.getElementById("chat_name");
+            // updown
+            var date, fileName, base64, blob, tmp, data, mime, buf, a;
+            var img, iw, ih, imgAsp, canAsp, rat;
             // ar
-            var texCanvas;
-            // bideo
-            var vid;
+            // tex_canvasの初期設定
+            var sx, sy, ex, ey, rsx, rsy, rex, rey;
+            var color, bold, canvasTex, contextTex, touching, mouse, cw, ch, cvw, cvh, drawPos;
+            color = "rgb(0,0,0)";
+            bold = 5;
+            canvasTex = document.getElementById("tex_canvas");
+            contextTex = canvasTex.getContext('2d');
+            touching = false;
+            mouse = false;
+            cw = canvasTex.offsetWidth + 500;
+            ch = canvasTex.offsetHeight + 500;
+            contextTex.fillStyle = "#ffffe0";
+            contextTex.fillRect(0, 0, cw, ch);
+            drawPos = [];
+
+            
+            // video
+            var aud, vid, peerJudge;
+            aud = true;
+            peerJudge = false;
+            
             // chat
-            var mes;
+            var mes, nameForm, thumb_canvas, thumb;
+            thumb = 1;
 
 
 
             /////////////////////////
             //  画面遷移    //
             /////////////////
+            // clear all area
             function resetMode() {
                 document.getElementById("canvas_area").style.display = "none";
                 document.getElementById("video_area").style.display = "none";
                 document.getElementById("chat_area").style.display = "none";
                 document.getElementById("menu_area").style.display = "none";
             }
+            // clear all menu
             function resetMenu() {
                 document.getElementById("menu_all").style.display = "none";
                 document.getElementById("menu_canvas").style.display = "none";
@@ -610,40 +733,1024 @@
                 document.getElementById("menu_eraser").style.display = "none";
                 document.getElementById("menu_updown").style.display = "none";
             }
+            // open certain area
             function openMode(modeName) {
                 resetMode();
-                areaName = modeName + "_area";
-                if(modeName != "menu") {
-                    menu_story = "menu_" + modeName;
-                }
-                document.getElementById(areaName).style.display = "block";
+                mode = modeName;
+                openMenu(modeName);
+                modeName = modeName + "_area"
+                document.getElementById(modeName).style.display = "block";
             }
+            openMode(mode);
+            //menu mode
+            b_canvasMode.onclick = openMode("canvas");
+            b_canvasMode.onclick = openMode("video");
+            b_canvasMode.onclick = openMode("chat");
+
+            // open certain menu
             function openMenu(menuName) {
+                menu_story = "menu_" + menuName;
                 resetMenu();
                 document.getElementById(menu_story).style.display = "block";
             }
+            openMenu(mode);
+            // menu all 
+            b_canvas.onclick = openMenu("canvas");
+            b_video.onclick = openMenu("video");
+            b_chat.onclick = openMenu("chat");
+            b_mode_all.onclick = openMenu("mode");
+            // menu canvas
+            b_upstory_canvas.onclick = openMenu("all");
+            b_color.onclick = openMenu("color");
+            b_bold.onclick = openMenu("bold");
+            b_eraser.onclick = openMenu("eraser");
+            b_updown.onclick = openMenu("updown");
+            b_mode_canvas.onclick = openMenu("mode");
+            // menu video
+            b_upstory_video.onclick = openMenu("all");
+            b_mode_video.onclick = openMenu("mode");
+            // menu chat
+            b_upstory_chat.onclick = openMenu("all");
+            b_mode_chat.onclick = openMenu("mode");
+            // menu mode
+            b_upstory_mode.onclick = openMenu("all");
+            // menu color
+            b_upstory_color.onclick = openMenu("canvas");
+            // menu bold
+            b_upstory_bold.onclick = openMenu("canvas");
+            // menu eraser
+            b_upstory_eraser.onclick = openMenu("canvas");
+            // menu updown
+            b_upstory_updown.onclick = openMenu("canvas");
             
-
-
-
-            //////////////////////////
-            //  ボタン操作    //
-            ///////////////////
+            // opne or close menu area
+            function menuSwitch() {
+                menu_judge = document.getElementById("menu_area").style.display;
+                if(menu_judge = "none") {
+                    resetMode();
+                    menu_judge = "block";
+                }else {
+                    menu_judge = "none";
+                    openMode(mode);
+                }
+            }
+            // menu button 
+            b_humberger.onclick = menuSwitch();
 
 
             /////////////////
             //  AR描画  //
             //////////////
+            // change color
+            function changeColor(col) {
+                color = col;
+                menuSwitch();
+            }
+            // menu color
+            b_black.onclick = changeColor("rgb(0,0,0)");
+            b_red.onclick = changeColor("rgb(255,0,0)");
+            b_green.onclick = changeColor("rgb(0,255,0)");
+            b_blue.onclick = changeColor("rgb(0,0,255)");
+            b_white.onclick = changeColor("#ffffe0");
+            // menu eraser
+            b_eraserColor.onclick = changeColor("#ffffe0");
+
+            // change bold
+            function changeBold(bol) {
+                bold = bol;
+                menuSwitch();
+            }
+            // menu color
+            b_thin.onclick = changeColor(1);
+            b_normal.onclick = changeColor(5);
+            b_thick.onclick = changeColor(10);
+            b_blue.onclick = changeColor(20);
+            b_white.onclick = changeColor(50);
+
+            // clear all
+            socket.on('eraseAll', function (data) {
+                // $("#tex_canvas").attr({width:$("#canvas_area").width()});
+                // $("#tex_canvas").attr({height:$("#canvas_area").height()});
+                var canvasTex = document.getElementById("tex_canvas");
+                var contextTex = canvasTex.getContext('2d');
+                var cw = canvasTex.offsetWidth + 500;
+                var ch = canvasTex.offsetHeight + 500;
+                contextTex.fillStyle = "#ffffe0";
+                contextTex.fillRect(0, 0, cw, ch);
+            });
+            function allClear() {
+                socket.emit('erase', { value: true, id: roomName });
+                menuSwitch();
+            }
+            // menu eraser
+            b_clear.onclick = allClear();
+
+            // download picture from canvas
+            function toPicture(cnv) {
+                date = new Date();
+                // var canvasTex = document.getElementById("tex_canvas");
+                fileName = date.getFullYear().toString()  + date.getDate().toString() + (date.getHours() + 1).toString() + date.getMinutes().toString() + date.getSeconds().toString() + ".png";
+                base64 = cnv.toDataURL("image/png");
+                blob = toBlob(base64);
+                saveBlob(blob, fileName);
+                menuSwitch();
+            }
+            function toBlob(base64) {
+                tmp = base64.split(',');
+                data = atob(tmp[1]);
+                mime = tmp[0].split(':')[1].split(';')[0];
+                buf = new Uint8Array(data.length);
+                for (var i = 0; i < data.length; i++) {
+                    buf[i] = data.charCodeAt(i);
+                }
+                blob = new Blob([buf], { type: mime });
+                return blob;
+            }
+            function saveBlob(blob, fileName) {
+                a = document.createElement('a');
+                a.download = fileName;
+                a.target = '_blank';
+
+                if (window.navigator.msSaveBlob) {
+                    window.navigator.msSaveBlob(blob, fileName)
+                }
+                else if (window.URL && window.URL.createObjectURL) {
+                    a.href = window.URL.createObjectURL(blob);
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+                else if (window.webkitURL && window.webkitURL.createObject) {
+                    a.href = window.webkitURL.createObjectURL(blob);
+                    a.click();
+                }
+                else {
+                    window.open('data:' + mime + ';base64,' + window.Base64.encode(buf), '_blank');
+                }
+            }
+            function downCanvas() {
+                canvasTex = document.getElementById("tex_canvas");
+                toPicture(canvasTex);
+            }
+            b_download.onclick = downCanvas();
+
+            // upload picture to canvas
+            // Canvas上に画像を表示する
+            function drawImgOnCvs(data) {
+                canvasTex = document.getElementById("tex_canvas");
+                contextTex = canvas.getContext('2d');
+                contextTex.imageSmoothingQuality = "high";            cvw = canvas.width;
+                // canvas内の要素をクリアする
+                cvw = canvasTex.width;
+                cvh = canvasTex.height;
+                contextTex.fillStyle = "#ffffe0";
+                contextTex.fillRect(0, 0, cvw, cvh);
+
+                // tex_canvas上に画像を表示
+                img = new Image();
+                img.src = data.value;
+                img.onload = function() {
+                    iw = this.width;
+                    ih = this.height;
+                    imgAsp = iw/ih;
+                    canAsp = 3/2;
+                    if (imgAsp < canAsp) {
+                        iw = cvh * imgAsp / canAsp;
+                        context.drawImage(img, 0, 0, iw, cvh);
+                    }else {
+                        ih = cvw * canAsp / imgAsp;
+                        context.drawImage(img, 0, 0, cvw, ih);
+                    }
+                }
+            }
+            socket.on("returnImg", function(data) {
+                drawImgOnCvs(data);
+            });
+            function loadLocalImage(e) {
+                // ファイル情報を取得
+                fileData = e.target.files[0];
+
+                // 画像ファイル以外は処理を止める
+                if(!fileData.type.match('image.*')) {
+                    alert('画像を選択してください');
+                    return;
+                }
+
+                // FileReaderオブジェクトを使ってファイル読み込み
+                reader = new FileReader();
+                // ファイル読み込みに成功したときの処理
+                reader.onload = function(e) {
+                    // Canvas上に表示する
+                    uploadImgSrc = e.target.result;
+                    socket.emit("sendImg", { value: uploadImgSrc, id: roomName, name: myName });
+                    socket.emit("sendThum", { value: uploadImgSrc, id: roomName, name: myName });
+                }
+                // ファイル読み込みを実行
+                reader.readAsDataURL(fileData);
+                openMenu(mode);
+            }
+            // ファイルが指定された時にloadLocalImage()を実行
+            input_canvas_file.addEventListener('change', loadLocalImage, false);
+
+            function toChat() {
+                canvasTex = document.getElementById("tex_canvas");
+                base64 = canvas.toDataURL("image/png");
+                socket.emit("canvasToChat", { value: base64, id: roomName, name: myName });
+                menuSwitch();
+            }
+            b_sendToChat.onclick = toChat();
+
+
+
+            //Write
+            socket.on('posit', function (data) {
+                var cvw = document.getElementById("tex_canvas").width;
+                var cvh = document.getElementById("tex_canvas").height;
+                var canvasTex = document.getElementById("tex_canvas");
+                var contextTex = canvasTex.getContext('2d');
+                contextTex.beginPath();
+                contextTex.lineCap = "round";
+                contextTex.strokeStyle = data[4];
+                contextTex.lineWidth = data[5];
+                contextTex.moveTo(data[0]*cvw, data[1]*cvh);
+                contextTex.lineTo(data[2]*cvw, data[3]*cvh);
+                contextTex.stroke();
+            });
+
+            //===================================================================
+            // three.js の各種設定
+            //===================================================================
+            var scene = new THREE.Scene();                        // シーンの作成
+            var renderer = new THREE.WebGLRenderer({              // レンダラの作成
+            antialias: true,                                    // アンチエイリアス有効
+            alpha: true,                                        // canvasに透明度バッファを持たせる
+            });
+            renderer.setClearColor(new THREE.Color("black"), 0);  // レンダラの背景色
+            // renderer.setSize(640, 480);                           // レンダラのサイズ
+            renderer.setSize(document.body.clientWidth, document.body.clientHeight);                           // レンダラのサイズ
+            renderer.domElement.style.position = "absolute";      // レンダラの位置は絶対値
+            renderer.domElement.style.top = "0px";                // レンダラの上端
+            renderer.domElement.style.left = "0px";               // レンダラの左端
+            // document.getElementById.body.appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
+            document.getElementById("canvas_container").appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
+            // var camera = new THREE.Camera();                      // カメラの作成
+            var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0, 1000);                      // カメラの作成
+            scene.add(camera);                                    // カメラをシーンに追加
+            var light = new THREE.DirectionalLight(0xffffff);     // 平行光源（白）を作成
+            light.position.set(0, 1, 2);                          // カメラ方向から照らす
+            scene.add(light);                                     // シーンに光源を追加
+
+            //===================================================================
+            // arToolkitSource（マーカトラッキングするメディアソース）
+            //===================================================================
+            var source = new THREEx.ArToolkitSource({             // arToolkitSourceの作成
+            sourceType: "webcam",                               // Webカメラを使う（スマホもこれでOK）
+            });
+            source.init(function onReady() {                      // ソースを初期化し、準備ができたら
+            onResize();                                         // リサイズ処理
+            // connectPeer();                                      // リサイズ処理
+            });
+
+            //===================================================================
+            // arToolkitContext（カメラパラメータ、マーカ検出設定）
+            //===================================================================
+            var context = new THREEx.ArToolkitContext({           // arToolkitContextの作成
+            // 元はfalse
+            debug: false,                                       // デバッグ用キャンバス表示（デフォルトfalse）
+            cameraParametersUrl: "https://jeromeetienne.github.io/AR.js/data/data/camera_para.dat",             // カメラパラメータファイル
+            detectionMode: "mono",                              // 検出モード（color/color_and_matrix/mono/mono_and_matrix）
+            imageSmoothingEnabled: true,                        // 画像をスムージングするか（デフォルトfalse）
+            // minDetectionRate: 30,                               // マーカー検出レート（最低値設定）
+            maxDetectionRate: 60,                               // マーカの検出レート（デフォルト60）
+            canvasWidth: source.parameters.sourceWidth,         // マーカ検出用画像の幅（デフォルト640）
+            canvasHeight: source.parameters.sourceHeight,       // マーカ検出用画像の高さ（デフォルト480）
+            });
+            context.init(function onCompleted(){                  // コンテクスト初期化が完了したら
+            camera.projectionMatrix.copy(context.getProjectionMatrix());   // 射影行列をコピー
+            });
+
+            //===================================================================
+            // リサイズ処理
+            //===================================================================
+            window.addEventListener("resize", function() {        // ウィンドウがリサイズされたら
+            onResize();
+            });
+            // リサイズ関数
+            function onResize(){
+                source.onResizeElement();                           // トラッキングソースをリサイズ
+                source.copyElementSizeTo(renderer.domElement);      // レンダラも同じサイズに
+                if(context.arController !== null){                  // arControllerがnullでなければ
+                    source.copyElementSizeTo(context.arController.canvas);  // それも同じサイズに
+                } 
+
+                var canvasTex = document.getElementById("tex_canvas");
+                var contextTex = canvasTex.getContext('2d');
+                var base64 = canvasTex.toDataURL("image/png");
+                contextTex.imageSmoothingQuality = "high";
+                // $("#tex_canvas").attr({width:$("#canvas_area").width()});
+                // $("#tex_canvas").attr({height:$("#canvas_area").height()});
+                var cw = canvasTex.offsetWidth + 500;
+                var ch = canvasTex.offsetHeight + 500;
+                contextTex.fillStyle = "#ffffe0";
+                contextTex.fillRect(0, 0, cw, ch);
+                var bkData = new Image();
+                bkData.onload = function() {
+                    contextTex.drawImage(bkData, 0, 0, canvasTex.width, canvasTex.height);
+                }
+                bkData.src = base64;
+                
+            }
+
+            //===================================================================
+            // ArMarkerControls（マーカと、マーカ検出時の表示オブジェクト）
+            //===================================================================
+            //-------------------------------
+            // その１（hiroマーカ＋立方体）
+            //-------------------------------
+            // マーカ
+            // ネットでhiroマーカの画像を得て、以下の AR.js のマーカトレーニングサイトで patt を作成
+            // https://jeromeetienne.github.io/AR.js/three.js/examples/marker-training/examples/generator.html
+            var marker1 = new THREE.Group();                      // マーカをグループとして作成
+            var controls = new THREEx.ArMarkerControls(context, marker1, {    // マーカを登録
+            type: "pattern",                                    // マーカのタイプ
+            patternUrl: "https://jeromeetienne.github.io/AR.js/data/data/patt.hiro",                            // マーカファイル
+            });
+
+
+            scene.add(marker1);                                   // マーカをシーンに追加
+            // モデル（メッシュ）
+            var geoWidth = 6;
+            var geoHeight = 4;
+            var geo = new THREE.PlaneGeometry(geoWidth, geoHeight);            // plane ジオメトリ（サイズは 1x1x1）
+            var canvasMap = new THREE.Texture(canvasTex); // canvas要素を読み込む
+            var mat = new THREE.MeshBasicMaterial({ map: canvasMap });
+            /*
+            var mat = new THREE.MeshNormalMaterial({              // マテリアルの作成
+                transparent: true,                                  // 透過
+                opacity: 0.5,                                       // 不透明度
+                side: THREE.DoubleSide,                             // 内側も描く
+            });
+
+                var geometry = new THREE.PlaneGeometry(450, 300);
+                var canvasMap = new THREE.Texture(canvasTex); // canvas要素を読み込む
+                var material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
+                material.map = canvasMap;
+                canvasMap.minFilter = THREE.LinearFilter
+
+            */
+            //canvasMap.minFilter = THREE.LinearFilter;
+            var mesh1 = new THREE.Mesh(geo, mat);
+            mesh1.rotation.x = Math.PI/2 * -1;
+
+            //var mesh1 = new THREE.Mesh(geo, mat);                 // メッシュを生成
+            //mesh1.name = "cube";
+            var mesh1PosX = 0;
+            var mesh1PosY = 0.1;
+            var mesh1PosZ = 0;
+                                            // メッシュの名前（後でピッキングで使う）
+            mesh1.position.set(mesh1PosX, mesh1PosY, mesh1PosZ);                        // 初期位置
+            marker1.add(mesh1);                                   // メッシュをマーカに追加
+            // マーカ隠蔽（cloaking）
+            // var videoTex = new THREE.VideoTexture(source.domElement);  // 映像をテクスチャとして取得
+            // videoTex.minFilter = THREE.NearestFilter;             // 映像テクスチャのフィルタ処理
+            // var cloak = new THREEx.ArMarkerCloak(videoTex);       // マーカ隠蔽(cloak)オブジェクト
+            // cloak.object3d.material.uniforms.opacity.value = 1.0; // cloakの不透明度
+            // marker1.add(cloak.object3d);  // cloakをマーカに追加
+
+
+
+
+            //===================================================================
+            // レンダリング・ループ
+            //===================================================================
+            function renderScene() {                              // レンダリング関数
+            requestAnimationFrame(renderScene);                 // ループを要求
+            if(source.ready === false)    { return; }             // メディアソースの準備ができていなければ抜ける
+            context.update(source.domElement);                  // ARToolkitのコンテキストを更新
+            if(marker1.visible === true) {
+                console.log("find marker");                       //marker　Groupが表示されたらログ
+            }
+            canvasMap.needsUpdate = true;
+            renderer.render(scene, camera);                     // レンダリング実施
+            }
+            renderScene();     // 最初に1回だけレンダリングをトリガ
+
+
+
+            //===================================================================
+            // 操作方法実装
+            //===================================================================
+
+            var posVec2 = new THREE.Vector2();    // タッチ位置測定用
+            var ray = new THREE.Raycaster();  //　レイキャスター定義
+            var mouse = false;
+            var sx, sy, ex, ey, rsx, rsy, rex, rey;
+            window.addEventListener("mousedown", onMouseDown, false);
+            function onMouseDown(e) {
+                //console.log("マウスダウン");
+                mouse = true;
+                var mouseX = e.clientX;                           // マウスのx座標
+                var mouseY = e.clientY;                           // マウスのy座標
+                posVec2.x =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
+                posVec2.y = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
+                // var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
+                // pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
+                // レイキャスタを作成（始点, 向きのベクトル）
+                // var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
+                ray.setFromCamera(posVec2, camera);
+                var object = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
+                if(object.length > 0) {                                // 交差したオブジェクトがあれば
+                    //picked(obj[0].object.name);                      // ピックされた対象に応じた処理を実行
+                    //console.log(obj[0].point.x); 
+                    //console.log(obj[0].point.y); 
+                    //console.log(obj[0].point.z); 
+                    console.log(object[0].uv.x)
+                    console.log(object[0].uv.y)
+                    console.log(object[0]);
+                    //sx = obj[0].point[0];
+                    //sy = obj[0].point[1];
+
+
+                    sx = object[0].uv.x;
+                    sy = object[0].uv.y * -1 + 1;
+                    //sy = obj[0].uv.y * -1 + geoHeight;
+                    // sx = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
+                    // sy = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
+                    // sy = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
+                }
+            }
+
+            window.addEventListener("mousemove", onMouseMove, false);
+            function onMouseMove(e) {
+                //console.log("マウスムーブ");
+                var mouseX = e.clientX;                           // マウスのx座標
+                var mouseY = e.clientY;                           // マウスのy座標
+                posVec2.x =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
+                posVec2.y = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
+                // var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
+                // pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
+                // レイキャスタを作成（始点, 向きのベクトル）
+                // var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
+                ray.setFromCamera(posVec2, camera);
+                var object = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
+                if(object.length > 0) {                                // 交差したオブジェクトがあれば
+                    //picked(obj[0].object.name);                      // ピックされた対象に応じた処理を実行
+                    //console.log(obj[0].point.x); 
+                    //console.log(obj[0].point.y); 
+                    //console.log(obj[0].point.z); 
+                    console.log(object[0].uv.x)
+                    console.log(object[0].uv.y)
+                    console.log(object[0]);
+                    //ex = obj[0].point[0];
+                    //ey = obj[0].point[1];
+
+
+                    ex = object[0].uv.x;
+                    ey = object[0].uv.y * -1 + 1;
+                    // ey = obj[0].uv.y * -1 + geoHeight;
+                    // ex = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
+                    // ey = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
+                    // ey = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
+                }
+
+                if(mouse) {
+                
+                var cvw = document.getElementById("tex_canvas").width;
+                var cvh = document.getElementById("tex_canvas").height;
+                // var rect = event.target.getBoundingClientRect();
+                // rsx = sx / geoWidth;
+                // rsy = sy / geoHeight;
+                // rex = ex / geoWidth;
+                // rey = ey / geoHeight; 
+                rsx = sx;
+                rsy = sy;
+                rex = ex;
+                rey = ey; 
+
+    /*
+                ctx.beginPath();
+                ctx.lineCap = "round";
+                ctx.moveTo(rsx*cvw, rsy*cvh);
+                ctx.lineTo(rex*cvw, rey*cvh);
+                ctx.stroke();
+    */
+
+                drawPos = [rsx, rsy, rex, rey, color, bold];
+                if (mouse === true) {
+                    socket.emit('pos', { value: drawPos, id: roomName });
+                }
+                
+                sx = ex;
+                sy = ey;
+
+                drawPos = [];
+                
+                }
+
+            }
+
+            window.addEventListener("mouseup", onMouseUp, false);
+            function onMouseUp(e) {
+                //console.log("マウスアップ");
+                mouse = false;
+            }
+
+
+            window.addEventListener("touchstart", onTouchStart, false);
+            function onTouchStart(e) {
+            //console.log("タッチスタート");                      //イベントの動作確認
+            var touch = e.changedTouches[0];                  //一本目の指を取得
+            touching = true;                                  //タッチ判定
+            var mouseX = touch.clientX;                           // touchのx座標
+            var mouseY = touch.clientY;                           // touchのy座標
+            posVec2.x =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
+            posVec2.y = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
+            // var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
+            // pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
+            // レイキャスタを作成（始点, 向きのベクトル）
+            // var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
+            ray.setFromCamera(posVec2, camera);
+            var object = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
+            if(object.length > 0) {                                // 交差したオブジェクトがあれば
+                //picked(obj[0].object.name);                      // ピックされた対象に応じた処理を実行
+                    //console.log(obj[0].point.x); 
+                    //console.log(obj[0].point.y); 
+                    //console.log(obj[0].point.z); 
+                    console.log(object[0].uv.x)
+                    console.log(object[0].uv.y)
+                    console.log(object[0]);
+
+                    //sx = obj[0].point[0];
+                    //sy = obj[0].point[1];
+
+                    sx = object[0].uv.x;
+                    sy = object[0].uv.y * -1 + 1;
+                    //sy = obj[0].uv.y * -1 + geoHeight;
+                    // sx = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
+                    // sy = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
+                    // sy = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
+            }
+            }
+            
+                //タッチムーブ
+            window.addEventListener("touchmove", onTouchMove, false);
+            function onTouchMove(e) {
+                if(e.touches.length == 1) {
+                e.preventDefault();              
+                //console.log("タッチムーブ");
+                socket.emit('log', {value: "タッチムーブ"});
+                var touch = e.changedTouches[0];
+                var mouseX = touch.clientX;                           // touchのx座標
+                var mouseY = touch.clientY;                           // touchのy座標
+                posVec2.x =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
+                posVec2.y = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
+                // var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
+                // pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
+                // レイキャスタを作成（始点, 向きのベクトル）
+                // var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
+                ray.setFromCamera(posVec2, camera);
+                var object = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
+                    if(object.length > 0) {                                // 交差したオブジェクトがあれば
+                            console.log(object[0].uv.x)
+                            console.log(object[0].uv.y)
+                            // console.log(object[0]);
+                            ex = object[0].uv.x;
+                            ey = object[0].uv.y * -1 + 1;
+                    }                    
+                    if(touching) {                
+                    drawPos = [sx, sy, ex, ey, color, bold];
+                    socket.emit('pos', { value: drawPos, id: roomName });                
+                    sx = ex;
+                    sy = ey;
+                    drawPos = [];                                
+                    }
+                    e.stopPropagation();       
+                }
+            }
+
+            window.addEventListener("touchend", onTouchEnd, false);
+            function onTouchEnd(e) {
+                // e.preventDefault();
+                console.log("タッチエンド");
+                touching = false;
+                // e.stopPropagation();
+            }
+
+
+
+
+            // menu color
 
 
             /////////////////////////
             //  ビデオチャット  //
             /////////////////////
+            //==================================================================
+            //  ビデオチャット実装
+            //==================================================================
 
+
+            function connectPeer() {
+                // video chat
+                var localStream = null;
+                var peer = null;
+                var existingCall = null;
+                var room;
+                peer = new Peer({
+                    key: '2647af86-51da-4e29-be21-abb6af7e1016',
+                    debug: 3
+                });
+
+
+                peer.on('open', function(){
+                    peerJudge = true;
+
+                    // confirm log
+                    console.log("peerOpen");
+                    socket.emit("log", {value: "peerOpen"});
+
+
+                    localStream = peerStream;
+                    // confirm log
+                    console.log(localStream);
+                    socket.emit("log", {value: "peerOpen"});
+
+                    // トラックを取り出す
+                    videoTrack = peerStream.getVideoTracks()[0];
+                    audioTrack = peerStream.getAudioTracks()[0];
+
+                    room = peer.joinRoom('mesh_video_' + roomName, {stream: localStream});
+                    room.on('stream', stream => {
+
+                    // confirm log
+                    console.log("peerConn");
+                    socket.emit("log", {value: "peerConn"});
+                        
+                        const peerId = stream.peerId;
+                        const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
+
+                        $('#their-videos').append($(
+                        '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
+                            '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
+                                "guest" + 
+                            '</div>' + 
+                            '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
+                            '<div class="peer-video" style="display: inline-block; width: 100%; height: 100%; margin-top: -25px;">' + 
+                                '<video class="remoteVideos" height="100%" width="100%" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                                '<audio class="remoteAudios" style="display: none;" autoplay playsinline></audio>' + 
+                            '</div>' + 
+                        '</div>'));
+                        $('#their-videos_review').append($(
+                        '<div class="video_' + peerId +'" id="video_' + id + '_review" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
+                            '<div class="peer-name" id="name_' + peerId + '_review" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
+                                "guest" + 
+                            '</div>' + 
+                            '<div class="peer-audio" id="mute_' + peerId + '_review" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
+                            '<div class="peer-video" style="display: inline-block; width: 100%; height: 100%; margin-top: -25px;">' + 
+                                '<video class="remoteVideos" height="100%" width="100%" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                            '</div>' + 
+                        '</div>'));
+                        const el = $('#video_' + id).find('video').get(0);
+                        const revel = $('#video_' + id + '_review').find('video').get(0);
+                        const ael = $('#video_' + id).find('audio').get(0);
+                        el.muted = true;
+                        el.srcObject = stream;
+                        revel.muted = true;
+                        revel.srcObject = stream;
+                        ael.srcObject = stream;
+                        el.play();
+                        revel.play();
+                        ael.play();
+                        defName();
+                    });
+
+
+                    room.on('removeStream', function(stream) {
+                        const peerId = stream.peerId;
+                        $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
+                        $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '') + '_review').remove();
+                    });
+
+                    // UI stuff
+                    room.on('close', function() {
+                        room.close();
+                        peerJudge = false;
+                        $('#their-videos').empty();
+                        $('#their-videos_review').empty();
+                    });
+                    room.on('peerLeave', peerId => {
+                        $('.video_' + peerId).remove();
+                        $('.video_' + peerId + '_review').remove();
+                    });
+                });
+
+                peer.on('error', function(err){
+                    alert(err.message);
+                    room.close();
+                    peerJudge = false;
+                    $('#their-videos').empty();
+                    $('#their-videos_review').empty();
+                });
+                window.onclose = function() {
+                    room.close();
+                    peerJudge = false;
+                }
+                menuSwitch();
+            } 
+            b_join.onclick = connectPeer();
+
+            function getoutRoom() {
+                if(peerJudge) {
+                    room.close();
+                    peerJudge = false;
+                }else {
+                    alert("peer disconnected!");
+                }
+                menuSwitch();
+            }
+            b_getout.onclick = getoutRoom();
+
+            function switch_audio() {
+                if(peerJudge) {
+                    if (aud == true) {
+                        // ビデオをmuteする
+                        audioTrack.enabled = false;
+                        aud = false;
+                        document.getElementById("audio_switch").style.display = "block";
+                        if(peer.id !== undefined){
+                            socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+                        }
+                    }else {
+                        audioTrack.enabled = true;
+                        aud = true;
+                        document.getElementById("audio_switch").style.display = "none";
+                        if(peer.id !== undefined){
+                            socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+                        }
+                    }
+                }
+                menuSwitch();
+            }
+            socket.on("returnMute", function(data) {
+                if(peerJudge) {
+                    if(data.judge == true) {
+                        document.getElementById("mute_" + data.value).style.display = "none";
+                    }else {
+                        document.getElementById("mute_" + data.value).style.display = "block";
+                    }
+                }
+            });
+            b_mute = document.getElementById("audio_switch");
+            b_mute.onclick = switch_audio();
+
+            
 
             /////////////////////////
             //  テキストチャット    //
             /////////////////////////
+            function appendMsg(data) {
+                console.log(data.name);
+                if(data.name == myName) {
+                    $("#bms_messages").append("<div class='bms_message bms_left'>" + 
+                                                    "<div class='bms_message_box'>" + 
+                                                        "<div class='bms_message_content'>" + 
+                                                            "<div class='bms_message_text'>" + 
+                                                                    data.name + ":" + "<br />" + 
+                                                                    data.value + 
+                                                            "</div>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                                "<div class='bms_clear'></div>");
+                    $("#chat_review").append("<div class='bms_message bms_left'>" + 
+                                                    "<div class='bms_message_box'>" + 
+                                                        "<div class='bms_message_content'>" + 
+                                                            "<div class='bms_message_text'>" + 
+                                                                    data.name + ":" + "<br />" + 
+                                                                    data.value + 
+                                                            "</div>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                                "<div class='bms_clear'></div>");
+                }else {
+                    $("#bms_messages").append("<div class='bms_message bms_right'>" + 
+                                                    "<div class='bms_message_box'>" + 
+                                                        "<div class='bms_message_content'>" + 
+                                                            "<div class='bms_message_text'>" + 
+                                                                    data.name + ":" + "<br />" + 
+                                                                    data.value + 
+                                                            "</div>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                                "<div class='bms_clear'></div>");
+                    $("#chat_review").append("<div class='bms_message bms_right'>" + 
+                                                    "<div class='bms_message_box'>" + 
+                                                        "<div class='bms_message_content'>" + 
+                                                            "<div class='bms_message_text'>" + 
+                                                                    data.name + ":" + "<br />" + 
+                                                                    data.value + 
+                                                            "</div>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                                "<div class='bms_clear'></div>");
+                }
+                $('#bms_messages').animate({ scrollTop: $('#bms_messages')[0].scrollHeight }, 'fast');
+                $('chat_review').animate({ scrollTop: $('#chat_review')[0].scrollHeight }, 'fast');
+            }
+
+            socket.on("returnChat", function (data) {
+                appendMsg(data);
+                console.log(data);
+            });
+
+            $("#bms_send_btn").click(function (e) {
+                var message = $("#bms_send_message").val();
+                $("#bms_send_message").val('');
+                socket.emit("sendChat", { value: message, id: roomName, name: myName });
+                e.preventDefault();
+            });
+
+
+            // upload to chat
+            socket.on("addThum", function drawBoard(data) {
+                if(data.name == myName) {
+                    $("#bms_messages").append("<div class='bms_message bms_left'>" + 
+                                                    "<div class='bms_message_box'>" + 
+                                                        "<div class='bms_message_content'>" + 
+                                                            "<div class='bms_message_text'>" + 
+                                                                    data.name + ":" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "_mini' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                    "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
+                                                                    "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
+                                                            "</div>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                                "<div class='bms_clear'></div>");
+                    $("#chat_review").append("<div class='bms_message bms_left'>" + 
+                                                    "<div class='bms_message_box'>" + 
+                                                        "<div class='bms_message_content'>" + 
+                                                            "<div class='bms_message_text'>" + 
+                                                                    data.name + ":" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "_review' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                    "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
+                                                                    "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
+                                                            "</div>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                                "<div class='bms_clear'></div>");
+                }else {
+                    $("#bms_messages").append("<div class='bms_message bms_right'>" + 
+                                                    "<div class='bms_message_box'>" + 
+                                                        "<div class='bms_message_content'>" + 
+                                                            "<div class='bms_message_text'>" + 
+                                                                    data.name + ":" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "_mini' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                    "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
+                                                                    "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
+                                                            "</div>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                                "<div class='bms_clear'></div>");
+                    $("#chat_review").append("<div class='bms_message bms_right'>" + 
+                                                    "<div class='bms_message_box'>" + 
+                                                        "<div class='bms_message_content'>" + 
+                                                            "<div class='bms_message_text'>" + 
+                                                                    data.name + ":" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "_review' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                    "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
+                                                                    "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
+                                                            "</div>" + 
+                                                        "</div>" + 
+                                                    "</div>" + 
+                                                "</div>" + 
+                                                "<div class='bms_clear'></div>");
+                }
+                $('#bms_messages').animate({ scrollTop: $('#bms_messages')[0].scrollHeight }, 'fast');
+                $('#chat_review').animate({ scrollTop: $('##chat_review')[0].scrollHeight }, 'fast');
+
+                var thumb_canvas = document.getElementById("thum_" + thumb);
+                var thumb_ctx = thumb_canvas.getContext('2d');
+                thumb_ctx.imageSmoothingQuality = "high";            
+                var mini_canvas = document.getElementById("thum_" + thumb + "_mini");
+                var mini_ctx = mini_canvas.getContext('2d');
+                mini_ctx.imageSmoothingQuality = "high";            
+                var mini_canvas_review = document.getElementById("thum_" + thumb + "_review");
+                var mini_ctx_review = mini_canvas_review.getContext('2d');
+                mini_ctx.imageSmoothingQuality = "high";            
+                var thu = new Image();
+                thu.src = data.value;
+                thu.onload = function() {
+                    var tw = this.width;
+                    var th = this.height;
+                    thumb_canvas.width = tw;
+                    thumb_canvas.height = th;
+                    thumb_ctx.drawImage(thu, 0, 0, tw, th);
+                    var thuAsp = tw/th;
+                    if (thuAsp < 1) {
+                        var rat = tw * 150 / th;
+                        mini_canvas.width = rat;
+                        mini_ctx.drawImage(thu, 0, 0, rat, 150);
+                        mini_ctx_review.drawImage(thu, 0, 0, rat, 150);
+                        
+                    }else {
+                        var rat = th * 150 / tw;
+                        mini_canvas.height = rat;
+                        mini_ctx.drawImage(thu, 0, 0, 150, rat);
+                        mini_ctx_review.drawImage(thu, 0, 0, 150, rat);
+                    }
+                }
+
+                thumb ++;
+            });
+
+
+            function loadLocalThum(e) {
+                // ファイル情報を取得
+                fileData = e.target.files[0];
+
+                // 画像ファイル以外は処理を止める
+                if(!fileData.type.match('image.*')) {
+                    alert('画像を選択してください');
+                    return;
+                }
+
+                // FileReaderオブジェクトを使ってファイル読み込み
+                reader = new FileReader();
+                // ファイル読み込みに成功したときの処理
+                reader.onload = function(e) {
+                    // Canvas上に表示する
+                    uploadImgSrc = e.target.result;
+                    socket.emit("sendThum", { value: uploadImgSrc, id: roomName, name: myName });
+                }
+                // ファイル読み込みを実行
+                reader.readAsDataURL(fileData);
+                menuSwitch();
+            }
+
+            // ファイルが指定された時にloadLocalImage()を実行
+            input_chat_file.addEventListener('change', loadLocalThum, false);
+
+            // draw image of chat on tex_canvas
+            socket.on("addBoard", function drawBoard(data) {
+                drawImgOnCvs(data);
+            });
+            function toBoard(e) {
+                thumb_canvas = document.getElementById("thum_" + e.className);
+                base64 = thumb_canvas.toDataURL("image/png");
+                socket.emit("thumToBoard", { value: base64, id: roomName, name: myName });
+            }
+
+            // download from chat
+            function downloadThum(e) {
+                thumb_canvas = document.getElementById("thum_" + e.className);
+                toPicture(thumb_canvas);
+            }
+
+
+
+            //////////////////////////
+            //  menubar def name    //
+            //////////////////////////
+            function defName(){
+                myName = document.getElementById("myNameForm").value;         
+                socket.emit("sendReq", { id: roomName });
+            }
+            socket.on("returnReq", function(data) {
+                if (peerJudge) {
+                    socket.emit("sendName", {id: roomName, tag: peer.id, name: myName});
+                }
+            });
+            socket.on("returnName", function(data) {
+                if (peerJudge) {
+                    document.getElementById("name_" + data.tag).textContent = data.name;
+                }
+            });
+            function changeName() {
+                if (peerJudge) {
+                    myName = document.getElementById("myNameForm").value;         
+                    socket.emit("sendName", {id: roomName, tag: peer.id, name: myName});
+                    // room.send(myName);
+                }
+            }
+            input_chat_name.onchange = changeName();
+
+
+
+            ///////////////////////////////////
+            //  script list
+            ////////////////////////////////
+            // L19~28
+            // websocket
+
+            
 
 
         </script>

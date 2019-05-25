@@ -912,9 +912,9 @@
         }
         socket.on("returnMute", function(data) {
             if(data.judge == true) {
-                document.getElementById("mute_" + data.value).style.backgroundColor = "#BAD7B6";
+                document.getElementById("mute_" + data.value).style.display = "none";
             }else {
-                document.getElementById("mute_" + data.value).style.backgroundColor = "red";
+                document.getElementById("mute_" + data.value).style.display = "block";
             }
         });
 
@@ -1237,10 +1237,10 @@
 
             var thumb_canvas = document.getElementById("thum_" + thumb);
             var thumb_ctx = thumb_canvas.getContext('2d');
-            thumb_ctx.imageSmoothingQuality = "high";            cvw = canvas.width;
+            thumb_ctx.imageSmoothingQuality = "high";            
             var mini_canvas = document.getElementById("thum_" + thumb + "_mini");
             var mini_ctx = mini_canvas.getContext('2d');
-            mini_ctx.imageSmoothingQuality = "high";            cvw = canvas.width;
+            mini_ctx.imageSmoothingQuality = "high";            
             var thu = new Image();
             thu.src = data.value;
             thu.onload = function() {

@@ -68,6 +68,7 @@ $(window).on("orientationchange resize load", function(){
 });
 */
 
+//canvasの初期設定
 var sx, sy, ex, ey, rsx, rsy, rex, rey;
 var color = "rgb(0,0,0)";
 var bold = 5;
@@ -111,15 +112,6 @@ socket.on('eraseAll', function (data) {
 
 
 
-
-
-//canvasの初期設定
-var canvasTex = document.getElementById("tex_canvas");
-var ctx = canvasTex.getContext("2d");
-ctx.fillStyle = "#ffffe0";
-ctx.fillRect(0, 0, 600, 600);
-
-
 //===================================================================
 // three.js の各種設定
 //===================================================================
@@ -129,7 +121,8 @@ var renderer = new THREE.WebGLRenderer({              // レンダラの作成
   alpha: true,                                        // canvasに透明度バッファを持たせる
 });
 renderer.setClearColor(new THREE.Color("black"), 0);  // レンダラの背景色
-renderer.setSize(640, 480);                           // レンダラのサイズ
+// renderer.setSize(640, 480);                           // レンダラのサイズ
+renderer.setSize(window.innerWidth, window.innerHeight);                           // レンダラのサイズ
 renderer.domElement.style.position = "absolute";      // レンダラの位置は絶対値
 renderer.domElement.style.top = "0px";                // レンダラの上端
 renderer.domElement.style.left = "0px";               // レンダラの左端
@@ -157,7 +150,7 @@ source.init(function onReady() {                      // ソースを初期化�
 //===================================================================
 var context = new THREEx.ArToolkitContext({           // arToolkitContextの作成
   // 元はfalse
-  debug: true,                                       // デバッグ用キャンバス表示（デフォルトfalse）
+  debug: false,                                       // デバッグ用キャンバス表示（デフォルトfalse）
   cameraParametersUrl: "https://jeromeetienne.github.io/AR.js/data/data/camera_para.dat",             // カメラパラメータファイル
   detectionMode: "mono",                              // 検出モード（color/color_and_matrix/mono/mono_and_matrix）
   imageSmoothingEnabled: true,                        // 画像をスムージングするか（デフォルトfalse）
@@ -527,7 +520,6 @@ renderScene();     // 最初に1回だけレンダリングをトリガ
         window.addEventListener("touchmove", onTouchMove, false);
         function onTouchMove(e) {
             if(e.touches.length == 1) {
-              //preventDefaultを外してダメなら、windowをrendererにする
               e.preventDefault();              
               //console.log("タッチムーブ");
               socket.emit('log', {value: "タッチムーブ"});
@@ -591,7 +583,7 @@ renderScene();     // 最初に1回だけレンダリングをトリガ
                             
               }
 
-            e.stopPropagation();       
+              e.stopPropagation();       
             }
         }
 
