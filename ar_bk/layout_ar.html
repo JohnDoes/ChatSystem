@@ -735,6 +735,235 @@
             // b_chatMode.onclick = openMode("chat");
             
 
+
+            // menu button
+            b_humberger.addEventListener("click", menuSwitch, false);
+
+            // menu all 
+            // b_canvas.onclick = openMenu("canvas");
+            // b_video.onclick = openMenu("video");
+            // b_chat.onclick = openMenu("chat");
+            // b_mode_all.onclick = openMenu("mode");
+            b_canvas.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("canvas");
+                e.stopPropagation();
+            }, false);
+            b_video.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("video");
+                e.stopPropagation();
+            }, false);
+            b_chat.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("chat");
+                e.stopPropagation();
+            }, false);
+            b_mode_all.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("mode");
+                e.stopPropagation();
+            }, false);
+
+            // menu canvas
+            // b_upstory_canvas.onclick = openMenu("all");
+            // b_color.onclick = openMenu("color");
+            // b_bold.onclick = openMenu("bold");
+            // b_eraser.onclick = openMenu("eraser");
+            // b_updown.onclick = openMenu("updown");
+            // b_mode_canvas.onclick = openMenu("mode");
+            b_upstory_canvas.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("all");
+                e.stopPropagation();
+            }, false);
+            b_color.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("color");
+                e.stopPropagation();
+            }, false);
+            b_bold.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("bold");
+                e.stopPropagation();
+            }, false);
+            b_eraser.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("eraser");
+                e.stopPropagation();
+            }, false);
+            b_updown.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("updown");
+                e.stopPropagation();
+            }, false);
+            b_mode_canvas.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("mode");
+                e.stopPropagation();
+            }, false);
+
+            
+            // menu video
+            // b_upstory_video.onclick = openMenu("all");
+            // b_mode_video.onclick = openMenu("mode");
+            b_upstory_video.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("all");
+                e.stopPropagation();
+            }, false);
+            b_mute.addEventListener("click", switch_audio, false);
+            b_getout.addEventListener("click", getoutRoom, false);
+            b_join.addEventListener("click", connectPeer, false);
+            b_mode_video.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("mode");
+                e.stopPropagation();
+            }, false);
+
+
+            // menu chat
+             b_upstory_chat.onclick = addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("all");
+                e.stopPropagation();
+            }, false);
+            // b_mode_chat.onclick = openMenu("mode");
+            // b_upstory_chat.addEventListener("click", openMenu("all"), false);
+            input_chat_file.addEventListener("change", loadLocalThum, false);
+            // b_downFromChat.addEventListener("click", downloadChat, false);
+            b_mode_chat.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("mode");
+                e.stopPropagation();
+            }, false);
+
+
+            // menu mode
+            // b_upstory_mode.onclick = openMenu("all");
+            b_upstory_mode.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("all");
+                e.stopPropagation();
+            }, false);
+            b_canvasMode.addEventListener("click", function() {
+                e.preventDefault();
+                openMode("canvas");
+                e.stopPropagation();
+            }, false);
+            b_videoMode.addEventListener("click", function() {
+                e.preventDefault();
+                openMode("video");
+                e.stopPropagation();
+            }, false);
+            b_chatMode.addEventListener("click", function() {
+                e.preventDefault();
+                openMode("chat");
+                e.stopPropagation();
+            }, false);
+            b_pcMode.addEventListener("click", openPcMode, false);
+            
+            
+            // menu color
+            // b_upstory_color.onclick = openMenu("canvas");
+            b_upstory_color.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("canvas");
+                e.stopPropagation();
+            }, false);
+            b_black.addEventListener("click", function() {
+                e.preventDefault();
+                changeColor("rgb(0,0,0)");
+                e.stopPropagation();
+                }, false);
+            b_red.addEventListener("click", function() {
+                e.preventDefault();
+                changeColor("rgb(255,0,0)");
+                e.stopPropagation();
+                }, false);
+            b_green.addEventListener("click", function() {
+                e.preventDefault();
+                changeColor("rgb(0,255,0)");
+                e.stopPropagation();
+                }, false);
+            b_blue.addEventListener("click", function() {
+                e.preventDefault();
+                changeColor("rgb(0,0,255)");
+                e.stopPropagation();
+                }, false);
+            b_white.addEventListener("click", function() {
+                e.preventDefault();
+                changeColor("#ffffe0");
+                e.stopPropagation();
+                }, false);
+            
+            
+            // menu bold
+            // b_upstory_bold.onclick = openMenu("canvas");
+            b_upstory_bold.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("canvas");
+                e.stopPropagation();
+            }, false);
+            b_thin.addEventListener("click", function() {
+                e.preventDefault();
+                changeBold(1);
+                e.stopPropagation();
+            }, false);
+            b_normal.addEventListener("click", function() {
+                e.preventDefault();
+                changeBold(5);
+                e.stopPropagation();
+            }, false);
+            b_thick.addEventListener("click", function() {
+                e.preventDefault();
+                changeBold(10);
+                e.stopPropagation();
+            }, false);
+            b_superThick.addEventListener("click", function() {
+                e.preventDefault();
+                changeBold(20);
+                e.stopPropagation();
+            }, false);
+            b_paint.addEventListener("click", function() {
+                e.preventDefault();
+                changeBold(50);
+                e.stopPropagation();
+            }, false);
+
+
+            // menu eraser
+            // b_upstory_eraser.onclick = openMenu("canvas");
+            b_upstory_eraser.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("canvas");
+                e.stopPropagation();
+            }, false);
+            b_eraserColor.addEventListener("click", function() {
+                e.preventDefault();
+                changeColor("#ffffe0");
+                e.stopPropagation();
+                }, false);
+            b_clear.addEventListener("click", allClear, false);
+
+            
+            // menu updown
+            // b_upstory_updown.onclick = openMenu("canvas");
+            b_upstory_updown.addEventListener("click", function() {
+                e.preventDefault();
+                openMenu("canvas");
+                e.stopPropagation();
+            }, false);
+            input_canvas_file.addEventListener("change", loadLocalImage, false);
+            // b_downFromChat.addEventListener("click", downloadChat, false);
+            b_download.addEventListener("click", downCanvas, false);
+            b_sendToChat.addEventListener("click", toChat, false);
+
+
+            // input name
+            nameForm.addEventListener("change", changeName, false);
+
+
             // clear all area
             function resetMode() {
                 console.log("resetMode");
@@ -765,103 +994,6 @@
                 modeName = modeName + "_area"
                 document.getElementById(modeName).style.display = "block";
             }
-
-            // menu button
-            b_humberger.addEventListener("click", menuSwitch, false);
-
-            // menu all 
-            // b_canvas.onclick = openMenu("canvas");
-            // b_video.onclick = openMenu("video");
-            // b_chat.onclick = openMenu("chat");
-            // b_mode_all.onclick = openMenu("mode");
-            b_canvas.addEventListener("click", function() {openMenu("canvas");}, false);
-            b_video.addEventListener("click", function() {openMenu("video");}, false);
-            b_chat.addEventListener("click", function() {openMenu("chat");}, false);
-            b_mode_all.addEventListener("click", function() {openMenu("mode");}, false);
-
-            // menu canvas
-            // b_upstory_canvas.onclick = openMenu("all");
-            // b_color.onclick = openMenu("color");
-            // b_bold.onclick = openMenu("bold");
-            // b_eraser.onclick = openMenu("eraser");
-            // b_updown.onclick = openMenu("updown");
-            // b_mode_canvas.onclick = openMenu("mode");
-            b_upstory_canvas.addEventListener("click", function() {openMenu("all");}, false);
-            b_color.addEventListener("click", function() {openMenu("color");}, false);
-            b_bold.addEventListener("click", function() {openMenu("bold");}, false);
-            b_eraser.addEventListener("click", function() {openMenu("eraser");}, false);
-            b_updown.addEventListener("click", function() {openMenu("updown");}, false);
-            b_mode_canvas.addEventListener("click", function() {openMenu("mode");}, false);
-
-            
-            // menu video
-            // b_upstory_video.onclick = openMenu("all");
-            // b_mode_video.onclick = openMenu("mode");
-            b_upstory_video.addEventListener("click", function() {openMenu("all");}, false);
-            b_mute.addEventListener("click", switch_audio, false);
-            b_getout.addEventListener("click", getoutRoom, false);
-            b_join.addEventListener("click", connectPeer, false);
-            b_mode_video.addEventListener("click", function() {openMenu("mode");}, false);
-
-
-            // menu chat
-             b_upstory_chat.onclick = addEventListener("click", function() {openMenu("all");}, false);
-            // b_mode_chat.onclick = openMenu("mode");
-            // b_upstory_chat.addEventListener("click", openMenu("all"), false);
-            input_chat_file.addEventListener("change", loadLocalThum, false);
-            // b_downFromChat.addEventListener("click", downloadChat, false);
-            b_mode_chat.addEventListener("click", function() {openMenu("mode");}, false);
-
-
-            // menu mode
-            // b_upstory_mode.onclick = openMenu("all");
-            b_upstory_mode.addEventListener("click", function() {openMenu("all");}, false);
-            b_canvasMode.addEventListener("click", function() {openMode("canvas");}, false);
-            b_videoMode.addEventListener("click", function() {openMode("video");}, false);
-            b_chatMode.addEventListener("click", function() {openMode("chat");}, false);
-            b_pcMode.addEventListener("click", openPcMode, false);
-            
-            
-            // menu color
-            // b_upstory_color.onclick = openMenu("canvas");
-            b_upstory_color.addEventListener("click", function() {openMenu("canvas");}, false);
-            b_black.addEventListener("click", function() {changeColor("rgb(0,0,0)");}, false);
-            b_red.addEventListener("click", function() {changeColor("rgb(255,0,0)");}, false);
-            b_green.addEventListener("click", function() {changeColor("rgb(0,255,0)");}, false);
-            b_blue.addEventListener("click", function() {changeColor("rgb(0,0,255)");}, false);
-            b_white.addEventListener("click", function() {changeColor("#ffffe0");}, false);
-            
-            
-            // menu bold
-            // b_upstory_bold.onclick = openMenu("canvas");
-            b_upstory_bold.addEventListener("click", function() {openMenu("canvas");}, false);
-            b_thin.addEventListener("click", function() {changeBold(1);}, false);
-            b_normal.addEventListener("click", function() {changeBold(5);}, false);
-            b_thick.addEventListener("click", function() {changeBold(10);}, false);
-            b_superThick.addEventListener("click", function() {changeBold(20);}, false);
-            b_paint.addEventListener("click", function() {changeBold(50);}, false);
-
-
-            // menu eraser
-            // b_upstory_eraser.onclick = openMenu("canvas");
-            b_upstory_eraser.addEventListener("click", function() {openMenu("canvas");}, false);
-            b_eraserColor.addEventListener("click", function() {changeColor("#ffffe0");}, false);
-            b_clear.addEventListener("click", allClear, false);
-
-            
-            // menu updown
-            // b_upstory_updown.onclick = openMenu("canvas");
-            b_upstory_updown.addEventListener("click", function() {openMenu("canvas");}, false);
-            input_canvas_file.addEventListener("change", loadLocalImage, false);
-            // b_downFromChat.addEventListener("click", downloadChat, false);
-            b_download.addEventListener("click", downCanvas, false);
-            b_sendToChat.addEventListener("click", toChat, false);
-
-
-            // input name
-            nameForm.addEventListener("change", changeName, false);
-
-
             // open certain menu
             function openMenu(menuName) {
                 console.log("openMenu");
