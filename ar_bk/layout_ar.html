@@ -27,9 +27,7 @@
         <style type="text/css">
             /* html 構造 */
             html, body {
-                /*
                 overflow: hidden;
-                */
                 margin: 0;
                 padding: 0;
             }
@@ -105,7 +103,9 @@
            */
 
             #canvas_area {
+                /*
                 background-color: #2c96026c;
+                */
                 z-index: 1;
             }
 
@@ -697,7 +697,7 @@
             // ar
             // tex_canvasの初期設定
             var sx, sy, ex, ey, rsx, rsy, rex, rey;
-            var color, bold, canvasTex, contextTex, touching, mouse, cw, ch, cvw, cvh, drawPos;
+            var color, bold, canvasTex, contextTex, touching, mouse, cw, ch, cvw, cvh, drawPos, revCanvas, revContext;
             color = "rgb(0,0,0)";
             bold = 5;
             canvasTex = document.getElementById("tex_canvas");
@@ -709,6 +709,10 @@
             contextTex.fillStyle = "#ffffe0";
             contextTex.fillRect(0, 0, cw, ch);
             drawPos = [];
+            revCanvas = document.getElementById("review_canvas");
+            revContext = revCanvas.getContext('2d');
+            revContext.fillStyle = "#ffffe0";
+            revContext.fillRect(0, 0, revCanvas.offsetWidth+10, revCanvas.offsetHeight+10);
 
             
             // video
@@ -1060,6 +1064,7 @@
             // b_clear.onclick = allClear();
             // clear all
             socket.on('eraseAll', function (data) {
+                // tex_canvas
                 // $("#tex_canvas").attr({width:$("#canvas_area").width()});
                 // $("#tex_canvas").attr({height:$("#canvas_area").height()});
                 var canvasTex = document.getElementById("tex_canvas");
@@ -1068,6 +1073,13 @@
                 var ch = canvasTex.offsetHeight + 500;
                 contextTex.fillStyle = "#ffffe0";
                 contextTex.fillRect(0, 0, cw, ch);
+                // review_canvas
+                revCanvas = document.getElementById("review_canvas");
+                revContext = revCanvas.getContext('2d');
+                var rcw = revCanvas.offsetWidth + 500;
+                var rch = revCanvas.offsetHeight + 500;
+                revContext.fillStyle = "#ffffe0";
+                revContext.fillRect(0, 0, cw, ch);
             });
             function allClear(e) {
                 socket.emit('erase', { value: true, id: roomName });
@@ -1127,8 +1139,8 @@
             // Canvas上に画像を表示する
             function drawImgOnCvs(data) {
                 canvasTex = document.getElementById("tex_canvas");
-                contextTex = canvas.getContext('2d');
-                contextTex.imageSmoothingQuality = "high";            cvw = canvas.width;
+                contextTex = canvasTex.getContext('2d');
+                contextTex.imageSmoothingQuality = "high";
                 // canvas内の要素をクリアする
                 cvw = canvasTex.width;
                 cvh = canvasTex.height;
@@ -1193,6 +1205,7 @@
 
             //Write
             socket.on('posit', function (data) {
+                // tex_canvas
                 var cvw = document.getElementById("tex_canvas").width;
                 var cvh = document.getElementById("tex_canvas").height;
                 var canvasTex = document.getElementById("tex_canvas");
@@ -1204,6 +1217,19 @@
                 contextTex.moveTo(data[0]*cvw, data[1]*cvh);
                 contextTex.lineTo(data[2]*cvw, data[3]*cvh);
                 contextTex.stroke();
+                //review_canvas
+                var rcvw = document.getElementById("review_canvas").width;
+                var rcvh = document.getElementById("review_canvas").height;
+                revCanvas = document.getElementById("review_canvas");
+                revContext = revCanvas.getContext('2d');
+                revContext.beginPath();
+                revContext.lineCap = "round";
+                revContext.strokeStyle = data[4];
+                revContext.lineWidth = data[5];
+                revContext.moveTo(data[0]*cvw, data[1]*cvh);
+                revContext.lineTo(data[2]*cvw, data[3]*cvh);
+                revContext.stroke();
+                
             });
 
             //===================================================================
@@ -1245,7 +1271,7 @@
             //===================================================================
             var context = new THREEx.ArToolkitContext({           // arToolkitContextの作成
             // 元はfalse
-            debug: false,                                       // デバッグ用キャンバス表示（デフォルトfalse）
+            debug: true,                                       // デバッグ用キャンバス表示（デフォルトfalse）
             cameraParametersUrl: "https://jeromeetienne.github.io/AR.js/data/data/camera_para.dat",             // カメラパラメータファイル
             detectionMode: "mono",                              // 検出モード（color/color_and_matrix/mono/mono_and_matrix）
             imageSmoothingEnabled: true,                        // 画像をスムージングするか（デフォルトfalse）
