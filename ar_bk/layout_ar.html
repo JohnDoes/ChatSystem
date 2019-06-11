@@ -709,6 +709,7 @@
             contextTex.fillStyle = "#ffffe0";
             contextTex.fillRect(0, 0, cw, ch);
             drawPos = [];
+            // review_canvasの初期設定
             revCanvas = document.getElementById("review_canvas");
             revContext = revCanvas.getContext('2d');
             revContext.fillStyle = "#ffffe0";
@@ -827,7 +828,7 @@
 
 
             // menu chat
-             b_upstory_chat.onclick = addEventListener("click", function(e) {
+             b_upstory_chat.addEventListener("click", function(e) {
                 e.preventDefault();
                 openMenu("all");
                 e.stopPropagation();
@@ -1012,8 +1013,8 @@
             // b_humberger.onclick = menuSwitch();
 
             // opne or close menu area
-            function menuSwitch() {
-                // e.preventDefault();
+            function menuSwitch(e) {
+                e.preventDefault();
                 console.log("menuSwitch");
                 menu_judge = document.getElementById("menu_area").style.display;
                 if(menu_judge == "none") {
@@ -1023,7 +1024,7 @@
                     document.getElementById("menu_area").style.display = "none";
                     openMode(mode);
                 }
-                // e.stopPropagation();
+                e.stopPropagation();
             }
 
             function openPcMode(e) {
@@ -1242,11 +1243,10 @@
             });
             renderer.setClearColor(new THREE.Color("black"), 0);  // レンダラの背景色
             // renderer.setSize(640, 480);                           // レンダラのサイズ
-            renderer.setSize(document.getElementById("canvas_container").clientWidth, document.getElementById("canvas_container").clientHeight);                           // レンダラのサイズ
+            renderer.setSize(window.innerWidth, window.innerHeight);                           // レンダラのサイズ
             renderer.domElement.style.position = "absolute";      // レンダラの位置は絶対値
             renderer.domElement.style.top = "0px";                // レンダラの上端
             renderer.domElement.style.left = "0px";               // レンダラの左端
-            // document.getElementById.body.appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
             document.getElementById("canvas_container").appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
             // var camera = new THREE.Camera();                      // カメラの作成
             var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0, 1000);                      // カメラの作成
@@ -1271,7 +1271,7 @@
             //===================================================================
             var context = new THREEx.ArToolkitContext({           // arToolkitContextの作成
             // 元はfalse
-            debug: true,                                       // デバッグ用キャンバス表示（デフォルトfalse）
+            debug: false,                                       // デバッグ用キャンバス表示（デフォルトfalse）
             cameraParametersUrl: "https://jeromeetienne.github.io/AR.js/data/data/camera_para.dat",             // カメラパラメータファイル
             detectionMode: "mono",                              // 検出モード（color/color_and_matrix/mono/mono_and_matrix）
             imageSmoothingEnabled: true,                        // 画像をスムージングするか（デフォルトfalse）
@@ -1400,7 +1400,7 @@
             var ray = new THREE.Raycaster();  //　レイキャスター定義
             var mouse = false;
             var sx, sy, ex, ey, rsx, rsy, rex, rey;
-            window.addEventListener("mousedown", onMouseDown, false);
+            document.getElementById("canvas_container").addEventListener("mousedown", onMouseDown, false);
             function onMouseDown(e) {
                 //console.log("マウスダウン");
                 mouse = true;
@@ -1435,7 +1435,7 @@
                 }
             }
 
-            window.addEventListener("mousemove", onMouseMove, false);
+            document.getElementById("canvas_container").addEventListener("mousemove", onMouseMove, false);
             function onMouseMove(e) {
                 //console.log("マウスムーブ");
                 var mouseX = e.clientX;                           // マウスのx座標
@@ -1504,14 +1504,14 @@
 
             }
 
-            window.addEventListener("mouseup", onMouseUp, false);
+            document.getElementById("canvas_container").addEventListener("mouseup", onMouseUp, false);
             function onMouseUp(e) {
                 //console.log("マウスアップ");
                 mouse = false;
             }
 
 
-            window.addEventListener("touchstart", onTouchStart, false);
+            document.getElementById("canvas_container").addEventListener("touchstart", onTouchStart, false);
             function onTouchStart(e) {
             //console.log("タッチスタート");                      //イベントの動作確認
             var touch = e.changedTouches[0];                  //一本目の指を取得
@@ -1547,8 +1547,8 @@
             }
             }
             
-                //タッチムーブ
-            window.addEventListener("touchmove", onTouchMove, false);
+            //タッチムーブ
+            document.getElementById("canvas_container").addEventListener("touchmove", onTouchMove, false);
             function onTouchMove(e) {
                 if(e.touches.length == 1) {
                 e.preventDefault();              
@@ -1583,7 +1583,7 @@
                 }
             }
 
-            window.addEventListener("touchend", onTouchEnd, false);
+            document.getElementById("canvas_container").addEventListener("touchend", onTouchEnd, false);
             function onTouchEnd(e) {
                 // e.preventDefault();
                 console.log("タッチエンド");
@@ -2006,8 +2006,8 @@
                 }
             });
             function changeName(e) {
+                myName = document.getElementById("myNameForm").value;         
                 if (peerJudge) {
-                    myName = document.getElementById("myNameForm").value;         
                     socket.emit("sendName", {id: roomName, tag: peer.id, name: myName});
                     // room.send(myName);
                 }
