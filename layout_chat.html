@@ -18,8 +18,6 @@
             socket = io.connect();
             // path = location.pathname;
             // roomName = path.slice(1);
-            // roomPath = path.slice(1).split('.')
-            // roomName = roomPath[0];
             roomName = "arTest";
             console.log(roomName);
             socket.emit("join", {value: roomName});
@@ -38,7 +36,7 @@
                 background-color: #bccac6;
                 width: 100vw;
                 display: block;
-                z-index: 10;
+                z-index: 20;
             }
 
             #header_contents {
@@ -46,6 +44,7 @@
                 width: 100%;
                 display: table;
                 margin: 0;
+                z-index: 19;
             }
 
             #header_left {
@@ -55,6 +54,7 @@
                 vertical-align: middle;
                 margin: 0;
                 padding-left: 15px;
+                z-index: 18;
             }
 
             #header_right {
@@ -63,6 +63,7 @@
                 display: table-cell;
                 vertical-align: middle;
                 margin: 0;
+                z-index: 17;
             }
 
             /* コンテンツエリアの配置 */
@@ -224,6 +225,7 @@
                 background-color: #fff;
                 border: 2px solid #444;
                 border-radius: 4px;
+                z-index: 16;
             }
             #humberger div {
                 position: absolute;
@@ -430,6 +432,7 @@
             <div id="canvas_area" class="main">
                 <div id="canvas_container" class="contents_container">
                     <canvas id="myCanvas" style="background-color: #ffffe0; "></canvas>
+                    <canvas id="back" style="display: none;"></canvas>
                 </div>
             </div>
             <div id="chat_area" class="main">
@@ -535,7 +538,7 @@
                         <li id="sele_upstory_mode" class="menu_return">← 戻る</li>
                         <li id="sele_canvasMode" class="review_list">
                             <div id="canvas_review" class="review_contents">
-                                <canvas id="review_canvas"></canvas>
+                                <canvas id="review_canvas" width="192" height="128"></canvas>
                             </div>
                         </li>
                         <li id="sele_videoMode" class="review_list">
@@ -695,14 +698,7 @@
             var date, fileName, base64, blob, tmp, data, mime, buf, a;
             var img, iw, ih, imgAsp, canAsp, rat;
             // ar
-            // myCanvasの初期設定
-            if($("#canvas_container").height()*3/2 > $("#canvas_container").width()) {
-                $("#myCanvas").attr({width:$("#canvas_container").width()});
-                $("#myCanvas").attr({height:$("#canvas_container").width()*2/3});
-            }else {
-                $("#myCanvas").attr({height:$("#canvas_container").height()});
-                $("#myCanvas").attr({width:$("#canvas_container").height()*3/2});
-            }
+            // tex_canvasの初期設定
             var sx, sy, ex, ey, rsx, rsy, rex, rey;
             var color, bold, canvas, context, touching, mouse, cw, ch, cvw, cvh, drawPos, revCanvas, revContext;
             color = "rgb(0,0,0)";
@@ -715,7 +711,7 @@
             ch = canvas.offsetHeight + 500;
             context.fillStyle = "#ffffe0";
             context.fillRect(0, 0, cw, ch);
-            position = [];
+            drawPos = [];
             // review_canvasの初期設定
             revCanvas = document.getElementById("review_canvas");
             revContext = revCanvas.getContext('2d');
@@ -724,9 +720,8 @@
 
             
             // video
-            var aud, vid, peerJudge, videoTrack, audioTrack;
+            var aud, vid, peerJudge;
             aud = true;
-            vid = true;
             peerJudge = false;
             
             // chat
@@ -836,7 +831,7 @@
 
 
             // menu chat
-             b_upstory_chat.onclick = addEventListener("click", function(e) {
+             b_upstory_chat.addEventListener("click", function(e) {
                 e.preventDefault();
                 openMenu("all");
                 e.stopPropagation();
@@ -874,7 +869,7 @@
                 openMode("chat");
                 e.stopPropagation();
             }, false);
-            b_pcMode.addEventListener("click", openPcMode, false);
+            b_pcMode.addEventListener("click", openSmaphoMode, false);
             
             
             // menu color
@@ -1021,7 +1016,7 @@
             // b_humberger.onclick = menuSwitch();
 
             // opne or close menu area
-            function menuSwitch() {
+            function menuSwitch(e) {
                 // e.preventDefault();
                 console.log("menuSwitch");
                 menu_judge = document.getElementById("menu_area").style.display;
@@ -1036,12 +1031,12 @@
             }
 
             function openPcMode(e) {
-                location.href = "https://webchat-for-learning-test.herokuapp.com/arTest";
+                location.href = "https://webchat-for-learning-test.herokuapp.com/" + roomName + ".html";
             }
 
 
             /////////////////
-            //  描画  //
+            //  AR描画  //
             //////////////
             // change color
             function changeColor(col) {
@@ -1057,22 +1052,19 @@
 
             // clear all
             socket.on('eraseAll', function (data) {
-                // tex_canvas
-                // $("#tex_canvas").attr({width:$("#canvas_area").width()});
-                // $("#tex_canvas").attr({height:$("#canvas_area").height()});
-                var canvasTex = document.getElementById("tex_canvas");
-                var contextTex = canvasTex.getContext('2d');
-                var cw = canvasTex.offsetWidth + 500;
-                var ch = canvasTex.offsetHeight + 500;
-                contextTex.fillStyle = "#ffffe0";
-                contextTex.fillRect(0, 0, cw, ch);
+                var canvas = document.getElementById("myCanvas");
+                var context = canvas.getContext('2d');
+                var cw = canvas.offsetWidth + 500;
+                var ch = canvas.offsetHeight + 500;
+                context.fillStyle = "#ffffe0";
+                context.fillRect(0, 0, cw, ch);
                 // review_canvas
                 revCanvas = document.getElementById("review_canvas");
                 revContext = revCanvas.getContext('2d');
                 var rcw = revCanvas.offsetWidth + 500;
                 var rch = revCanvas.offsetHeight + 500;
                 revContext.fillStyle = "#ffffe0";
-                revContext.fillRect(0, 0, cw, ch);
+                revContext.fillRect(0, 0, rcw, rch);
             });
             function allClear(e) {
                 socket.emit('erase', { value: true, id: roomName });
@@ -1083,7 +1075,7 @@
             // download picture from canvas
             function toPicture(cnv) {
                 date = new Date();
-                // var canvasTex = document.getElementById("tex_canvas");
+                // var canvas = document.getElementById("myCanvas");
                 fileName = date.getFullYear().toString()  + date.getDate().toString() + (date.getHours() + 1).toString() + date.getMinutes().toString() + date.getSeconds().toString() + ".png";
                 base64 = cnv.toDataURL("image/png");
                 blob = toBlob(base64);
@@ -1124,21 +1116,30 @@
                 }
             }
             function downCanvas(e) {
-                canvasTex = document.getElementById("tex_canvas");
-                toPicture(canvasTex);
+                canvas = document.getElementById("myCanvas");
+                toPicture(canvas);
             }
 
             // upload picture to canvas
             // Canvas上に画像を表示する
             function drawImgOnCvs(data) {
-                canvasTex = document.getElementById("tex_canvas");
-                contextTex = canvasTex.getContext('2d');
-                contextTex.imageSmoothingQuality = "high";
+                canvas = document.getElementById("myCanvas");
+                context = canvas.getContext('2d');
+                context.imageSmoothingQuality = "high";
                 // canvas内の要素をクリアする
-                cvw = canvasTex.width;
-                cvh = canvasTex.height;
-                contextTex.fillStyle = "#ffffe0";
-                contextTex.fillRect(0, 0, cvw, cvh);
+                cvw = canvas.width;
+                cvh = canvas.height;
+                context.fillStyle = "#ffffe0";
+                context.fillRect(0, 0, cvw, cvh);
+
+                // review_canvas
+                revCanvas = document.getElementById("review_canvas");
+                revContext = revCanvas.getContext('2d');
+                rcw = revCanvas.width;
+                rch = revCanvas.height;
+                revContext.fillStyle = "#ffffe0";
+                revContext.fillRect(0, 0, rcw, rch);
+
 
                 // tex_canvas上に画像を表示
                 img = new Image();
@@ -1151,11 +1152,15 @@
                     if (imgAsp < canAsp) {
                         iw = cvh * imgAsp / canAsp;
                         context.drawImage(img, 0, 0, iw, cvh);
+                        revContext.drawImage(img, 0, 0, imgAsp*rch, rch);
                     }else {
                         ih = cvw * canAsp / imgAsp;
                         context.drawImage(img, 0, 0, cvw, ih);
+                        revContext.drawImage(img, 0, 0, rcw, rcw/imgAsp);
                     }
                 }
+
+
             }
             socket.on("returnImg", function(data) {
                 drawImgOnCvs(data);
@@ -1187,8 +1192,8 @@
             // input_canvas_file.addEventListener('change', loadLocalImage, false);
 
             function toChat(e) {
-                canvasTex = document.getElementById("tex_canvas");
-                base64 = canvasTex.toDataURL("image/png");
+                canvas = document.getElementById("myCanvas");
+                base64 = canvas.toDataURL("image/png");
                 socket.emit("canvasToChat", { value: base64, id: roomName, name: myName });
                 menuSwitch();
             }
@@ -1198,18 +1203,18 @@
 
             //Write
             socket.on('posit', function (data) {
-                // tex_canvas
-                var cvw = document.getElementById("tex_canvas").width;
-                var cvh = document.getElementById("tex_canvas").height;
-                var canvasTex = document.getElementById("tex_canvas");
-                var contextTex = canvasTex.getContext('2d');
-                contextTex.beginPath();
-                contextTex.lineCap = "round";
-                contextTex.strokeStyle = data[4];
-                contextTex.lineWidth = data[5];
-                contextTex.moveTo(data[0]*cvw, data[1]*cvh);
-                contextTex.lineTo(data[2]*cvw, data[3]*cvh);
-                contextTex.stroke();
+                // myCanvas
+                var cvw = document.getElementById("myCanvas").width;
+                var cvh = document.getElementById("myCanvas").height;
+                var canvas = document.getElementById("myCanvas");
+                var context = canvas.getContext('2d');
+                context.beginPath();
+                context.lineCap = "round";
+                context.strokeStyle = data[4];
+                context.lineWidth = data[5];
+                context.moveTo(data[0]*cvw, data[1]*cvh);
+                context.lineTo(data[2]*cvw, data[3]*cvh);
+                context.stroke();
                 //review_canvas
                 var rcvw = document.getElementById("review_canvas").width;
                 var rcvh = document.getElementById("review_canvas").height;
@@ -1235,11 +1240,10 @@
             });
             renderer.setClearColor(new THREE.Color("black"), 0);  // レンダラの背景色
             // renderer.setSize(640, 480);                           // レンダラのサイズ
-            renderer.setSize(document.getElementById("canvas_container").clientWidth, document.getElementById("canvas_container").clientHeight);                           // レンダラのサイズ
+            renderer.setSize(window.innerWidth, window.innerHeight);                           // レンダラのサイズ
             renderer.domElement.style.position = "absolute";      // レンダラの位置は絶対値
             renderer.domElement.style.top = "0px";                // レンダラの上端
             renderer.domElement.style.left = "0px";               // レンダラの左端
-            // document.getElementById.body.appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
             document.getElementById("canvas_container").appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
             // var camera = new THREE.Camera();                      // カメラの作成
             var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0, 1000);                      // カメラの作成
@@ -1264,7 +1268,7 @@
             //===================================================================
             var context = new THREEx.ArToolkitContext({           // arToolkitContextの作成
             // 元はfalse
-            debug: true,                                       // デバッグ用キャンバス表示（デフォルトfalse）
+            debug: false,                                       // デバッグ用キャンバス表示（デフォルトfalse）
             cameraParametersUrl: "https://jeromeetienne.github.io/AR.js/data/data/camera_para.dat",             // カメラパラメータファイル
             detectionMode: "mono",                              // 検出モード（color/color_and_matrix/mono/mono_and_matrix）
             imageSmoothingEnabled: true,                        // 画像をスムージングするか（デフォルトfalse）
@@ -1291,19 +1295,19 @@
                     source.copyElementSizeTo(context.arController.canvas);  // それも同じサイズに
                 } 
 
-                var canvasTex = document.getElementById("tex_canvas");
-                var contextTex = canvasTex.getContext('2d');
-                var base64 = canvasTex.toDataURL("image/png");
-                contextTex.imageSmoothingQuality = "high";
-                // $("#tex_canvas").attr({width:$("#canvas_area").width()});
-                // $("#tex_canvas").attr({height:$("#canvas_area").height()});
-                var cw = canvasTex.offsetWidth + 500;
-                var ch = canvasTex.offsetHeight + 500;
-                contextTex.fillStyle = "#ffffe0";
-                contextTex.fillRect(0, 0, cw, ch);
+                var canvas = document.getElementById("myCanvas");
+                var context = canvas.getContext('2d');
+                var base64 = canvas.toDataURL("image/png");
+                context.imageSmoothingQuality = "high";
+                // $("#myCanvas").attr({width:$("#canvas_area").width()});
+                // $("#myCanvas").attr({height:$("#canvas_area").height()});
+                var cw = canvas.offsetWidth + 500;
+                var ch = canvas.offsetHeight + 500;
+                context.fillStyle = "#ffffe0";
+                context.fillRect(0, 0, cw, ch);
                 var bkData = new Image();
                 bkData.onload = function() {
-                    contextTex.drawImage(bkData, 0, 0, canvasTex.width, canvasTex.height);
+                    context.drawImage(bkData, 0, 0, canvas.width, canvas.height);
                 }
                 bkData.src = base64;
                 
@@ -1330,7 +1334,7 @@
             var geoWidth = 6;
             var geoHeight = 4;
             var geo = new THREE.PlaneGeometry(geoWidth, geoHeight);            // plane ジオメトリ（サイズは 1x1x1）
-            var canvasMap = new THREE.Texture(canvasTex); // canvas要素を読み込む
+            var canvasMap = new THREE.Texture(canvas); // canvas要素を読み込む
             var mat = new THREE.MeshBasicMaterial({ map: canvasMap });
             /*
             var mat = new THREE.MeshNormalMaterial({              // マテリアルの作成
@@ -1340,7 +1344,7 @@
             });
 
                 var geometry = new THREE.PlaneGeometry(450, 300);
-                var canvasMap = new THREE.Texture(canvasTex); // canvas要素を読み込む
+                var canvasMap = new THREE.Texture(canvas); // canvas要素を読み込む
                 var material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
                 material.map = canvasMap;
                 canvasMap.minFilter = THREE.LinearFilter
@@ -1393,7 +1397,7 @@
             var ray = new THREE.Raycaster();  //　レイキャスター定義
             var mouse = false;
             var sx, sy, ex, ey, rsx, rsy, rex, rey;
-            window.addEventListener("mousedown", onMouseDown, false);
+            document.getElementById("canvas_container").addEventListener("mousedown", onMouseDown, false);
             function onMouseDown(e) {
                 //console.log("マウスダウン");
                 mouse = true;
@@ -1428,7 +1432,7 @@
                 }
             }
 
-            window.addEventListener("mousemove", onMouseMove, false);
+            document.getElementById("canvas_container").addEventListener("mousemove", onMouseMove, false);
             function onMouseMove(e) {
                 //console.log("マウスムーブ");
                 var mouseX = e.clientX;                           // マウスのx座標
@@ -1463,8 +1467,8 @@
 
                 if(mouse) {
                 
-                var cvw = document.getElementById("tex_canvas").width;
-                var cvh = document.getElementById("tex_canvas").height;
+                var cvw = document.getElementById("myCanvas").width;
+                var cvh = document.getElementById("myCanvas").height;
                 // var rect = event.target.getBoundingClientRect();
                 // rsx = sx / geoWidth;
                 // rsy = sy / geoHeight;
@@ -1497,14 +1501,14 @@
 
             }
 
-            window.addEventListener("mouseup", onMouseUp, false);
+            document.getElementById("canvas_container").addEventListener("mouseup", onMouseUp, false);
             function onMouseUp(e) {
                 //console.log("マウスアップ");
                 mouse = false;
             }
 
 
-            window.addEventListener("touchstart", onTouchStart, false);
+            document.getElementById("canvas_container").addEventListener("touchstart", onTouchStart, false);
             function onTouchStart(e) {
             //console.log("タッチスタート");                      //イベントの動作確認
             var touch = e.changedTouches[0];                  //一本目の指を取得
@@ -1540,8 +1544,8 @@
             }
             }
             
-                //タッチムーブ
-            window.addEventListener("touchmove", onTouchMove, false);
+            //タッチムーブ
+            document.getElementById("canvas_container").addEventListener("touchmove", onTouchMove, false);
             function onTouchMove(e) {
                 if(e.touches.length == 1) {
                 e.preventDefault();              
@@ -1576,7 +1580,7 @@
                 }
             }
 
-            window.addEventListener("touchend", onTouchEnd, false);
+            document.getElementById("canvas_container").addEventListener("touchend", onTouchEnd, false);
             function onTouchEnd(e) {
                 // e.preventDefault();
                 console.log("タッチエンド");
@@ -1724,14 +1728,14 @@
                         // ビデオをmuteする
                         audioTrack.enabled = false;
                         aud = false;
-                        document.getElementById("audio_switch").style.display = "block";
+                        document.getElementById("sele_mute").style.backgroundColor = "red";
                         if(peer.id !== undefined){
                             socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
                         }
                     }else {
                         audioTrack.enabled = true;
                         aud = true;
-                        document.getElementById("audio_switch").style.display = "none";
+                        document.getElementById("sele_mute").style.backgroundColor = "black";
                         if(peer.id !== undefined){
                             socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
                         }
@@ -1743,8 +1747,10 @@
                 if(peerJudge) {
                     if(data.judge == true) {
                         document.getElementById("mute_" + data.value).style.display = "none";
+                        document.getElementById("mute_" + data.value + "_review").style.display = "none";
                     }else {
                         document.getElementById("mute_" + data.value).style.display = "block";
+                        document.getElementById("mute_" + data.value + "_review").style.display = "block";
                     }
                 }
             });
@@ -1944,7 +1950,7 @@
             // ファイルが指定された時にloadLocalImage()を実行
             // input_chat_file.addEventListener('change', loadLocalThum, false);
 
-            // draw image of chat on tex_canvas
+            // draw image of chat on myCanvas
             socket.on("addBoard", function drawBoard(data) {
                 drawImgOnCvs(data);
             });
@@ -1962,18 +1968,18 @@
 
             function bkCanvas() {
                 console.log("bk");
-                canvasTex = document.getElementById("tex_canvas");
-                contextTex = canvasTex.getContext('2d');
-                base64 = canvasTex.toDataURL("image/png");
+                canvas = document.getElementById("myCanvas");
+                context = canvas.getContext('2d');
+                base64 = canvas.toDataURL("image/png");
                 context.imageSmoothingQuality = "high";
             }
             function recoverCanvas() {
                 console.log("drow");
-                canvasTex = document.getElementById("tex_canvas");
-                contextTex = canvasTex.getContext('2d');
+                canvas = document.getElementById("myCanvas");
+                context = canvas.getContext('2d');
                 bkData = new Image();
                 bkData.onload = function() {
-                    contextTex.drawImage(bkData, 0, 0, canvasTex.width, canvasTex.height);
+                    context.drawImage(bkData, 0, 0, canvas.width, canvas.height);
                 }
                 bkData.src = base64;
             }
@@ -1999,8 +2005,8 @@
                 }
             });
             function changeName(e) {
+                myName = document.getElementById("myNameForm").value;         
                 if (peerJudge) {
-                    myName = document.getElementById("myNameForm").value;         
                     socket.emit("sendName", {id: roomName, tag: peer.id, name: myName});
                     // room.send(myName);
                 }
