@@ -1159,12 +1159,12 @@
                     imgAsp = iw/ih;
                     canAsp = 3/2;
                     if (imgAsp < canAsp) {
-                        iw = cvh * imgAsp / canAsp;
-                        context.drawImage(img, 0, 0, iw, cvh);
+                        // iw = cvh * imgAsp;
+                        context.drawImage(img, 0, 0, cvh * imgAsp, cvh);
                         revContext.drawImage(img, 0, 0, imgAsp*rch, rch);
                     }else {
-                        ih = cvw * canAsp / imgAsp;
-                        context.drawImage(img, 0, 0, cvw, ih);
+                        ih = cvw / imgAsp;
+                        context.drawImage(img, 0, 0, cvw, cvw / imgAsp);
                         revContext.drawImage(img, 0, 0, rcw, rcw/imgAsp);
                     }
                 }
