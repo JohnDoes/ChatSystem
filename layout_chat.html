@@ -103,7 +103,7 @@
            }
            */
 
-            #canvas_area {
+            #canvas_container {
                 /*
                 background-color: #2c96026c;
                 */
@@ -429,7 +429,7 @@
             </div>
         </div>
         <div id="contents_area">
-            <div id="canvas_area" class="main">
+            <div id="canvas_container" class="main">
                 <div id="canvas_container" class="contents_container">
                     <canvas id="myCanvas" style="background-color: #ffffe0; "></canvas>
                     <canvas id="back" style="display: none;"></canvas>
@@ -619,7 +619,7 @@
             //area
             var el_menu_area, el_canvas_area, el_video_area, el_chat_area;
             el_menu_area = document.getElementById("menu_area");
-            el_canvas_area = document.getElementById("canvas_area");
+            el_canvas_area = document.getElementById("canvas_container");
             el_video_area = document.getElementById("video_area");
             el_chat_area = document.getElementById("chat_area");
 
@@ -700,7 +700,7 @@
             // ar
             // tex_canvasの初期設定
             var sx, sy, ex, ey, rsx, rsy, rex, rey;
-            var color, bold, canvas, context, touching, mouse, cw, ch, cvw, cvh, drawPos, revCanvas, revContext;
+            var color, bold, canvas, context, touching, mouse, cw, ch, cvw, cvh, position, revCanvas, revContext;
             color = "rgb(0,0,0)";
             bold = 5;
             canvas = document.getElementById("myCanvas");
@@ -711,7 +711,16 @@
             ch = canvas.offsetHeight + 500;
             context.fillStyle = "#ffffe0";
             context.fillRect(0, 0, cw, ch);
-            drawPos = [];
+            position = [];
+
+            if($("#canvas_container").height()*3/2 > $("#canvas_container").width()) {
+                $("#myCanvas").attr({width:$("#canvas_container").width()});
+                $("#myCanvas").attr({height:$("#canvas_container").width()*2/3});
+            }else {
+                $("#myCanvas").attr({height:$("#canvas_container").height()});
+                $("#myCanvas").attr({width:$("#canvas_container").height()*3/2});
+            }
+            
             // review_canvasの初期設定
             revCanvas = document.getElementById("review_canvas");
             revContext = revCanvas.getContext('2d');
@@ -975,7 +984,7 @@
             // clear all area
             function resetMode() {
                 console.log("resetMode");
-                document.getElementById("canvas_area").style.display = "none";
+                document.getElementById("canvas_container").style.display = "none";
                 document.getElementById("video_area").style.display = "none";
                 document.getElementById("chat_area").style.display = "none";
                 document.getElementById("menu_area").style.display = "none";
@@ -1230,77 +1239,20 @@
                 
             });
 
-            //===================================================================
-            // three.js の各種設定
-            //===================================================================
-            var scene = new THREE.Scene();                        // シーンの作成
-            var renderer = new THREE.WebGLRenderer({              // レンダラの作成
-            antialias: true,                                    // アンチエイリアス有効
-            alpha: true,                                        // canvasに透明度バッファを持たせる
-            });
-            renderer.setClearColor(new THREE.Color("black"), 0);  // レンダラの背景色
-            // renderer.setSize(640, 480);                           // レンダラのサイズ
-            renderer.setSize(window.innerWidth, window.innerHeight);                           // レンダラのサイズ
-            renderer.domElement.style.position = "absolute";      // レンダラの位置は絶対値
-            renderer.domElement.style.top = "0px";                // レンダラの上端
-            renderer.domElement.style.left = "0px";               // レンダラの左端
-            document.getElementById("canvas_container").appendChild(renderer.domElement);       // レンダラの DOM を body に入れる
-            // var camera = new THREE.Camera();                      // カメラの作成
-            var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0, 1000);                      // カメラの作成
-            scene.add(camera);                                    // カメラをシーンに追加
-            var light = new THREE.DirectionalLight(0xffffff);     // 平行光源（白）を作成
-            light.position.set(0, 1, 2);                          // カメラ方向から照らす
-            scene.add(light);                                     // シーンに光源を追加
 
-            //===================================================================
-            // arToolkitSource（マーカトラッキングするメディアソース）
-            //===================================================================
-            var source = new THREEx.ArToolkitSource({             // arToolkitSourceの作成
-            sourceType: "webcam",                               // Webカメラを使う（スマホもこれでOK）
-            });
-            source.init(function onReady() {                      // ソースを初期化し、準備ができたら
-            onResize();                                         // リサイズ処理
-            // connectPeer();                                      // リサイズ処理
-            });
-
-            //===================================================================
-            // arToolkitContext（カメラパラメータ、マーカ検出設定）
-            //===================================================================
-            var context = new THREEx.ArToolkitContext({           // arToolkitContextの作成
-            // 元はfalse
-            debug: false,                                       // デバッグ用キャンバス表示（デフォルトfalse）
-            cameraParametersUrl: "https://jeromeetienne.github.io/AR.js/data/data/camera_para.dat",             // カメラパラメータファイル
-            detectionMode: "mono",                              // 検出モード（color/color_and_matrix/mono/mono_and_matrix）
-            imageSmoothingEnabled: true,                        // 画像をスムージングするか（デフォルトfalse）
-            // minDetectionRate: 30,                               // マーカー検出レート（最低値設定）
-            maxDetectionRate: 60,                               // マーカの検出レート（デフォルト60）
-            canvasWidth: source.parameters.sourceWidth,         // マーカ検出用画像の幅（デフォルト640）
-            canvasHeight: source.parameters.sourceHeight,       // マーカ検出用画像の高さ（デフォルト480）
-            });
-            context.init(function onCompleted(){                  // コンテクスト初期化が完了したら
-            camera.projectionMatrix.copy(context.getProjectionMatrix());   // 射影行列をコピー
-            });
-
-            //===================================================================
-            // リサイズ処理
-            //===================================================================
-            window.addEventListener("resize", function() {        // ウィンドウがリサイズされたら
-            onResize();
-            });
-            // リサイズ関数
-            function onResize(){
-                source.onResizeElement();                           // トラッキングソースをリサイズ
-                source.copyElementSizeTo(renderer.domElement);      // レンダラも同じサイズに
-                if(context.arController !== null){                  // arControllerがnullでなければ
-                    source.copyElementSizeTo(context.arController.canvas);  // それも同じサイズに
-                } 
-
+            // ウィンドウサイズの変更や回転時のサイズ調整
+            $(window).on("orientationchange resize load", function(){
                 var canvas = document.getElementById("myCanvas");
                 var context = canvas.getContext('2d');
                 var base64 = canvas.toDataURL("image/png");
                 context.imageSmoothingQuality = "high";
-                // $("#myCanvas").attr({width:$("#canvas_area").width()});
-                // $("#myCanvas").attr({height:$("#canvas_area").height()});
+                if($("#canvas_container").height()*3/2 > $("#canvas_container").width()) {
+                    $("#myCanvas").attr({width:$("#canvas_container").width()});
+                    $("#myCanvas").attr({height:$("#canvas_container").width()*2/3});
+                }else {
+                    $("#myCanvas").attr({height:$("#canvas_container").height()});
+                    $("#myCanvas").attr({width:$("#canvas_container").height()*3/2});
+                }
                 var cw = canvas.offsetWidth + 500;
                 var ch = canvas.offsetHeight + 500;
                 context.fillStyle = "#ffffe0";
@@ -1310,288 +1262,102 @@
                     context.drawImage(bkData, 0, 0, canvas.width, canvas.height);
                 }
                 bkData.src = base64;
-                
-            }
-
-            //===================================================================
-            // ArMarkerControls（マーカと、マーカ検出時の表示オブジェクト）
-            //===================================================================
-            //-------------------------------
-            // その１（hiroマーカ＋立方体）
-            //-------------------------------
-            // マーカ
-            // ネットでhiroマーカの画像を得て、以下の AR.js のマーカトレーニングサイトで patt を作成
-            // https://jeromeetienne.github.io/AR.js/three.js/examples/marker-training/examples/generator.html
-            var marker1 = new THREE.Group();                      // マーカをグループとして作成
-            var controls = new THREEx.ArMarkerControls(context, marker1, {    // マーカを登録
-            type: "pattern",                                    // マーカのタイプ
-            patternUrl: "https://jeromeetienne.github.io/AR.js/data/data/patt.hiro",                            // マーカファイル
             });
 
 
-            scene.add(marker1);                                   // マーカをシーンに追加
-            // モデル（メッシュ）
-            var geoWidth = 6;
-            var geoHeight = 4;
-            var geo = new THREE.PlaneGeometry(geoWidth, geoHeight);            // plane ジオメトリ（サイズは 1x1x1）
-            var canvasMap = new THREE.Texture(canvas); // canvas要素を読み込む
-            var mat = new THREE.MeshBasicMaterial({ map: canvasMap });
-            /*
-            var mat = new THREE.MeshNormalMaterial({              // マテリアルの作成
-                transparent: true,                                  // 透過
-                opacity: 0.5,                                       // 不透明度
-                side: THREE.DoubleSide,                             // 内側も描く
-            });
-
-                var geometry = new THREE.PlaneGeometry(450, 300);
-                var canvasMap = new THREE.Texture(canvas); // canvas要素を読み込む
-                var material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
-                material.map = canvasMap;
-                canvasMap.minFilter = THREE.LinearFilter
-
-            */
-            //canvasMap.minFilter = THREE.LinearFilter;
-            var mesh1 = new THREE.Mesh(geo, mat);
-            mesh1.rotation.x = Math.PI/2 * -1;
-
-            //var mesh1 = new THREE.Mesh(geo, mat);                 // メッシュを生成
-            //mesh1.name = "cube";
-            var mesh1PosX = 0;
-            var mesh1PosY = 0.1;
-            var mesh1PosZ = 0;
-                                            // メッシュの名前（後でピッキングで使う）
-            mesh1.position.set(mesh1PosX, mesh1PosY, mesh1PosZ);                        // 初期位置
-            marker1.add(mesh1);                                   // メッシュをマーカに追加
-            // マーカ隠蔽（cloaking）
-            // var videoTex = new THREE.VideoTexture(source.domElement);  // 映像をテクスチャとして取得
-            // videoTex.minFilter = THREE.NearestFilter;             // 映像テクスチャのフィルタ処理
-            // var cloak = new THREEx.ArMarkerCloak(videoTex);       // マーカ隠蔽(cloak)オブジェクト
-            // cloak.object3d.material.uniforms.opacity.value = 1.0; // cloakの不透明度
-            // marker1.add(cloak.object3d);  // cloakをマーカに追加
-
-
-
-
-            //===================================================================
-            // レンダリング・ループ
-            //===================================================================
-            function renderScene() {                              // レンダリング関数
-            requestAnimationFrame(renderScene);                 // ループを要求
-            if(source.ready === false)    { return; }             // メディアソースの準備ができていなければ抜ける
-            context.update(source.domElement);                  // ARToolkitのコンテキストを更新
-            if(marker1.visible === true) {
-                console.log("find marker");                       //marker　Groupが表示されたらログ
-            }
-            canvasMap.needsUpdate = true;
-            renderer.render(scene, camera);                     // レンダリング実施
-            }
-            renderScene();     // 最初に1回だけレンダリングをトリガ
-
-
-
-            //===================================================================
-            // 操作方法実装
-            //===================================================================
-
-            var posVec2 = new THREE.Vector2();    // タッチ位置測定用
-            var ray = new THREE.Raycaster();  //　レイキャスター定義
-            var mouse = false;
-            var sx, sy, ex, ey, rsx, rsy, rex, rey;
-            document.getElementById("canvas_container").addEventListener("mousedown", onMouseDown, false);
-            function onMouseDown(e) {
-                //console.log("マウスダウン");
-                mouse = true;
-                var mouseX = e.clientX;                           // マウスのx座標
-                var mouseY = e.clientY;                           // マウスのy座標
-                posVec2.x =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
-                posVec2.y = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
-                // var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
-                // pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
-                // レイキャスタを作成（始点, 向きのベクトル）
-                // var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
-                ray.setFromCamera(posVec2, camera);
-                var object = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
-                if(object.length > 0) {                                // 交差したオブジェクトがあれば
-                    //picked(obj[0].object.name);                      // ピックされた対象に応じた処理を実行
-                    //console.log(obj[0].point.x); 
-                    //console.log(obj[0].point.y); 
-                    //console.log(obj[0].point.z); 
-                    console.log(object[0].uv.x)
-                    console.log(object[0].uv.y)
-                    console.log(object[0]);
-                    //sx = obj[0].point[0];
-                    //sy = obj[0].point[1];
-
-
-                    sx = object[0].uv.x;
-                    sy = object[0].uv.y * -1 + 1;
-                    //sy = obj[0].uv.y * -1 + geoHeight;
-                    // sx = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
-                    // sy = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
-                    // sy = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
-                }
-            }
-
-            document.getElementById("canvas_container").addEventListener("mousemove", onMouseMove, false);
-            function onMouseMove(e) {
-                //console.log("マウスムーブ");
-                var mouseX = e.clientX;                           // マウスのx座標
-                var mouseY = e.clientY;                           // マウスのy座標
-                posVec2.x =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
-                posVec2.y = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
-                // var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
-                // pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
-                // レイキャスタを作成（始点, 向きのベクトル）
-                // var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
-                ray.setFromCamera(posVec2, camera);
-                var object = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
-                if(object.length > 0) {                                // 交差したオブジェクトがあれば
-                    //picked(obj[0].object.name);                      // ピックされた対象に応じた処理を実行
-                    //console.log(obj[0].point.x); 
-                    //console.log(obj[0].point.y); 
-                    //console.log(obj[0].point.z); 
-                    console.log(object[0].uv.x)
-                    console.log(object[0].uv.y)
-                    console.log(object[0]);
-                    //ex = obj[0].point[0];
-                    //ey = obj[0].point[1];
-
-
-                    ex = object[0].uv.x;
-                    ey = object[0].uv.y * -1 + 1;
-                    // ey = obj[0].uv.y * -1 + geoHeight;
-                    // ex = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
-                    // ey = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
-                    // ey = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
-                }
-
-                if(mouse) {
-                
-                var cvw = document.getElementById("myCanvas").width;
-                var cvh = document.getElementById("myCanvas").height;
-                // var rect = event.target.getBoundingClientRect();
-                // rsx = sx / geoWidth;
-                // rsy = sy / geoHeight;
-                // rex = ex / geoWidth;
-                // rey = ey / geoHeight; 
-                rsx = sx;
-                rsy = sy;
-                rex = ex;
-                rey = ey; 
-
-    /*
-                ctx.beginPath();
-                ctx.lineCap = "round";
-                ctx.moveTo(rsx*cvw, rsy*cvh);
-                ctx.lineTo(rex*cvw, rey*cvh);
-                ctx.stroke();
-    */
-
-                drawPos = [rsx, rsy, rex, rey, color, bold];
-                if (mouse === true) {
-                    socket.emit('pos', { value: drawPos, id: roomName });
-                }
-                
-                sx = ex;
-                sy = ey;
-
-                drawPos = [];
-                
-                }
-
-            }
-
-            document.getElementById("canvas_container").addEventListener("mouseup", onMouseUp, false);
-            function onMouseUp(e) {
-                //console.log("マウスアップ");
-                mouse = false;
-            }
-
-
-            document.getElementById("canvas_container").addEventListener("touchstart", onTouchStart, false);
+            //タッチスタート
+            canvas.addEventListener("touchstart", onTouchStart, false);
             function onTouchStart(e) {
-            //console.log("タッチスタート");                      //イベントの動作確認
-            var touch = e.changedTouches[0];                  //一本目の指を取得
-            touching = true;                                  //タッチ判定
-            var mouseX = touch.clientX;                           // touchのx座標
-            var mouseY = touch.clientY;                           // touchのy座標
-            posVec2.x =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
-            posVec2.y = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
-            // var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
-            // pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
-            // レイキャスタを作成（始点, 向きのベクトル）
-            // var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
-            ray.setFromCamera(posVec2, camera);
-            var object = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
-            if(object.length > 0) {                                // 交差したオブジェクトがあれば
-                //picked(obj[0].object.name);                      // ピックされた対象に応じた処理を実行
-                    //console.log(obj[0].point.x); 
-                    //console.log(obj[0].point.y); 
-                    //console.log(obj[0].point.z); 
-                    console.log(object[0].uv.x)
-                    console.log(object[0].uv.y)
-                    console.log(object[0]);
-
-                    //sx = obj[0].point[0];
-                    //sy = obj[0].point[1];
-
-                    sx = object[0].uv.x;
-                    sy = object[0].uv.y * -1 + 1;
-                    //sy = obj[0].uv.y * -1 + geoHeight;
-                    // sx = obj[0].point.x + (geoWidth / 2) + mesh1PosX;
-                    // sy = obj[0].point.y * -1 + (geoHeight / 2) + mesh1PosY;
-                    // sy = obj[0].point.z * -1 + (geoHeight / 2) + mesh1PosZ;
-            }
+                    // e.preventDefault();
+                    console.log("タッチスタート");
+                    var touch = e.changedTouches[0];
+                    var rect = e.target.getBoundingClientRect();
+                    sx = touch.clientX - rect.left;
+                    sy = touch.clientY - rect.top;
+                    console.log(sx);
+                    console.log(sy);
+                    touching = true;
+                    // e.stopPropagation();
             }
             
-            //タッチムーブ
-            document.getElementById("canvas_container").addEventListener("touchmove", onTouchMove, false);
+                //タッチムーブ
+            canvas.addEventListener("touchmove", onTouchMove, false);
             function onTouchMove(e) {
                 if(e.touches.length == 1) {
-                e.preventDefault();              
-                //console.log("タッチムーブ");
-                socket.emit('log', {value: "タッチムーブ"});
-                var touch = e.changedTouches[0];
-                var mouseX = touch.clientX;                           // touchのx座標
-                var mouseY = touch.clientY;                           // touchのy座標
-                posVec2.x =  (mouseX / window.innerWidth)  * 2 - 1;    // -1 ～ +1 に正規化されたx座標
-                posVec2.y = -(mouseY / window.innerHeight) * 2 + 1;    // -1 ～ +1 に正規化されたy座標
-                // var pos = new THREE.Vector3(mouseX, mouseY, 1);     // マウスベクトル
-                // pos.unproject(camera);                              // スクリーン座標系をカメラ座標系に変換
-                // レイキャスタを作成（始点, 向きのベクトル）
-                // var ray = new THREE.Raycaster(camera.position, pos.sub(camera.position).normalize());
-                ray.setFromCamera(posVec2, camera);
-                var object = ray.intersectObjects(scene.children, true);   // レイと交差したオブジェクトの取得
-                    if(object.length > 0) {                                // 交差したオブジェクトがあれば
-                            console.log(object[0].uv.x)
-                            console.log(object[0].uv.y)
-                            // console.log(object[0]);
-                            ex = object[0].uv.x;
-                            ey = object[0].uv.y * -1 + 1;
-                    }                    
-                    if(touching) {                
-                    drawPos = [sx, sy, ex, ey, color, bold];
-                    socket.emit('pos', { value: drawPos, id: roomName });                
-                    sx = ex;
-                    sy = ey;
-                    drawPos = [];                                
+                    e.preventDefault();
+                    console.log("タッチムーブ");
+                    var touch = e.changedTouches[0];
+                    var cvw = document.getElementById("myCanvas").width;
+                    var cvh = document.getElementById("myCanvas").height;
+                    　var rect = e.target.getBoundingClientRect();
+                    　ex = touch.clientX - rect.left;
+                    　ey = touch.clientY - rect.top;
+                    console.log(sx);
+                    console.log(sy);
+                    console.log(ex);
+                    console.log(ey);
+                    rsx = sx / cvw;
+                    rsy = sy / cvh;
+                    rex = ex / cvw;
+                    rey = ey / cvh; 
+                    position = [rsx, rsy, rex, rey, color, bold];
+                    if (touching === true) {
+                        socket.emit('pos', { value: position , id: roomName});
+                        sx = ex;
+                        sy = ey;
+                        position = [];
                     }
-                    e.stopPropagation();       
+                    e.stopPropagation();
                 }
             }
 
-            document.getElementById("canvas_container").addEventListener("touchend", onTouchEnd, false);
+            canvas.addEventListener("touchend", onTouchEnd, false);
             function onTouchEnd(e) {
-                // e.preventDefault();
-                console.log("タッチエンド");
-                touching = false;
-                // e.stopPropagation();
+                    // e.preventDefault();
+                    console.log("タッチエンド");
+                    console.log(sx);
+                    console.log(sy);
+                    var touch = e.changedTouches[0];
+                    touching = false;
+                    // e.stopPropagation();
             }
 
 
+            canvas.addEventListener("mousedown", onMouseDown, false);
+            function onMouseDown(e) {
+                console.log("マウスダウン");
+                　var rect = event.target.getBoundingClientRect();
+                sx = event.clientX - rect.left;
+                sy = event.clientY - rect.top;
+                mouse = true;
+            }
 
+            canvas.addEventListener("mousemove", onMouseMove, false);
+            function onMouseMove(e) {
+                console.log("マウスムーブ");
+                var cvw = document.getElementById("myCanvas").width;
+                var cvh = document.getElementById("myCanvas").height;
+                　var rect = event.target.getBoundingClientRect();
+                ex = event.clientX - rect.left;
+                ey = event.clientY - rect.top;
+                rsx = sx / cvw;
+                rsy = sy / cvh;
+                rex = ex / cvw;
+                rey = ey / cvh; 
+                position = [rsx, rsy, rex, rey, color, bold];
+                if (mouse === true) {
+                    socket.emit('pos', { value: position, id: roomName });
+                }
+                sx = ex;
+                sy = ey;
+                position = [];
+            }
 
-            // menu color
+            canvas.addEventListener("mouseup", onMouseUp, false);
+            function onMouseUp(e) {
+                console.log("マウスアップ");
+                mouse = false;
+            }
 
 
             /////////////////////////
@@ -1614,6 +1380,7 @@
                 });
 
 
+
                 peer.on('open', function(){
                     peerJudge = true;
 
@@ -1621,78 +1388,105 @@
                     console.log("peerOpen");
                     socket.emit("log", {value: "peerOpen"});
 
-
-                    localStream = peerStream;
-                    // confirm log
-                    console.log(localStream);
-                    socket.emit("log", {value: "peerOpen"});
-
-                    // トラックを取り出す
-                    videoTrack = peerStream.getVideoTracks()[0];
-                    audioTrack = peerStream.getAudioTracks()[0];
-
-                    room = peer.joinRoom('mesh_video_' + roomName, {stream: localStream});
-                    room.on('stream', stream => {
-
-                    // confirm log
-                    console.log("peerConn");
-                    socket.emit("log", {value: "peerConn"});
-                        
-                        const peerId = stream.peerId;
-                        const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
-
-                        $('#their-videos').append($(
-                        '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
-                            '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
-                                "guest" + 
-                            '</div>' + 
-                            '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
-                            '<div class="peer-video" style="display: inline-block; width: 100%; height: 100%; margin-top: -25px;">' + 
-                                '<video class="remoteVideos" height="100%" width="100%" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
-                                '<audio class="remoteAudios" style="display: none;" autoplay playsinline></audio>' + 
-                            '</div>' + 
+                    $('#self-video').append($(
+                        '<video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                        '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
+                            myName + 
                         '</div>'));
-                        $('#their-videos_review').append($(
-                        '<div class="video_' + peerId +'" id="video_' + id + '_review" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
-                            '<div class="peer-name" id="name_' + peerId + '_review" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
-                                "guest" + 
-                            '</div>' + 
-                            '<div class="peer-audio" id="mute_' + peerId + '_review" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
-                            '<div class="peer-video" style="display: inline-block; width: 100%; height: 100%; margin-top: -25px;">' + 
-                                '<video class="remoteVideos" height="100%" width="100%" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
-                            '</div>' + 
-                        '</div>'));
-                        const el = $('#video_' + id).find('video').get(0);
-                        const revel = $('#video_' + id + '_review').find('video').get(0);
-                        const ael = $('#video_' + id).find('audio').get(0);
-                        el.muted = true;
-                        el.srcObject = stream;
-                        revel.muted = true;
-                        revel.srcObject = stream;
-                        ael.srcObject = stream;
-                        el.play();
-                        revel.play();
-                        ael.play();
-                        defName();
-                    });
+                    navigator.mediaDevices = navigator.mediaDevices || ((navigator.mozGetUserMedia || navigator.webkitGetUserMedia) ? {
+                        getUserMedia: function(c) {
+                            return new Promise(function(y, n) {
+                            (navigator.mozGetUserMedia ||
+                                navigator.webkitGetUserMedia).call(navigator, c, y, n);
+                            });
+                        }
+                    } : null);
+
+                    if (!navigator.mediaDevices) {
+                        console.log("getUserMedia() not supported.");
+                        return;
+                    }
+                    var constraints = { 
+                        video: { 
+                            frameRate: { ideal: 10, max: 30 }, 
+                            width: { min: 160, ideal: 640, max: 1920 }, 
+                            height: { min: 120, ideal: 480, max: 1080 }
+                        },  
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }};
 
 
-                    room.on('removeStream', function(stream) {
-                        const peerId = stream.peerId;
-                        $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
-                        $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '') + '_review').remove();
-                    });
+                    navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+                        $('#my-video').get(0).srcObject = stream;
+                        localStream = stream;
 
-                    // UI stuff
-                    room.on('close', function() {
-                        room.close();
-                        peerJudge = false;
-                        $('#their-videos').empty();
-                        $('#their-videos_review').empty();
-                    });
-                    room.on('peerLeave', peerId => {
-                        $('.video_' + peerId).remove();
-                        $('.video_' + peerId + '_review').remove();
+                        // トラックを取り出す
+                        videoTrack = stream.getVideoTracks()[0];
+                        audioTrack = stream.getAudioTracks()[0];
+
+                        room = peer.joinRoom('mesh_video_' + roomName, {stream: localStream});
+                        room.on('stream', stream => {
+                            const peerId = stream.peerId;
+                            const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
+
+                            $('#their-videos').append($(
+                            '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
+                                '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
+                                    "guest" + 
+                                '</div>' + 
+                                '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
+                                '<div class="peer-video" style="display: inline-block; width: 100%; height: 100%; margin-top: -25px;">' + 
+                                    '<video class="remoteVideos" height="100%" width="100%" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                                    '<audio class="remoteAudios" style="display: none;" autoplay playsinline></audio>' + 
+                                '</div>' + 
+                            '</div>'));
+                            $('#their-videos_review').append($(
+                            '<div class="video_' + peerId +'" id="video_' + id + '_review" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
+                                '<div class="peer-name" id="name_' + peerId + '_review" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
+                                    "guest" + 
+                                '</div>' + 
+                                '<div class="peer-audio" id="mute_' + peerId + '_review" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
+                                '<div class="peer-video" style="display: inline-block; width: 100%; height: 100%; margin-top: -25px;">' + 
+                                    '<video class="remoteVideos" height="100%" width="100%" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                                '</div>' + 
+                            '</div>'));
+                            const el = $('#video_' + id).find('video').get(0);
+                            const revel = $('#video_' + id + '_review').find('video').get(0);
+                            const ael = $('#video_' + id).find('audio').get(0);
+                            el.muted = true;
+                            el.srcObject = stream;
+                            revel.muted = true;
+                            revel.srcObject = stream;
+                            ael.srcObject = stream;
+                            el.play();
+                            revel.play();
+                            ael.play();
+                            defName();
+                        });
+
+
+
+
+                        room.on('removeStream', function(stream) {
+                            const peerId = stream.peerId;
+                            $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
+                            $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '') + '_review').remove();
+                        });
+
+                        // UI stuff
+                        room.on('close', function() {
+                            room.close();
+                            peerJudge = false;
+                            $('#their-videos').empty();
+                            $('#their-videos_review').empty();
+                        });
+                        room.on('peerLeave', peerId => {
+                            $('.video_' + peerId).remove();
+                            $('.video_' + peerId + '_review').remove();
+                        });
                     });
                 });
 
