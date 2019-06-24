@@ -520,9 +520,7 @@
                     <ul id="menu_video">
                         <li id="sele_upstory_video" class="menu_return">← 戻る</li>
                         <li id="sele_mute" class="menu_list">マイクオフ</li>
-                        <!--
-                            <li id="sele_blind" class="menu_list">ビデオオフ</li>
-                        -->
+                        <li id="sele_blind" class="menu_list">ビデオオフ</li>
                         <li id="sele_getout" class="menu_list">退出</li>
                         <li id="sele_join" class="menu_list">入室</li>
                         <li id="sele_mode_video" class="menu_list">モード変更</li>
@@ -739,6 +737,7 @@
             // video
             var aud, vid, peerJudge;
             aud = true;
+            vid = true;
             peerJudge = false;
             
             // chat
@@ -841,9 +840,9 @@
                 openMenu("all");
                 e.stopPropagation();
             }, false);
-            b_mute.addEventListener("click", switch_audio, false);
-            b_getout.addEventListener("click", getoutRoom, false);
-            b_join.addEventListener("click", connectPeer, false);
+            // b_mute.addEventListener("click", switch_audio, false);
+            // b_getout.addEventListener("click", getoutRoom, false);
+            // b_join.addEventListener("click", connectPeer, false);
             b_mode_video.addEventListener("click", function(e) {
                 e.preventDefault();
                 openMenu("mode");
@@ -1393,7 +1392,6 @@
             // video chat
 
 
-
             var localStream = null;
             var peer = null;
             var existingCall = null;
@@ -1514,9 +1512,66 @@
                             $('.video_' + peerId + '_review').remove();
                         });
                     });
-                document.getElementById("sele_join").style.backgroundColor = "red";
-                menuSwitch();
+                    document.getElementById("sele_join").style.backgroundColor = "red";
+                    menuSwitch();
                 } 
+
+                function getoutRoom(e) {
+                    if(peerJudge) {
+                        room.close();
+                        peerJudge = false;
+                        $('#their-videos').empty();
+                        $('#their-videos_review').empty();
+                        $('#self-video').empty();
+                        document.getElementById("sele_join").style.backgroundColor = "black";
+                    }else {
+                        alert("peer disconnected!");
+                    }
+                    menuSwitch();
+                }
+
+                function switch_audio(e) {
+                    if(peerJudge) {
+                        if (aud == true) {
+                            // ビデオをmuteする
+                            audioTrack.enabled = false;
+                            aud = false;
+                            document.getElementById("sele_mute").style.backgroundColor = "red";
+                            if(peer.id !== undefined){
+                                socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+                            }
+                        }else {
+                            audioTrack.enabled = true;
+                            aud = true;
+                            document.getElementById("sele_mute").style.backgroundColor = "black";
+                            if(peer.id !== undefined){
+                                socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+                            }
+                        }
+                    }
+                    menuSwitch();
+                }
+                
+                function switch_video(e) {
+                    if(peerJudge){
+                        console.log("video switch");
+                        if (vid == true) {
+                            videoTrack.enabled = false;
+                            vid = false;
+                            document.getElementById("sele_blind").style.backgroundColor = "red";
+                        }else {
+                            videoTrack.enabled = true;
+                            vid = true;
+                            document.getElementById("sele_blind").style.backgroundColor = "black";
+                        }
+                    }
+                    menuSwitch();
+                }
+                
+                b_mute.addEventListener("click", switch_audio, false);
+                b_blind.addEventListener("click", switch_video, false);
+                b_getout.addEventListener("click", getoutRoom, false);
+                b_join.addEventListener("click", connectPeer, false);
             });
 
             peer.on('error', function(err){
@@ -1682,6 +1737,7 @@
             */
 
             // b_getout.onclick = getoutRoom();
+            /*
             function getoutRoom(e) {
                 if(peerJudge) {
                     room.close();
@@ -1718,6 +1774,7 @@
                 }
                 menuSwitch();
             }
+            */
             socket.on("returnMute", function(data) {
                 if(peerJudge) {
                     if(data.judge == true) {

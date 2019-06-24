@@ -650,7 +650,7 @@
             
             b_upstory_video = document.getElementById("sele_upstory_video");
             b_mute = document.getElementById("sele_mute");
-            b_blind = document.getElementById("sele_blind");
+            // b_blind = document.getElementById("sele_blind");
             b_getout = document.getElementById("sele_getout");
             b_join = document.getElementById("sele_join");
             b_mode_video = document.getElementById("sele_mode_video");
@@ -821,9 +821,11 @@
                 openMenu("all");
                 e.stopPropagation();
             }, false);
+            /*
             b_mute.addEventListener("click", switch_audio, false);
             b_getout.addEventListener("click", getoutRoom, false);
             b_join.addEventListener("click", connectPeer, false);
+            */
             b_mode_video.addEventListener("click", function(e) {
                 e.preventDefault();
                 openMenu("mode");
@@ -1720,6 +1722,46 @@
                         document.getElementById("sele_join").style.backgroundColor = "red";
                         menuSwitch();
                     } 
+
+                    function getoutRoom(e) {
+                        if(peerJudge) {
+                            room.close();
+                            peerJudge = false;
+                            $('#their-videos').empty();
+                            $('#their-videos_review').empty();
+                            document.getElementById("sele_join").style.backgroundColor = "black";
+                        }else {
+                            alert("peer disconnected!");
+                        }
+                        menuSwitch();
+                    }
+
+                    // b_mute.onclick = switch_audio();
+                    function switch_audio(e) {
+                        if(peerJudge) {
+                            if (aud == true) {
+                                // ビデオをmuteする
+                                audioTrack.enabled = false;
+                                aud = false;
+                                document.getElementById("sele_mute").style.backgroundColor = "red";
+                                if(peer.id !== undefined){
+                                    socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+                                }
+                            }else {
+                                audioTrack.enabled = true;
+                                aud = true;
+                                document.getElementById("sele_mute").style.backgroundColor = "black";
+                                if(peer.id !== undefined){
+                                    socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+                                }
+                            }
+                        }
+                        menuSwitch();
+                    }
+
+                    b_mute.addEventListener("click", switch_audio, false);
+                    b_getout.addEventListener("click", getoutRoom, false);
+                    b_join.addEventListener("click", connectPeer, false);
                 });
 
                 peer.on('error', function(err){
@@ -1853,8 +1895,7 @@
                 menuSwitch();
             } 
             */
-
-            // b_getout.onclick = getoutRoom();
+            /*
             function getoutRoom(e) {
                 if(peerJudge) {
                     room.close();
@@ -1890,6 +1931,7 @@
                 }
                 menuSwitch();
             }
+            */
             socket.on("returnMute", function(data) {
                 if(peerJudge) {
                     if(data.judge == true) {
@@ -2118,7 +2160,7 @@
                 canvasTex = document.getElementById("tex_canvas");
                 contextTex = canvasTex.getContext('2d');
                 base64 = canvasTex.toDataURL("image/png");
-                context.imageSmoothingQuality = "high";
+                contextTex.imageSmoothingQuality = "high";
             }
             function recoverCanvas() {
                 console.log("drow");
