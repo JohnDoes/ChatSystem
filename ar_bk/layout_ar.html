@@ -821,11 +821,9 @@
                 openMenu("all");
                 e.stopPropagation();
             }, false);
-            /*
             b_mute.addEventListener("click", switch_audio, false);
             b_getout.addEventListener("click", getoutRoom, false);
             b_join.addEventListener("click", connectPeer, false);
-            */
             b_mode_video.addEventListener("click", function(e) {
                 e.preventDefault();
                 openMenu("mode");
@@ -1627,6 +1625,7 @@
             //==================================================================
 
             // video chat
+            /*
                 var localStream = null;
                 var peer = null;
                 var existingCall = null;
@@ -1767,11 +1766,6 @@
                 peer.on('error', function(err){
                     alert(err.message);
                     room.close();
-                    /*
-                    if(room !== undefined) {
-                        room.close();
-                    }
-                    */
                     peerJudge = false;
                     $('#their-videos').empty();
                     $('#their-videos_review').empty();
@@ -1779,15 +1773,10 @@
                 });
                 window.onclose = function() {
                     room.close();
-                    /*
-                    if(room !== undefined) {
-                        room.close();
-                    }
-                    */
                     peerJudge = false;
                 }
+            */
 
-            /*
             function connectPeer(e) {
                 var localStream = null;
                 var peer = null;
@@ -1894,8 +1883,6 @@
                 }
                 menuSwitch();
             } 
-            */
-            /*
             function getoutRoom(e) {
                 if(peerJudge) {
                     room.close();
@@ -1909,7 +1896,6 @@
                 menuSwitch();
             }
 
-            // b_mute.onclick = switch_audio();
             function switch_audio(e) {
                 if(peerJudge) {
                     if (aud == true) {
@@ -1931,7 +1917,6 @@
                 }
                 menuSwitch();
             }
-            */
             socket.on("returnMute", function(data) {
                 if(peerJudge) {
                     if(data.judge == true) {

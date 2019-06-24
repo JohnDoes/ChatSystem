@@ -823,11 +823,10 @@
                 openMenu("all");
                 e.stopPropagation();
             }, false);
-            /*
             b_mute.addEventListener("click", switch_audio, false);
+            b_blind.addEventListener("click", switch_video, false);
             b_getout.addEventListener("click", getoutRoom, false);
             b_join.addEventListener("click", connectPeer, false);
-            */
             b_mode_video.addEventListener("click", function(e) {
                 e.preventDefault();
                 openMenu("mode");
@@ -1369,6 +1368,7 @@
             // video chat
 
 
+            /*
 
             var localStream = null;
             var peer = null;
@@ -1378,7 +1378,6 @@
                 key: '2647af86-51da-4e29-be21-abb6af7e1016',
                 debug: 3
             });
-
 
             peer.on('open', function(){
                 function connectPeer(e) {
@@ -1555,11 +1554,6 @@
             peer.on('error', function(err){
                 alert(err.message);
                 room.close();
-                /*
-                if(room !== undefined) {
-                    room.close();
-                }
-                */
                 peerJudge = false;
                 $('#their-videos').empty();
                 $('#their-videos_review').empty();
@@ -1568,15 +1562,10 @@
             });
             window.onclose = function() {
                 room.close();
-                /*
-                if(room !== undefined) {
-                    room.close();
-                }
-                */
                 peerJudge = false;
             }
+            */
 
-            /*
             function connectPeer(e) {
 
                 var localStream = null;
@@ -1690,6 +1679,7 @@
                             peerJudge = false;
                             $('#their-videos').empty();
                             $('#their-videos_review').empty();
+                            $('#self-video').empty();
                         });
                         room.on('peerLeave', peerId => {
                             $('.video_' + peerId).remove();
@@ -1704,6 +1694,7 @@
                     peerJudge = false;
                     $('#their-videos').empty();
                     $('#their-videos_review').empty();
+                    $('#self-video').empty();
                 });
                 window.onclose = function() {
                     room.close();
@@ -1712,10 +1703,6 @@
                 menuSwitch();
             } 
 
-            */
-
-            // b_getout.onclick = getoutRoom();
-            /*
             function getoutRoom(e) {
                 if(peerJudge) {
                     room.close();
@@ -1752,7 +1739,6 @@
                 }
                 menuSwitch();
             }
-            */
             socket.on("returnMute", function(data) {
                 if(peerJudge) {
                     if(data.judge == true) {
@@ -1765,7 +1751,23 @@
                 }
             });
 
-            
+            function switch_video(e) {
+                if(peerJudge){
+                    console.log("video switch");
+                    if (vid == true) {
+                        videoTrack.enabled = false;
+                        vid = false;
+                        document.getElementById("sele_blind").style.backgroundColor = "red";
+                    }else {
+                        videoTrack.enabled = true;
+                        vid = true;
+                        document.getElementById("sele_blind").style.backgroundColor = "black";
+                    }
+                }
+                menuSwitch();
+            }
+
+
 
             /////////////////////////
             //  テキストチャット    //
