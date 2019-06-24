@@ -429,7 +429,7 @@
             </div>
         </div>
         <div id="contents_area">
-            <div id="canvas_container" class="main">
+            <div id="canvas_area" class="main">
                 <div id="canvas_container" class="contents_container">
                     <canvas id="myCanvas" style="background-color: #ffffe0; "></canvas>
                     <canvas id="back" style="display: none;"></canvas>
@@ -561,7 +561,7 @@
                                  -->
                             </div>
                         </li>
-                        <li id="sele_pcMode" class="menu_list">PCバージョンへ</li>
+                        <li id="sele_pcMode" class="menu_list">スマホバージョンへ</li>
                     </ul>
                     <ul id="menu_color">
                         <li id="sele_upstory_color" class="menu_return">← 戻る</li>
@@ -599,13 +599,6 @@
             </div>
         </div>
 
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/101/three.min.js'></script>
-
-        <!-- AR.js のインクルード -->
-        <!--
-        <script src="https://jeromeetienne.github.io/AR.js/three.js/build/ar.min.js"></script>
-        -->
-        <script src="./ar.js"></script>
         
         
         <script>
@@ -984,7 +977,7 @@
             // clear all area
             function resetMode() {
                 console.log("resetMode");
-                document.getElementById("canvas_container").style.display = "none";
+                document.getElementById("canvas_area").style.display = "none";
                 document.getElementById("video_area").style.display = "none";
                 document.getElementById("chat_area").style.display = "none";
                 document.getElementById("menu_area").style.display = "none";
@@ -1039,8 +1032,9 @@
                 // e.stopPropagation();
             }
 
-            function openPcMode(e) {
-                location.href = "https://webchat-for-learning-test.herokuapp.com/" + roomName + ".html";
+            function openSmaphoMode(e) {
+                // location.href = "https://webchat-for-learning-test.herokuapp.com/" + roomName + ".html";
+                location.href = "https://webchat-for-learning-test.herokuapp.com/ar/layout_ar.html";
             }
 
 
@@ -1061,8 +1055,8 @@
 
             // clear all
             socket.on('eraseAll', function (data) {
-                var canvas = document.getElementById("myCanvas");
-                var context = canvas.getContext('2d');
+                canvas = document.getElementById("myCanvas");
+                context = canvas.getContext('2d');
                 var cw = canvas.offsetWidth + 500;
                 var ch = canvas.offsetHeight + 500;
                 context.fillStyle = "#ffffe0";
@@ -1335,6 +1329,7 @@
             canvas.addEventListener("mousemove", onMouseMove, false);
             function onMouseMove(e) {
                 console.log("マウスムーブ");
+                e.preventDefault();
                 var cvw = document.getElementById("myCanvas").width;
                 var cvh = document.getElementById("myCanvas").height;
                 　var rect = event.target.getBoundingClientRect();
@@ -1351,6 +1346,7 @@
                 sx = ex;
                 sy = ey;
                 position = [];
+                e.stopPropagation();
             }
 
             canvas.addEventListener("mouseup", onMouseUp, false);
@@ -1367,9 +1363,162 @@
             //  ビデオチャット実装
             //==================================================================
 
-            // b_join.onclick = connectPeer();
+            // video chat
+
+
+
+            var localStream = null;
+            var peer = null;
+            var existingCall = null;
+            var room;
+            peer = new Peer({
+                key: '2647af86-51da-4e29-be21-abb6af7e1016',
+                debug: 3
+            });
+
+
+            peer.on('open', function(){
+                function connectPeer(e) {
+                   peerJudge = true;
+
+                    // confirm log
+                    console.log("peerOpen");
+                    socket.emit("log", {value: "peerOpen"});
+
+                    $('#self-video').append($(
+                        '<video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                        '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
+                            myName + 
+                        '</div>'));
+                    navigator.mediaDevices = navigator.mediaDevices || ((navigator.mozGetUserMedia || navigator.webkitGetUserMedia) ? {
+                        getUserMedia: function(c) {
+                            return new Promise(function(y, n) {
+                            (navigator.mozGetUserMedia ||
+                                navigator.webkitGetUserMedia).call(navigator, c, y, n);
+                            });
+                        }
+                    } : null);
+
+                    if (!navigator.mediaDevices) {
+                        console.log("getUserMedia() not supported.");
+                        return;
+                    }
+                    var constraints = { 
+                        video: { 
+                            frameRate: { ideal: 10, max: 30 }, 
+                            width: { min: 160, ideal: 640, max: 1920 }, 
+                            height: { min: 120, ideal: 480, max: 1080 }
+                        },  
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }};
+
+
+                    navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+                        $('#my-video').get(0).srcObject = stream;
+                        localStream = stream;
+
+                        // トラックを取り出す
+                        videoTrack = stream.getVideoTracks()[0];
+                        audioTrack = stream.getAudioTracks()[0];
+
+                        room = peer.joinRoom('mesh_video_' + roomName, {stream: localStream});
+                        room.on('stream', stream => {
+                            const peerId = stream.peerId;
+                            const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
+
+                            $('#their-videos').append($(
+                            '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
+                                '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
+                                    "guest" + 
+                                '</div>' + 
+                                '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
+                                '<div class="peer-video" style="display: inline-block; width: 100%; height: 100%; margin-top: -25px;">' + 
+                                    '<video class="remoteVideos" height="100%" width="100%" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                                    '<audio class="remoteAudios" style="display: none;" autoplay playsinline></audio>' + 
+                                '</div>' + 
+                            '</div>'));
+                            $('#their-videos_review').append($(
+                            '<div class="video_' + peerId +'" id="video_' + id + '_review" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
+                                '<div class="peer-name" id="name_' + peerId + '_review" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
+                                    "guest" + 
+                                '</div>' + 
+                                '<div class="peer-audio" id="mute_' + peerId + '_review" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
+                                '<div class="peer-video" style="display: inline-block; width: 100%; height: 100%; margin-top: -25px;">' + 
+                                    '<video class="remoteVideos" height="100%" width="100%" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+                                '</div>' + 
+                            '</div>'));
+                            const el = $('#video_' + id).find('video').get(0);
+                            const revel = $('#video_' + id + '_review').find('video').get(0);
+                            const ael = $('#video_' + id).find('audio').get(0);
+                            el.muted = true;
+                            el.srcObject = stream;
+                            revel.muted = true;
+                            revel.srcObject = stream;
+                            ael.srcObject = stream;
+                            el.play();
+                            revel.play();
+                            ael.play();
+                            defName();
+                        });
+
+
+
+
+                        room.on('removeStream', function(stream) {
+                            const peerId = stream.peerId;
+                            $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
+                            $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '') + '_review').remove();
+                        });
+
+                        // UI stuff
+                        room.on('close', function() {
+                            room.close();
+                            peerJudge = false;
+                            $('#their-videos').empty();
+                            $('#their-videos_review').empty();
+                            $('#self-video').empty();
+                            document.getElementById("sele_join").style.backgroundColor = "black";
+                        });
+                        room.on('peerLeave', peerId => {
+                            $('.video_' + peerId).remove();
+                            $('.video_' + peerId + '_review').remove();
+                        });
+                    });
+                document.getElementById("sele_join").style.backgroundColor = "red";
+                menuSwitch();
+                } 
+            });
+
+            peer.on('error', function(err){
+                alert(err.message);
+                room.close();
+                /*
+                if(room !== undefined) {
+                    room.close();
+                }
+                */
+                peerJudge = false;
+                $('#their-videos').empty();
+                $('#their-videos_review').empty();
+                $('#self-video').empty();
+                document.getElementById("sele_join").style.backgroundColor = "black";
+            });
+            window.onclose = function() {
+                room.close();
+                /*
+                if(room !== undefined) {
+                    room.close();
+                }
+                */
+                peerJudge = false;
+            }
+
+            /*
             function connectPeer(e) {
-                // video chat
+
                 var localStream = null;
                 var peer = null;
                 var existingCall = null;
@@ -1378,7 +1527,6 @@
                     key: '2647af86-51da-4e29-be21-abb6af7e1016',
                     debug: 3
                 });
-
 
 
                 peer.on('open', function(){
@@ -1504,11 +1652,17 @@
                 menuSwitch();
             } 
 
+            */
+
             // b_getout.onclick = getoutRoom();
             function getoutRoom(e) {
                 if(peerJudge) {
                     room.close();
                     peerJudge = false;
+                    $('#their-videos').empty();
+                    $('#their-videos_review').empty();
+                    $('#self-video').empty();
+                    document.getElementById("sele_join").style.backgroundColor = "black";
                 }else {
                     alert("peer disconnected!");
                 }

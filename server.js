@@ -84,9 +84,9 @@ function doRequest(request, response) {
         fs.readFile("."+request.url, "UTF-8",
             function (err, data) {
                 response.writeHead(200, { 'Content-Type': 'text/html' });
-                // response.write(data);
-                // response.end();
-                response.end(fs.readFileSync(__dirname + '/ar/layout_ar.html', 'UTF-8'));        
+                response.write(data);
+                response.end();
+                // response.end(fs.readFileSync(__dirname + '/ar/layout_ar.html', 'UTF-8'));        
             }
         );
         break;
