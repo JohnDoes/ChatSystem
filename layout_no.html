@@ -845,7 +845,7 @@
             // b_mute.addEventListener("click", switch_audio, false);
             b_blind.addEventListener("click", switch_video, false);
             // b_getout.addEventListener("click", getoutRoom, false);
-            b_join.addEventListener("click", connectPeer, false);
+            // b_join.addEventListener("click", connectPeer, false);
             b_mode_video.addEventListener("click", function(e) {
                 e.preventDefault();
                 openMenu("mode");
@@ -1557,6 +1557,7 @@
 
                     menuSwitch();                    
                 }
+                b_join.addEventListener("click", connectPeer, false);
             });
 
             peer.on('error', function(err){
