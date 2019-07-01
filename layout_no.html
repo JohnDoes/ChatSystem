@@ -1701,8 +1701,8 @@ function setupCallEventHandlers(call){
         addVideo(stream);
     });
 
-    call.on('peerLeave', function(peerId){
-        removeVideo(peerId);
+    call.on('peerLeave', function(stream){
+        removeVideo(stream);
     });
 
     call.on('close', function(){
@@ -1757,10 +1757,10 @@ function addVideo(stream){
     // $('.videosContainer').append(videoDom);
 }
 
-function removeVideo(peerId){
+function removeVideo(stream){
     // $('#'+peerId).remove();
-    $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
-    $('#video_' + peerId + '_' + stream.id.replace('{', '').replace('}', '') + '_review').remove();
+    $('#video_' + stream.peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
+    $('#video_' + stream.peerId + '_' + stream.id.replace('{', '').replace('}', '') + '_review').remove();
 }
 
 function removeAllRemoteVideos(){
