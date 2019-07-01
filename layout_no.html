@@ -1622,12 +1622,14 @@ var constraints = {
 
 navigator.mediaDevices.getUserMedia(constraints)
     .then(function (stream) {
+        /*
         $('#self-video').append($(
             '<video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
             '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
                 myName + 
             '</div>'));
         $('#my-video').get(0).srcObject = stream;
+        */
         localStream = stream;
         // トラックを取り出す
         videoTrack = stream.getVideoTracks()[0];
@@ -1657,14 +1659,22 @@ peer.on('error', function(err){
 });
 
 $('#sele_join').click(function(e){
-    peerJudge = true;
     e.preventDefault();
     // let roomName = $('#join-room').val();
     if (!roomName) {
         return;
     }
+    if(!peerJudge){
+        $('#self-video').append($(
+            '<video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+            '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
+                myName + 
+            '</div>'));
+        $('#my-video').get(0).srcObject = stream;
+    }
     const call = peer.joinRoom(roomName, {mode: 'mesh', stream: localStream});
     setupCallEventHandlers(call);
+    peerJudge = true;
 });
 
 $('#sele_getout').click(function(){
