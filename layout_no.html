@@ -1701,8 +1701,8 @@ function setupCallEventHandlers(call){
         addVideo(stream);
     });
 
-    call.on('peerLeave', function(stream){
-        removeVideo(stream);
+    call.on('peerLeave', function(peerId){
+        removeVideo(peerId);
     });
 
     call.on('close', function(){
@@ -1718,7 +1718,7 @@ function addVideo(stream){
     const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
 
     $('#their-videos').append($(
-    '<div class="video_' + peerId +'" id="video_' + id + '" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
+    '<div id="video_' + peerId +'" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
         '<div class="peer-name" id="name_' + peerId + '" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
             "guest" + 
         '</div>' + 
@@ -1729,7 +1729,7 @@ function addVideo(stream){
         '</div>' + 
     '</div>'));
     $('#their-videos_review').append($(
-    '<div class="video_' + peerId +'" id="video_' + id + '_review" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
+    '<div id="video_' + peerId +'_review" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
         '<div class="peer-name" id="name_' + peerId + '_review" style="height: 25px; background-color: rgba(50,50,50,0.5); color: #ffffff; position: relative; font-size: 16px; z-index:10;">' + 
             "guest" + 
         '</div>' + 
@@ -1757,10 +1757,10 @@ function addVideo(stream){
     // $('.videosContainer').append(videoDom);
 }
 
-function removeVideo(stream){
+function removeVideo(peerId){
     // $('#'+peerId).remove();
-    $('#video_' + stream.peerId + '_' + stream.id.replace('{', '').replace('}', '')).remove();
-    $('#video_' + stream.peerId + '_' + stream.id.replace('{', '').replace('}', '') + '_review').remove();
+    $('#video_' + peerId).remove();
+    $('#video_' + peerId + '_review').remove();
 }
 
 function removeAllRemoteVideos(){
