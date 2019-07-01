@@ -1656,12 +1656,24 @@ peer.on('error', function(err){
     alert(err.message);
 });
 
+function cloneAndDeactivateStream(stream) {
+    const newStream = stream.clone();
+    // If you have assigned the stream to a video element, you need to assign it the new stream.
+    // e.g. videoElem.srcObject = newStream;
+    $('#my-video').get(0).srcObject = newStream;
+    stream.getTracks().forEach(track => track.stop());
+
+    return newStream;
+}
+
+
 $('#sele_join').click(function(e){
     e.preventDefault();
     // let roomName = $('#join-room').val();
     if (!roomName) {
         return;
     }
+    localStream = cloneAndDeactivateStream(localStream);
     const call = peer.joinRoom(roomName, {mode: 'mesh', stream: localStream});
     setupCallEventHandlers(call);
     peerJudge = true;
@@ -1673,6 +1685,7 @@ $('#sele_getout').click(function(){
     existingCall.close();
     menuSwitch();
 });
+
 
 function setupCallEventHandlers(call){
     if (existingCall) {
