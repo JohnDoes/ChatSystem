@@ -1657,6 +1657,7 @@ peer.on('error', function(err){
 });
 
 $('#sele_join').click(function(e){
+    peerJudge = true;
     e.preventDefault();
     // let roomName = $('#join-room').val();
     if (!roomName) {
@@ -1667,6 +1668,7 @@ $('#sele_join').click(function(e){
 });
 
 $('#sele_getout').click(function(){
+    peerJudge = false;
     existingCall.close();
 });
 
@@ -1765,7 +1767,47 @@ function setupEndCallUI() {
     $('#sele_getout').show();
 }
 
+function switch_audio(e) {
+    if(peerJudge) {
+        if (aud == true) {
+            // ビデオをmuteする
+            audioTrack.enabled = false;
+            aud = false;
+            document.getElementById("sele_mute").style.backgroundColor = "red";
+            if(peer.id !== undefined){
+                socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+            }
+        }else {
+            audioTrack.enabled = true;
+            aud = true;
+            document.getElementById("sele_mute").style.backgroundColor = "black";
+            if(peer.id !== undefined){
+                socket.emit("audioMute", {judge: aud ,value: peer.id, id: roomName, name: myName});
+            }
+        }
+    }
+    menuSwitch();
+}
 
+b_mute.addEventListener("click", switch_audio, false);
+
+function switch_video(e) {
+    if(peerJudge){
+        console.log("video switch");
+        if (vid == true) {
+            videoTrack.enabled = false;
+            vid = false;
+            document.getElementById("sele_blind").style.backgroundColor = "red";
+        }else {
+            videoTrack.enabled = true;
+            vid = true;
+            document.getElementById("sele_blind").style.backgroundColor = "black";
+        }
+    }
+    menuSwitch();
+}
+
+setupMakeCallUI();
 
 // <div class="myControllerContainer">
 //     <p>Your id: <span id="my-id">...</span></p>
