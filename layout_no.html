@@ -1715,7 +1715,7 @@ function setupCallEventHandlers(call){
 function addVideo(stream){
 
     const peerId = stream.peerId;
-    const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
+    // const id = peerId + '_' + stream.id.replace('{', '').replace('}', '');
 
     $('#their-videos').append($(
     '<div id="video_' + peerId +'" style="display: inline-block; margin:5px; width: 95%; height: 95%;">' + 
@@ -1738,9 +1738,9 @@ function addVideo(stream){
             '<video class="remoteVideos" height="100%" width="100%" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
         '</div>' + 
     '</div>'));
-    const el = $('#video_' + id).find('video').get(0);
-    const revel = $('#video_' + id + '_review').find('video').get(0);
-    const ael = $('#video_' + id).find('audio').get(0);
+    const el = $('#video_' + peerId).find('video').get(0);
+    const revel = $('#video_' + peerId + '_review').find('video').get(0);
+    const ael = $('#video_' + peerId).find('audio').get(0);
     el.muted = true;
     el.srcObject = stream;
     revel.muted = true;
