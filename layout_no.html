@@ -1670,7 +1670,7 @@ $('#sele_join').click(function(e){
             '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
                 myName + 
             '</div>'));
-        $('#my-video').get(0).srcObject = stream;
+        $('#my-video').get(0).srcObject = localStream;
     }
     const call = peer.joinRoom(roomName, {mode: 'mesh', stream: localStream});
     setupCallEventHandlers(call);
