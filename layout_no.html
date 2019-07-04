@@ -210,6 +210,7 @@
             #chat_review {
                 height: 160px;
                 overflow-y: scroll;
+                background-color: #eee;
             }
             #video_review {
                 overflow-y: scroll;
@@ -1755,7 +1756,7 @@ function addVideo(stream){
         '</div>' + 
         '<div class="peer-audio" id="mute_' + peerId + '" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
         '<div class="peer-video" style="display: inline-block; width: 100%; height: 100%; margin-top: -25px;">' + 
-            '<video class="remoteVideos" height="' + window.innerHeight - 100 + '" width="' + window.innerWidth - 20 + '" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+            '<video class="remoteVideos" height="500" width="500" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
             '<audio class="remoteAudios" style="display: none;" autoplay playsinline></audio>' + 
         '</div>' + 
     '</div>'));
