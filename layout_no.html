@@ -1656,6 +1656,7 @@ navigator.mediaDevices.getUserMedia(constraints)
     .then(function (stream) {
         $('#self-video').append($(
             '<video id="my-video" height="140px" width="210px" muted="true" style="display: inline-block; position: -webkit-sticky;" autoplay playsinline></video>' +
+            '<div class="peer-audio" id="mute_' + peer.id + '" style="height: 25px; background-color: red; color: black; font-size: 16px; display: none; position: relative; z-index:10;">音声オフ</div>' + 
             '<div class="my-name" id="name_' + peer.id + '" style="height: 25px; margin: 0; padding: 0; background-color: #333333; color: #ffffff; position: relative; z-index:10;">' + 
                 myName + 
             '</div>'));
