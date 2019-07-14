@@ -696,7 +696,7 @@
             // ar
             // tex_canvasの初期設定
             var sx, sy, ex, ey, rsx, rsy, rex, rey;
-            var color, bold, canvas, context, touching, mouse, cw, ch, cvw, cvh, position, revCanvas, revContext, canvas_back, context_bk;
+            var color, bold, canvas, context, touching, mouse, cw, ch, cvw, cvh, position, revCanvas, revContext, rcw, rch, canvas_back, context_bk, bcw, bch;
             color = "rgb(0,0,0)";
             bold = 5;
             canvas = document.getElementById("myCanvas");
@@ -1058,10 +1058,10 @@
             //////////////
             // open canvas_area
             function openCanvasMode() {
-                var canvas = document.getElementById("myCanvas");
-                var context = canvas.getContext('2d');
-                var base64 = canvas.toDataURL("image/png");
-                context.imageSmoothingQuality = "high";
+                revCanvas = document.getElementById("canvas_review");
+                revContext = revCanvas.getContext('2d');
+                var base64 = revCanvas.toDataURL("image/png");
+                revContext.imageSmoothingQuality = "high";
                 if($("#canvas_container").height()*3/2 > $("#canvas_container").width()) {
                     $("#myCanvas").attr({width:$("#canvas_container").width()});
                     $("#myCanvas").attr({height:$("#canvas_container").width()*2/3});
@@ -1069,6 +1069,8 @@
                     $("#myCanvas").attr({height:$("#canvas_container").height()});
                     $("#myCanvas").attr({width:$("#canvas_container").height()*3/2});
                 }
+                canvas = document.getElementById("myCanvas");
+                context = canvas.getContext('2d');
                 var cw = canvas.offsetWidth + 500;
                 var ch = canvas.offsetHeight + 500;
                 context.fillStyle = "#ffffe0";
@@ -1183,7 +1185,9 @@
                 canvas_bk = document.getElementById("back");
                 context_bk = canvas_bk.getContext("2d");
                 context_bk.fillStyle = "#ffffe0";
-                context_bk.fillRect(0, 0, 1000, 1000);
+                bcw = 768;
+                bch = 512;
+                context_bk.fillRect(0, 0, bcw, bch);
 
                 // review_canvas
                 revCanvas = document.getElementById("review_canvas");
