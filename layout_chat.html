@@ -696,7 +696,7 @@
             // ar
             // tex_canvasの初期設定
             var sx, sy, ex, ey, rsx, rsy, rex, rey;
-            var color, bold, canvas, context, touching, mouse, cw, ch, cvw, cvh, position, revCanvas, revContext;
+            var color, bold, canvas, context, touching, mouse, cw, ch, cvw, cvh, position, revCanvas, revContext, canvas_back, context_bk;
             color = "rgb(0,0,0)";
             bold = 5;
             canvas = document.getElementById("myCanvas");
@@ -1057,7 +1057,7 @@
             //  描画  //
             //////////////
             // open canvas_area
-            var openCanvasMode = function() {
+            function openCanvasMode() {
                 var canvas = document.getElementById("myCanvas");
                 var context = canvas.getContext('2d');
                 var base64 = canvas.toDataURL("image/png");
@@ -1100,6 +1100,11 @@
                 var ch = canvas.offsetHeight + 500;
                 context.fillStyle = "#ffffe0";
                 context.fillRect(0, 0, cw, ch);
+                // back canvas
+                canvas_bk = document.getElementById("back");
+                context_bk = canvas_bk.getContext("2d");
+                context_bk.fillStyle = "#ffffe0";
+                context_bk.fillRect(0, 0, 1000, 1000);
                 // review_canvas
                 revCanvas = document.getElementById("review_canvas");
                 revContext = revCanvas.getContext('2d');
@@ -1174,6 +1179,12 @@
                 context.fillStyle = "#ffffe0";
                 context.fillRect(0, 0, cvw, cvh);
 
+                // backのclear
+                canvas_bk = document.getElementById("back");
+                context_bk = canvas_bk.getContext("2d");
+                context_bk.fillStyle = "#ffffe0";
+                context_bk.fillRect(0, 0, 1000, 1000);
+
                 // review_canvas
                 revCanvas = document.getElementById("review_canvas");
                 revContext = revCanvas.getContext('2d');
@@ -1183,7 +1194,7 @@
                 revContext.fillRect(0, 0, rcw, rch);
 
 
-                // tex_canvas上に画像を表示
+                // canvas上に画像を表示
                 img = new Image();
                 img.src = data.value;
                 img.onload = function() {
