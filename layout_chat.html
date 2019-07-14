@@ -716,6 +716,12 @@
                 $("#myCanvas").attr({height:$("#canvas_container").height()});
                 $("#myCanvas").attr({width:$("#canvas_container").height()*3/2});
             }
+
+            // backの初期設定
+            canvas_bk = document.getElementById("back");
+            context_bk = canvas_bk.getContext("2d");
+            context_bk.fillStyle = "#ffffe0";
+            context_bk.fillRect(0, 0, 1000, 1000);
             
             // review_canvasの初期設定
             revCanvas = document.getElementById("review_canvas");
