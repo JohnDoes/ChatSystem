@@ -1014,6 +1014,10 @@
                 openMenu(modeName);
                 modeName = modeName + "_area"
                 document.getElementById(modeName).style.display = "block";
+                // canvas 見えない対策
+                if(modeName = "canvas") {
+                    openCanvasMode();
+                }
             }
             // open certain menu
             function openMenu(menuName) {
@@ -1050,8 +1054,32 @@
 
 
             /////////////////
-            //  AR描画  //
+            //  描画  //
             //////////////
+            // open canvas_area
+            var openCanvasMode = function() {
+                var canvas = document.getElementById("myCanvas");
+                var context = canvas.getContext('2d');
+                var base64 = canvas.toDataURL("image/png");
+                context.imageSmoothingQuality = "high";
+                if($("#canvas_container").height()*3/2 > $("#canvas_container").width()) {
+                    $("#myCanvas").attr({width:$("#canvas_container").width()});
+                    $("#myCanvas").attr({height:$("#canvas_container").width()*2/3});
+                }else {
+                    $("#myCanvas").attr({height:$("#canvas_container").height()});
+                    $("#myCanvas").attr({width:$("#canvas_container").height()*3/2});
+                }
+                var cw = canvas.offsetWidth + 500;
+                var ch = canvas.offsetHeight + 500;
+                context.fillStyle = "#ffffe0";
+                context.fillRect(0, 0, cw, ch);
+                var bkData = new Image();
+                bkData.onload = function() {
+                    context.drawImage(bkData, 0, 0, canvas.width, canvas.height);
+                }
+                bkData.src = base64;
+            }
+
             // change color
             function changeColor(col) {
                 color = col;
