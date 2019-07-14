@@ -435,7 +435,7 @@
             <div id="canvas_area" class="main">
                 <div id="canvas_container" class="contents_container">
                     <canvas id="myCanvas" style="background-color: #ffffe0; "></canvas>
-                    <canvas id="back" style="display: none;"></canvas>
+                    <canvas id="back" height="512" width="768" style="display: none;"></canvas>
                 </div>
             </div>
             <div id="chat_area" class="main">
@@ -1195,6 +1195,8 @@
                 // ファイル読み込みを実行
                 reader.readAsDataURL(fileData);
                 openMenu(mode);
+
+                e.value = "";
             }
             // ファイルが指定された時にloadLocalImage()を実行
             // input_canvas_file.addEventListener('change', loadLocalImage, false);
@@ -1232,8 +1234,8 @@
                 revContext.lineCap = "round";
                 revContext.strokeStyle = data[4];
                 revContext.lineWidth = data[5];
-                revContext.moveTo(data[0]*cvw, data[1]*cvh);
-                revContext.lineTo(data[2]*cvw, data[3]*cvh);
+                revContext.moveTo(data[0]*rcvw, data[1]*rcvh);
+                revContext.lineTo(data[2]*rcvw, data[3]*rcvh);
                 revContext.stroke();
                 
             });
@@ -2098,7 +2100,7 @@
                                                             "<div class='bms_message_text'>" + 
                                                                     data.name + ":" + "<br />" + 
                                                                     "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
-                                                                    "<canvas id = 'thum_" + thumb + "_mini' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "_mini' width = '250' height = '250'></canvas>" + "<br />" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
                                                             "</div>" + 
@@ -2111,7 +2113,7 @@
                                                         "<div class='bms_message_content'>" + 
                                                             "<div class='bms_message_text'>" + 
                                                                     data.name + ":" + "<br />" + 
-                                                                    "<canvas id = 'thum_" + thumb + "_review' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "_review' width = '250' height = '250'></canvas>" + "<br />" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
                                                             "</div>" + 
@@ -2126,7 +2128,7 @@
                                                             "<div class='bms_message_text'>" + 
                                                                     data.name + ":" + "<br />" + 
                                                                     "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
-                                                                    "<canvas id = 'thum_" + thumb + "_mini' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "_mini' width = '250' height = '250'></canvas>" + "<br />" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
                                                             "</div>" + 
@@ -2139,7 +2141,7 @@
                                                         "<div class='bms_message_content'>" + 
                                                             "<div class='bms_message_text'>" + 
                                                                     data.name + ":" + "<br />" + 
-                                                                    "<canvas id = 'thum_" + thumb + "_review' width = '150' height = '150'></canvas>" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "_review' width = '250' height = '250'></canvas>" + "<br />" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
                                                             "</div>" + 
@@ -2170,16 +2172,16 @@
                     thumb_ctx.drawImage(thu, 0, 0, tw, th);
                     var thuAsp = tw/th;
                     if (thuAsp < 1) {
-                        var rat = tw * 150 / th;
+                        var rat = tw * 250 / th;
                         mini_canvas.width = rat;
-                        mini_ctx.drawImage(thu, 0, 0, rat, 150);
-                        mini_ctx_review.drawImage(thu, 0, 0, rat, 150);
+                        mini_ctx.drawImage(thu, 0, 0, rat, 250);
+                        mini_ctx_review.drawImage(thu, 0, 0, rat, 250);
                         
                     }else {
-                        var rat = th * 150 / tw;
+                        var rat = th * 250 / tw;
                         mini_canvas.height = rat;
-                        mini_ctx.drawImage(thu, 0, 0, 150, rat);
-                        mini_ctx_review.drawImage(thu, 0, 0, 150, rat);
+                        mini_ctx.drawImage(thu, 0, 0, 250, rat);
+                        mini_ctx_review.drawImage(thu, 0, 0, 250, rat);
                     }
                 }
 
@@ -2208,6 +2210,8 @@
                 // ファイル読み込みを実行
                 reader.readAsDataURL(fileData);
                 menuSwitch();
+
+                e.value = "";
             }
 
             // ファイルが指定された時にloadLocalImage()を実行

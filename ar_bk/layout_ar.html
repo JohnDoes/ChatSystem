@@ -1212,6 +1212,7 @@
                 // ファイル読み込みを実行
                 reader.readAsDataURL(fileData);
                 openMenu(mode);
+                e.value = "";
             }
             // ファイルが指定された時にloadLocalImage()を実行
             // input_canvas_file.addEventListener('change', loadLocalImage, false);
@@ -1249,8 +1250,8 @@
                 revContext.lineCap = "round";
                 revContext.strokeStyle = data[4];
                 revContext.lineWidth = data[5];
-                revContext.moveTo(data[0]*cvw, data[1]*cvh);
-                revContext.lineTo(data[2]*cvw, data[3]*cvh);
+                revContext.moveTo(data[0]*rcvw, data[1]*rcvh);
+                revContext.lineTo(data[2]*rcvw, data[3]*rcvh);
                 revContext.stroke();
                 
             });
@@ -1379,7 +1380,7 @@
             */
             //canvasMap.minFilter = THREE.LinearFilter;
             var mesh1 = new THREE.Mesh(geo, mat);
-            mesh1.rotation.x = Math.PI/2 * -1;
+            // mesh1.rotation.x = Math.PI/2 * -1;
 
             //var mesh1 = new THREE.Mesh(geo, mat);                 // メッシュを生成
             //mesh1.name = "cube";
@@ -2425,6 +2426,7 @@
                 // ファイル読み込みを実行
                 reader.readAsDataURL(fileData);
                 menuSwitch();
+                e.value = "";
             }
 
             // ファイルが指定された時にloadLocalImage()を実行
