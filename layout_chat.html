@@ -696,7 +696,7 @@
             // ar
             // tex_canvasの初期設定
             var sx, sy, ex, ey, rsx, rsy, rex, rey;
-            var color, bold, canvas, context, touching, mouse, cw, ch, cvw, cvh, position, revCanvas, revContext, rcw, rch, canvas_back, context_bk, bcw, bch;
+            var color, bold, canvas, context, touching, mouse, cw, ch, cvw, cvh, position, revCanvas, revContext, rcw, rch, canvas_bk, context_bk, bcw, bch;
             color = "rgb(0,0,0)";
             bold = 5;
             canvas = document.getElementById("myCanvas");
@@ -1058,10 +1058,10 @@
             //////////////
             // open canvas_area
             function openCanvasMode() {
-                revCanvas = document.getElementById("review_canvas");
-                revContext = revCanvas.getContext('2d');
-                var base64 = revCanvas.toDataURL("image/png");
-                revContext.imageSmoothingQuality = "high";
+                canvas_bk = document.getElementById("back");
+                context_bk = canvas_bk.getContext('2d');
+                var base64 = canvas_bk.toDataURL("image/png");
+                context_bk.imageSmoothingQuality = "high";
                 if($("#canvas_container").height()*3/2 > $("#canvas_container").width()) {
                     $("#myCanvas").attr({width:$("#canvas_container").width()});
                     $("#myCanvas").attr({height:$("#canvas_container").width()*2/3});
@@ -1209,10 +1209,12 @@
                     if (imgAsp < canAsp) {
                         // iw = cvh * imgAsp;
                         context.drawImage(img, 0, 0, cvh * imgAsp, cvh);
+                        context_bk.drawImage(img, 0, 0, bch * imgAsp, bch);
                         revContext.drawImage(img, 0, 0, imgAsp*rch, rch);
                     }else {
                         ih = cvw / imgAsp;
                         context.drawImage(img, 0, 0, cvw, cvw / imgAsp);
+                        context_bk.drawImage(img, 0, 0, bcw, bcw / imgAsp);
                         revContext.drawImage(img, 0, 0, rcw, rcw/imgAsp);
                     }
                 }
@@ -1274,6 +1276,19 @@
                 context.moveTo(data[0]*cvw, data[1]*cvh);
                 context.lineTo(data[2]*cvw, data[3]*cvh);
                 context.stroke();
+
+                // back canvas
+                canvas_bk = document.getElementById("back");
+                context_bk = canvas_bk.getContext("2d");
+                context_bk.beginPath();
+                context_bk.lineCap = "round";
+                context_bk.strokeStyle = data[4];
+                context_bk.lineWidth = data[5];
+                context_bk.moveTo(data[0]*768, data[1]*512);
+                context_bk.lineTo(data[2]*768, data[3]*512);
+                context_bk.stroke();
+
+
                 //review_canvas
                 var rcvw = document.getElementById("review_canvas").width;
                 var rcvh = document.getElementById("review_canvas").height;
