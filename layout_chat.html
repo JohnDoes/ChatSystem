@@ -16,9 +16,9 @@
             // socket
             var socket, path, roomName;
             socket = io.connect();
-            // path = location.pathname;
-            // roomName = path.slice(1);
-            roomName = "arTest";
+            path = location.pathname;
+            roomName = path.slice(1);
+            // roomName = "arTest";
             console.log(roomName);
             socket.emit("join", {value: roomName});
         </script>
