@@ -2245,21 +2245,20 @@
                     thumb_canvas.width = tw;
                     thumb_canvas.height = th;
                     thumb_ctx.drawImage(thu, 0, 0, tw, th);
-                    /*
                     var thuAsp = tw/th;
                     if (thuAsp < 1) {
                         var rat = tw * 250 / th;
-                        mini_canvas.width = rat;
-                        mini_ctx.drawImage(thu, 0, 0, rat, 250);
-                        mini_ctx_review.drawImage(thu, 0, 0, rat, 250);
-                        
+                        // mini_canvas.width = rat;
+                        // mini_ctx.drawImage(thu, 0, 0, rat, 250);
+                        // mini_ctx_review.drawImage(thu, 0, 0, rat, 250);
+                        document.getElementById("thum_" + thumb + "_mini").style.width = rat;
                     }else {
                         var rat = th * 250 / tw;
-                        mini_canvas.height = rat;
-                        mini_ctx.drawImage(thu, 0, 0, 250, rat);
-                        mini_ctx_review.drawImage(thu, 0, 0, 250, rat);
+                        // mini_canvas.height = rat;
+                        // mini_ctx.drawImage(thu, 0, 0, 250, rat);
+                        // mini_ctx_review.drawImage(thu, 0, 0, 250, rat);
+                        document.getElementById("thum_" + thumb + "_mini").style.height = rat;
                     }
-                    */
                 }
 
                 thumb ++;
