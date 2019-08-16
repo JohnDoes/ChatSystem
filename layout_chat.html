@@ -604,6 +604,8 @@
                     </ul>
                 </div>
             </div>
+
+
         </div>
 
         
@@ -2168,9 +2170,10 @@
                                                         "<div class='bms_message_content'>" + 
                                                             "<div class='bms_message_text'>" + 
                                                                     data.name + ":" + "<br />" + 
-                                                                    "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
-                                                                    // "<canvas id = 'thum_" + thumb + "_mini' width = '250' height = '250'></canvas>" + "<br />" + 
-                                                                    "<img src = " + data.value + " id = 'thum_" + thumb + "_mini' width = '250' height = '250'></canvas>" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "' style = 'display: none;' onClick = 'maxImg(" + thumb + ")'></canvas>" + "<br />" + 
+                                                                    // "<img src = " + data.value + " id = 'thum_" + thumb + "_mini' width = '300' style = 'display: block;' onClick = 'maxImg(" + thumb + ")'></img>" + 
+                                                                    "<img src = " + data.value + " id = 'thum_" + thumb + "_mini' width = '300' style = 'display: block;' onClick = 'maxImg(this)'></img>" + 
+                                                                    "<br />" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
                                                             "</div>" + 
@@ -2183,8 +2186,9 @@
                                                         "<div class='bms_message_content'>" + 
                                                             "<div class='bms_message_text'>" + 
                                                                     data.name + ":" + "<br />" + 
-                                                                    // "<canvas id = 'thum_" + thumb + "_review' width = '250' height = '250'></canvas>" + "<br />" + 
-                                                                    "<img src = " + data.value + " id = 'thum_" + thumb + "_review' width = '250' height = '250'></canvas>" + "<br />" + 
+                                                                    // "<canvas id = 'thum_" + thumb + "_review' width = '250' height = '250'></canvas>" + 
+                                                                    "<img src = " + data.value + " id = 'thum_" + thumb + "_review' style = 'display: block;' width = '150'></img>" + 
+                                                                    "<br />" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
                                                             "</div>" + 
@@ -2198,9 +2202,10 @@
                                                         "<div class='bms_message_content'>" + 
                                                             "<div class='bms_message_text'>" + 
                                                                     data.name + ":" + "<br />" + 
-                                                                    "<canvas id = 'thum_" + thumb + "' style = 'display: none;'></canvas>" + "<br />" + 
-                                                                    // "<canvas id = 'thum_" + thumb + "_mini' width = '250' height = '250'></canvas>" + "<br />" + 
-                                                                    "<img src = " + data.value + " id = 'thum_" + thumb + "_mini' width = '250' height = '250'></canvas>" + "<br />" + 
+                                                                    "<canvas id = 'thum_" + thumb + "' style = 'display: none;' onClick = 'maxImg(" + thumb + ")'></canvas>" + "<br />" + 
+                                                                    // "<img src = " + data.value + " id = 'thum_" + thumb + "_mini' width = '300' style = 'display: block;' onClick = 'maxImg(" + thumb + ")'></img>" + 
+                                                                    "<img src = " + data.value + " id = 'thum_" + thumb + "_mini' width = '300' style = 'display: block;' onClick = 'maxImg(this)'></img>" + 
+                                                                    "<br />" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
                                                             "</div>" + 
@@ -2213,8 +2218,9 @@
                                                         "<div class='bms_message_content'>" + 
                                                             "<div class='bms_message_text'>" + 
                                                                     data.name + ":" + "<br />" + 
-                                                                    // "<canvas id = 'thum_" + thumb + "_review' width = '250' height = '250'></canvas>" + "<br />" + 
-                                                                    "<img src = " + data.value + " id = 'thum_" + thumb + "_review' width = '250' height = '250'></canvas>" + "<br />" + 
+                                                                    // "<canvas id = 'thum_" + thumb + "_review' width = '250' height = '250'></canvas>" + 
+                                                                    "<img src = " + data.value + " id = 'thum_" + thumb + "_review' style = 'display: block;' width = '150'></img>" + 
+                                                                    "<br />" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'download' onClick = 'downloadThum(this)'></input>" + 
                                                                     "<input type = 'button' class = '" + thumb + "' value = 'toBoard' onClick = 'toBoard(this)'></input>" + 
                                                             "</div>" + 
@@ -2228,15 +2234,15 @@
 
                 var thumb_canvas = document.getElementById("thum_" + thumb);
                 var thumb_ctx = thumb_canvas.getContext('2d');
-                thumb_ctx.imageSmoothingQuality = "high";            
-                /* 
+                thumb_ctx.imageSmoothingQuality = "high";   
+                /*         
                 var mini_canvas = document.getElementById("thum_" + thumb + "_mini");
                 var mini_ctx = mini_canvas.getContext('2d');
                 mini_ctx.imageSmoothingQuality = "high";            
                 var mini_canvas_review = document.getElementById("thum_" + thumb + "_review");
                 var mini_ctx_review = mini_canvas_review.getContext('2d');
-                mini_ctx.imageSmoothingQuality = "high";            
-                */
+                mini_ctx.imageSmoothingQuality = "high";
+                */            
                 var thu = new Image();
                 thu.src = data.value;
                 thu.onload = function() {
@@ -2245,20 +2251,22 @@
                     thumb_canvas.width = tw;
                     thumb_canvas.height = th;
                     thumb_ctx.drawImage(thu, 0, 0, tw, th);
+                    /*
                     var thuAsp = tw/th;
                     if (thuAsp < 1) {
                         var rat = tw * 250 / th;
-                        // mini_canvas.width = rat;
-                        // mini_ctx.drawImage(thu, 0, 0, rat, 250);
-                        // mini_ctx_review.drawImage(thu, 0, 0, rat, 250);
-                        document.getElementById("thum_" + thumb + "_mini").style.width = rat;
+                        mini_canvas.width = rat;
+                        mini_ctx.drawImage(thu, 0, 0, rat, 250);
+                        mini_ctx_review.drawImage(thu, 0, 0, rat, 250);
+                        document.getElementById("thum_" + thumb + "_mini").width = rat;
                     }else {
                         var rat = th * 250 / tw;
-                        // mini_canvas.height = rat;
-                        // mini_ctx.drawImage(thu, 0, 0, 250, rat);
-                        // mini_ctx_review.drawImage(thu, 0, 0, 250, rat);
-                        document.getElementById("thum_" + thumb + "_mini").style.height = rat;
+                        mini_canvas.height = rat;
+                        mini_ctx.drawImage(thu, 0, 0, 250, rat);
+                        mini_ctx_review.drawImage(thu, 0, 0, 250, rat);
+                        document.getElementById("thum_" + thumb + "_mini").height = rat;
                     }
+                    */
                 }
 
                 thumb ++;
@@ -2326,6 +2334,25 @@
                 }
                 bkData.src = base64;
             }
+            function maxImg(e) {
+                
+                if (this.width = 300) {
+                    this.width = window.innerWidth * 0.8;
+                }else {
+                    this.width = 300;
+                }
+                /*
+                var check = document.getElementById("thum_" + e + "_mini").style.display;
+                var check2 = document.getElementById("thum_" + e ).style.display;
+               if(check == "none") {
+                    document.getElementById("thum_" + e + "_mini").style.display = "block";
+                    document.getElementById("thum_" + e ).style.display = "none";
+               }else {
+                    document.getElementById("thum_" + e + "_mini").style.display = "none";
+                    document.getElementById("thum_" + e ).style.display = "block";
+               }  
+               */              
+            }
 
 
 
@@ -2355,6 +2382,8 @@
                 }
             }
             // document.getElementById("myNameForm").onchange = changeName();
+
+
 
             ///////////////////////////////////
             //  script list
